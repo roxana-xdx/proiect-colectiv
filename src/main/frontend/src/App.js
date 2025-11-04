@@ -10,7 +10,7 @@ export default function Grade2Table() {
       padding: '24px',
     }}>
       <h2 style={{margin: 0, fontSize: '24px', fontWeight: 600, color: '#144A3B'}}>
-        Grade 2 Students
+        Grade TESTING Students
       </h2>
 
  <div style={{
