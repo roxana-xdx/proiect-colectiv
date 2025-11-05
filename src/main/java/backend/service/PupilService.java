@@ -68,8 +68,8 @@ public class PupilService implements I_PupilService {
         return pupilRepository.findByEmail(email);
     }
 
-    @Override
-    public List<Pupil> findPupilByClass_id(Long id) {
-        return pupilRepository.findByClass_id(id);
-    }
+//    @Override
+//    public List<Pupil> findPupilByClass_id(Long id) {
+//        return pupilRepository.findByClass_id(id);
+//    }
 }
