@@ -13,11 +13,17 @@ public class Pupil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NonNull
-    @Column(name = "class_id", nullable = false)
-    private Long class_id;
+//    @NonNull
+//    @Column(name = "class_id", nullable = false)
+//    private Long class_id;
+//
+//    @NonNull
+//    @Column(name = "parent_id", nullable = false)
+//    private Long parent_id;
 
-    @NonNull
+    @Column(name = "class_id", nullable = false)
+    private Long class_id;  // Just a Long for now
+
     @Column(name = "parent_id", nullable = false)
     private Long parent_id;
 
