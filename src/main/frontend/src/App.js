@@ -1,117 +1,119 @@
-export default function Grade2Table() {
+import React, { useState, useRef, useEffect } from "react";
+
+export default function App() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // cand dropdown-u ii deschis -> il inchide daca dai click altundeva
+  useEffect(() => {
+
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside); 
+  }, []);
+
+  const grades = [
+    { label: "Grade 1", disabled: false },
+    { label: "Grade 2", disabled: false },
+    { label: "Grade 3", disabled: false },
+    { label: "Grade 4", disabled: false },
+  ];
+
   return (
-    <div style={{
-      fontFamily: 'Inter, sans-serif',
-      width: '100%',
-      maxWidth: '1900px',
-      margin: '40px auto',
-      background: '#fff',
-      borderRadius: '12px',
-      padding: '24px',
-    }}>
-      <h2 style={{margin: 0, fontSize: '24px', fontWeight: 600, color: '#144A3B'}}>
-        Grade TESTING Students
-      </h2>
+    <div className="bg-[#EAF6F0] rounded-xl p-6 min-h-screen relative">
+      <header className="flex items-center justify-between mb-6 relative">
+        {/*AS*/}
+        <image
+          className="bg-[#d9fff5] px-4 py-3 rounded-lg  text-[#2f7f6b] text-3xl font-normal"
+          aria-label="AS label"> AS 
+        </image>
 
- <div style={{
-  marginTop: '8px',
-  background: '#EAF6F0',
-  display: 'flex',              
-  alignItems: 'center',         
-  padding: '8px 12px',         
-  borderRadius: '8px',
-  fontSize: '15px',
-  color: '#1B6A56',
-  width: 'fit-content',        
-  maxWidth: '100%',             
-  wordBreak: 'break-word',      
-}}>
-  Teacher: Mr. Robert Wilson
-</div>
+        {/* add news (nu face nimica xd) */}
+        <div className="flex items-center gap-4">
+          <button
+            className="bg-[#B8A7C1] rounded-md px-4 py-2 text-white font-semibold text-sm"
+            aria-label="Add News"> Add News
+          </button>
 
-      <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end', marginRight: '1820px' }}>
-        <Frame1Button />
-      </div>
+          {/* button dropdown for grades */}
+          <div className="relative inline-block text-left" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className="bg-[#3B7D78] text-white font-semibold rounded-md px-5 py-2 text-sm"
+              aria-label="dropdown grade">
+                Choose grade ▼
+            </button>
 
-
-<table style={{
-  width: '100%',
-  borderCollapse: 'collapse',
-  marginTop: '24px',
-  fontSize: '15px',
-  tableLayout: 'fixed'
-}}>
-  <thead>
-    <tr style={{textAlign: 'left', color: '#1B6A56', borderBottom: '1px solid #F1F7F4'}}>
-      <th style={{padding: '10px', width: '5%'}}>#</th>
-      <th style={{padding: '10px', width: '10%'}}>ID</th>
-      <th style={{padding: '10px', width: '50%'}}>Student Name</th>
-      <th style={{padding: '10px', width: '12%'}}>Attended School</th>
-      <th style={{padding: '10px', width: '12%'}}>Had Lunch</th>
-      <th style={{padding: '10px', width: '8%'}}>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style={{borderBottom: '1px solid #F1F7F4'}}>
-      <td style={{padding: '10px'}}>1</td>
-      <td style={{padding: '10px'}}>#9</td>
-      <td style={{padding: '10px'}}>Alexandra Monteverde-Howard</td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}>🗑</td>
-    </tr>
-     <tr style={{borderBottom: '1px solid #F1F7F4'}}>
-      <td style={{padding: '10px'}}>1</td>
-      <td style={{padding: '10px'}}>#9</td>
-      <td style={{padding: '10px'}}>Alexandra Monteverde-Howard</td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}>🗑</td>
-    </tr>
-     <tr style={{borderBottom: '1px solid #F1F7F4'}}>
-      <td style={{padding: '10px'}}>1</td>
-      <td style={{padding: '10px'}}>#9</td>
-      <td style={{padding: '10px'}}>Alexandra Monteverde-Howard</td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}><input type="checkbox" /></td>
-      <td style={{padding: '10px'}}>🗑</td>
-    </tr>
-  </tbody>
-</table>
-
-    </div>
-  );
-}
-
-
-function Frame1Button({ onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="bg-[#d9fff5] box-border content-stretch flex flex-col items-start px-[16px] py-[18px] relative rounded-[12px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] shrink-0 size-[80px] hover:bg-[#c0f5e6] active:scale-95 transition-all"
-    >
-      <p className="[text-shadow:rgba(0,0,0,0.25)_0px_4px_4px] font-['Inter:Regular',sans-serif] font-normal leading-[normal] not-italic text-[#2f7f6b] text-[36px] whitespace-pre">
-        AS
-      </p>
-    </button>
-  );
-}
-
-function Frame2Desktop() {
-  return (
-    <div className="bg-white content-stretch flex items-center relative size-full">
-      <Frame1Button />
-    </div>
-  );
-}
-
-function Frame3Desktop() {
-  return (
-    <div className="bg-[#c7b7d0] relative rounded-[10px] size-full">
-      <div className="flex flex-row items-center justify-center size-full">
-        <div className="box-border content-stretch flex items-center justify-center p-[11px] relative size-full">
-          <p className="font-['Inter:Semi_Bold',sans-serif] font-semibold leading-[normal] not-italic relative shrink-0 text-[14px] text-[rgba(0,0,0,0.5)] text-nowrap tracking-[2.52px] whitespace-pre">Add News</p>
+            {isDropdownOpen && (
+              <ul className="absolute mt-1 bg-[#d6e9e7] rounded-md w-36 text-center font-semibold text-[#153C3B]">
+                {grades.map(({ label, disabled }, idx) => (
+                  <li
+                    key={idx}
+                    className={`cursor-pointer py-2 px-3 border-b border-[#b0cbc9] last:border-none ${
+                      disabled
+                        ? "text-[#7d9d9b] cursor-not-allowed"
+                        : "hover:bg-[#a9ccc7]"
+                    }`}
+                    onClick={() => {
+                      if (!disabled) {
+                        alert(`${label}`.toLowerCase());
+                        setIsDropdownOpen(false);
+                      }
+                    }}
+                  >
+                    {label}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
+      </header>
+
+      <div className="bg-white rounded-xl p-6 shadow-md">
+        <h2 className="m-0 text-[24px] font-semibold text-[#144A3B] mb-2">
+          Grade 2 Students
+        </h2>
+
+        <div className="inline-block bg-[#EAF6F0] px-2 py-1 rounded-md text-[#1B6A56] text-[15px] font-medium mb-6">
+          Teacher: Mr. Robert Wilson
+        </div>
+
+        <table className="w-full text-[15px] table-fixed">
+          <thead>
+            <tr className="text-left text-[#1B6A56] border-[#F1F7F4] font-semibold">
+              <th className="p-3 w-[5%]">#</th>
+              <th className="p-3 w-[10%]">ID</th>
+              <th className="p-3 w-[50%]">Student Name</th>
+              <th className="p-3 w-[10%]">Attended School</th>
+              <th className="p-3 w-[8%]">Had Lunch</th>
+              <th className="p-3 w-[6%]">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+              <tr key={i} className="border-b border-[#F1F7F4]">
+                <td className="p-3">{i}</td>
+                <td className="p-3">{11-i}</td>
+                <td className="p-3">Alexandra Monteverde-Howard</td>
+                <td className="p-3 text-center">
+                  <input type="checkbox" />
+                </td>
+                <td className="p-3 text-center">
+                  <input type="checkbox" />
+                </td>
+                <td className="p-3 text-center cursor-pointer" title="Delete">
+                  🗑
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
