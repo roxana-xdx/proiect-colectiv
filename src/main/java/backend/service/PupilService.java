@@ -33,9 +33,9 @@ public class PupilService implements I_PupilService {
     }
 
     @Override
-    public Pupil createPupile(Pupil pupil) {
-        if (pupilRepository.findById(pupil.getId()).isPresent()) {
-            throw new RuntimeException("Pupil already exists");
+    public Pupil createPupil(Pupil pupil) {
+        if (pupilRepository.findByEmail(pupil.getEmail()).isPresent()) {
+            throw new RuntimeException("Pupil already exists" + pupil.getEmail());
         }
         return pupilRepository.save(pupil);
     }
