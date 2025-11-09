@@ -10,7 +10,7 @@ public interface I_PupilService {
 
     public Pupil getPupilById(Long id);
 
-    public Pupil createPupile(Pupil pupil);
+    public Pupil createPupil(Pupil pupil);
 
     public Pupil updatePupil(Long id, Pupil updated);
 
