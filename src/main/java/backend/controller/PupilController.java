@@ -1,6 +1,7 @@
 package backend.controller;
 
 
+import backend.dto.PupilDTO;
 import backend.entity.Pupil;
 import backend.service.I_PupilService;
 import backend.service.PupilService;
@@ -20,9 +21,9 @@ public class PupilController {
     private I_PupilService pupilService;
 
     @GetMapping
-    public ResponseEntity<List<Pupil>> getAllPupils() {
+    public ResponseEntity<List<PupilDTO>> getAllPupils() {
         try {
-            List<Pupil> pupils = pupilService.getAllPupils();
+            List<PupilDTO> pupils = pupilService.getAllPupils();
             return ResponseEntity.ok(pupils);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -31,9 +32,9 @@ public class PupilController {
 
     //doesn't work: gives error 404 Not Found all the time
     @GetMapping("/{id}")
-    public ResponseEntity<Pupil> getPupilById(Long id) {
+    public ResponseEntity<PupilDTO> getPupilById(Long id) {
         try {
-            Pupil pupil = pupilService.getPupilById(id);
+            PupilDTO pupil = pupilService.getPupilById(id);
             return ResponseEntity.ok(pupil);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -41,9 +42,9 @@ public class PupilController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createPupil(@RequestBody Pupil pupil) {
+    public ResponseEntity<?> createPupil(@RequestBody PupilDTO pupil) {
         try {
-            Pupil pupilCreated = pupilService.createPupil(pupil);
+            PupilDTO pupilCreated = pupilService.createPupil(pupil);
             return ResponseEntity.status(HttpStatus.CREATED).body(pupilCreated);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -52,10 +53,11 @@ public class PupilController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody Pupil pupil) {
+    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody PupilDTO pupil) {
         try {
-            Pupil pupilUpdated = pupilService.updatePupil(id, pupil);
-            return ResponseEntity.ok(pupilUpdated);
+            pupil.setId(id);
+            pupilService.updatePupil(pupil);
+            return ResponseEntity.ok(pupil);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
