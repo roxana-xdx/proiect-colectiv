@@ -1,6 +1,6 @@
 package backend.service;
 
-import backend.entities.Pupil;
+import backend.entity.Pupil;
 
 import java.util.List;
 import java.util.Optional;
