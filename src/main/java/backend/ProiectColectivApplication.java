@@ -1,18 +1,16 @@
 package backend;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.*;
-
+@RestController
 @SpringBootApplication
 public class ProiectColectivApplication {
-    public static void main(String[] args) throws SQLException {
-        Connection connection = DriverManager.getConnection(
-                "jdbc:mysql://127.0.0.1:3306/login_schema", "echipanr1", "secretdiscret");
-        Statement statement = connection.createStatement();
-        ResultSet resultSet = statement.executeQuery("select * from parent");
-        while (resultSet.next()) {
-            System.out.println(resultSet.getString(1));
-        }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProiectColectivApplication.class, args);
     }
+
 }
