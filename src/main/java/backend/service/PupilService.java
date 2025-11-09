@@ -1,6 +1,6 @@
 package backend.service;
 
-import backend.entities.Pupil;
+import backend.entity.Pupil;
 import backend.repository.I_PupilRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,10 +1,8 @@
-package backend.entities;
+package backend.entity;
 
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 
