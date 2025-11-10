@@ -77,6 +77,11 @@
             <artifactId>proiect-colectiv</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>echipanr1</groupId>
+            <artifactId>proiect-colectiv</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
 
         <!-- Tests -->
         <dependency>
