@@ -1,0 +1,38 @@
+package beckend.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+
+@Entity
+@Table(name = "admins")
+public class Admin {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Email(message = "Email invalid")
+    @NotNull(message = "Emailul nu poate fi null")
+    @Column(unique = true, nullable = false, length=255)
+    private String email;
+
+    public Admin(){}
+    public Admin(String email) {
+        this.email = email;
+    }
+
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+}
