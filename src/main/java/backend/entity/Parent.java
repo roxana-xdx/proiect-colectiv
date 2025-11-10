@@ -12,23 +12,23 @@ public class Parent implements Serializable {
 
     @Id
     @Column(name = "id", nullable = false)
-    private int id;
+    private Long id;
 
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
     public Parent() { }
 
-    public Parent(int id, String email) {
+    public Parent(Long id, String email) {
         this.id = id;
         this.email = email;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -44,7 +44,7 @@ public class Parent implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Parent parent = (Parent) o;
-        return id == parent.id && Objects.equals(email, parent.email);
+        return id.equals(parent.id) && Objects.equals(email, parent.email);
     }
 
     @Override
