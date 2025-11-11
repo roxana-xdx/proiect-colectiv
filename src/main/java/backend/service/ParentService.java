@@ -13,49 +13,62 @@ import java.util.regex.Pattern;
 @Service
 @Validated
 public class ParentService implements I_ParentService {
-    @Autowired
-    private I_ParentRepository parentRepository;
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
-    public ParentService(I_ParentRepository parentRepository) {
-        this.parentRepository = parentRepository;
+    private I_ParentRepository parentRepository;
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    private void validateParent(Parent parent) {
+        if (parent == null) throw new IllegalArgumentException("Parent cannot be null");
+        if (parent.getEmail() == null || parent.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
+        }
+        if (!EMAIL_PATTERN.matcher(parent.getEmail()).matches()) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        if (parent.getId() == null) {
+            throw new IllegalArgumentException("Parent id cannot be null");
+        }
     }
 
     @Override
-    public List<Parent> getAllPupils() {
+    public List<Parent> getAllParents() {
         return parentRepository.findAll();
     }
 
     @Override
-    public ParentDTO getParentById(Long id) {
-        return parentRepository.findById(id);
+    public Parent getParentByEmail(String email) {
+        return parentRepository.findByEmail(email);
     }
 
     @Override
-    public ParentDTO createParent(ParentDTO parentDTO) {
-        return null;
+    public Parent createParent(Parent parent) {
+        Parent existing =  parentRepository.findByEmail(parent.getEmail());
+        if (existing!=null) {
+            throw new RuntimeException("Pupil already exists" + parent.getEmail());
+        }
+        Parent savedParent = parentRepository.save(parent);
+        validateParent(savedParent);
+        return parentRepository.save(savedParent);
     }
 
     @Override
-    public void updateParent(ParentDTO parentDTO) {
-
-    }
-
-    @Override
-    public void deleteParent(Long id) {
-
+    public Parent updateParent(String email, Parent parent) {
+        Parent existing = parentRepository.findByEmail(email);
+        if (existing == null) {
+            throw new IllegalStateException("Parent with email " + email + "not found.");
+        }
+        if (parent.getId() != null) {
+            existing.setId(parent.getId());
+        }
+        validateParent(existing);
+        return parentRepository.save(existing);
     }
 
     @Override
     public void deleteParent(String email) {
         if(!parentRepository.existsByEmail(email)){
-            throw new IllegalStateException("Parent with email " + email + " not found");
+            throw new IllegalStateException("Parent with email" + email + " not found.");
         }
         parentRepository.deleteById(email);
-    }
-
-    @Override
-    public ParentDTO findParentByEmail(String email) {
-        return parentRepository.findByEmail(email);
     }
 }

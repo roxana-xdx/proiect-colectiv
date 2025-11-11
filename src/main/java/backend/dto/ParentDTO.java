@@ -1,11 +1,10 @@
 package backend.dto;
 
 
-import org.antlr.v4.runtime.misc.NotNull;
+import backend.entity.Parent;
 
 public class ParentDTO {
     private Long id;
-    @NotNull
     private String email;
 
     public ParentDTO(Long id, String email){
@@ -13,7 +12,9 @@ public class ParentDTO {
         this.email = email;
     }
 
-    public ParentDTO() {}
+    public static ParentDTO fromEntity(Parent p) {
+        return new ParentDTO(p.getId(), p.getEmail());
+    }
 
     public Long getId() {
         return id;
