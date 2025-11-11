@@ -1,19 +1,18 @@
 package backend.service;
 
-import backend.dto.PupilDTO;
 import backend.entity.Pupil;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface I_PupilService {
-    public List<PupilDTO> getAllPupils();
+    public List<Pupil> getAllPupils();
 
-    public PupilDTO getPupilById(Long id);
+    public Pupil getPupilById(Long id);
 
-    public PupilDTO createPupil(PupilDTO pupildto);
+    public Pupil createPupil(Pupil pupil);
 
-    public void updatePupil(PupilDTO pupildto);
+    public void updatePupil(Pupil pupil);
 
     public void deletePupil(Long id);
 

@@ -3,11 +3,11 @@ package backend.controller;
 
 import backend.dto.PupilDTO;
 import backend.entity.Pupil;
+import backend.entity.User;
 import backend.service.I_PupilService;
-import backend.service.PupilService;
+import backend.service.I_UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,32 +20,44 @@ public class PupilController {
     @Autowired
     private I_PupilService pupilService;
 
+    @Autowired
+    private I_UserService userService;
+
     @GetMapping
     public ResponseEntity<List<PupilDTO>> getAllPupils() {
         try {
-            List<PupilDTO> pupils = pupilService.getAllPupils();
-            return ResponseEntity.ok(pupils);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            List<PupilDTO> dtos = pupilService.getAllPupils().stream()
+                    .map(PupilDTO::toDTO)
+                    .toList();
+            return ResponseEntity.ok(dtos);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
     //doesn't work: gives error 404 Not Found all the time
     @GetMapping("/{id}")
-    public ResponseEntity<PupilDTO> getPupilById(Long id) {
-        try {
-            PupilDTO pupil = pupilService.getPupilById(id);
-            return ResponseEntity.ok(pupil);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<PupilDTO> getPupilById(@PathVariable Long id) {
+       try {
+           Pupil pupil = pupilService.getPupilById(id);
+           PupilDTO dto = PupilDTO.toDTO(pupil);
+           return ResponseEntity.ok(dto);
+       } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+       }
     }
 
     @PostMapping
-    public ResponseEntity<?> createPupil(@RequestBody PupilDTO pupil) {
+    public ResponseEntity<?> createPupil(@RequestBody PupilDTO pupildto) {
         try {
-            PupilDTO pupilCreated = pupilService.createPupil(pupil);
-            return ResponseEntity.status(HttpStatus.CREATED).body(pupilCreated);
+            User user = userService.getUserByEmail(pupildto.getEmail())
+                    .orElseThrow(() -> new RuntimeException("User not found for email: " + pupildto.getEmail()));
+            Pupil pupil = new Pupil();
+            pupil.setClass_id(pupildto.getClass_id());
+            pupil.setParent_id(pupildto.getParent_id());
+            pupil.setUser(user);
+            pupilService.createPupil(pupil);
+            return ResponseEntity.status(HttpStatus.CREATED).body(pupil);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating pupil: " + e.getMessage());
@@ -53,9 +65,10 @@ public class PupilController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody PupilDTO pupil) {
+    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody PupilDTO pupildto) {
         try {
-            pupil.setId(id);
+            pupildto.setId(id);
+            Pupil pupil = PupilDTO.toEntity(pupildto);
             pupilService.updatePupil(pupil);
             return ResponseEntity.ok(pupil);
         } catch (RuntimeException e) {
@@ -82,7 +95,7 @@ public class PupilController {
     @GetMapping("/email/{email}")
     public ResponseEntity<?> getPupilByEmail(@PathVariable String email) {
         try{
-            Optional<Pupil> pupil = pupilService.findPupilByEmail(email);
+            Optional<PupilDTO> pupil = pupilService.findPupilByEmail(email).stream().map(PupilDTO::toDTO).findFirst();
             return pupil.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

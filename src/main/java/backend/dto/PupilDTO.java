@@ -1,5 +1,6 @@
 package backend.dto;
 
+import backend.entity.Pupil;
 import jakarta.validation.constraints.NotNull;
 
 public class PupilDTO {
@@ -52,5 +53,12 @@ public class PupilDTO {
         this.email = email;
     }
 
+    public static PupilDTO toDTO(Pupil pupil) {
+        var user = pupil.getUser();
+        return new PupilDTO(pupil.getId(), pupil.getClass_id(), pupil.getParent_id(), user != null ? user.getEmail() : null);
+    }
 
+    public static Pupil toEntity(PupilDTO pupilDTO) {
+        return new Pupil(pupilDTO.getId(), pupilDTO.getClass_id(), pupilDTO.getParent_id(), pupilDTO.getEmail());
+    }
 }
