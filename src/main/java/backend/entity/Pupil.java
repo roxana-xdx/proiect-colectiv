@@ -13,22 +13,20 @@ public class Pupil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @NonNull
-//    @Column(name = "class_id", nullable = false)
-//    private Long class_id;
-//
-//    @NonNull
-//    @Column(name = "parent_id", nullable = false)
-//    private Long parent_id;
-
+    @NonNull
     @Column(name = "class_id", nullable = false)
-    private Long class_id;  // Just a Long for now
+    private Long class_id;
 
+    @NonNull
     @Column(name = "parent_id", nullable = false)
     private Long parent_id;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "email", referencedColumnName = "email", nullable = false, updatable = false, unique = true)
+    private User user;
+
     @NonNull
-    @Column(unique=true, nullable = false)
+    @Column(name = "email", insertable = false, updatable = false, nullable = false)
     private String email;
 
     ///TODO: reintrodu codul dupa ce ai si clasele Parent, Class, User si Pupil_Teacher_Feedback
@@ -39,10 +37,9 @@ public class Pupil {
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "parent_id", insertable = false, updatable = false)
 //    private Parent parent;
-//
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "email", referencedColumnName = "email", insertable = false, updatable = false)
-//    private User user;
+
+    //un singur mail pt user care e si copil
+
 //
 //    @OneToMany(mappedBy = "pupil", cascade = CascadeType.ALL)
 //    private List<Pupil_teacher_Feedback> feedbacks = new ArrayList<>();
@@ -55,6 +52,18 @@ public class Pupil {
         this.class_id = class_id;
         this.parent_id = parent_id;
         this.email = email;
+    }
+
+    public Pupil(User user){
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Long getId() {
@@ -88,38 +97,6 @@ public class Pupil {
     public void setEmail(String email) {
         this.email = email;
     }
-
-//    public Class getClassEntity() {
-//        return classEntity;
-//    }
-//
-//    public void setClassEntity(Class classEntity) {
-//        this.classEntity = classEntity;
-//    }
-
-//    public Parent getParent() {
-//        return parent;
-//    }
-//
-//    public void setParent(Parent parent) {
-//        this.parent = parent;
-//    }
-//
-//    public User getUser() {
-//        return user;
-//    }
-//
-//    public void setUser(User user) {
-//        this.user = user;
-//    }
-//
-//    public List<Pupil_Teacher_Feedback> getFeedback(){
-//        return feedbacks;
-//    }
-//
-//    public void setFeedbacks(List<PupilTeacherFeedback> feedbacks) {
-//        this.feedbacks = feedbacks;
-//    }
 
     @Override
     public boolean equals(Object o) {
