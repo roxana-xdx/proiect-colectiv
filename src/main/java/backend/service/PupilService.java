@@ -3,7 +3,6 @@ package backend.service;
 import backend.dto.PupilDTO;
 import backend.entity.Pupil;
 import backend.entity.validation.PupilValidator;
-import backend.mapper.PupilMapper;
 import backend.repository.I_PupilRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,36 +27,33 @@ public class PupilService implements I_PupilService {
     }
 
     @Override
-    public List<PupilDTO> getAllPupils() {
-        return PupilMapper.toDTOList(pupilRepository.findAll());
+    public List<Pupil> getAllPupils() {
+        return pupilRepository.findAll();
     }
 
     @Override
-    public PupilDTO getPupilById(Long id) {
-        Pupil pupil =  pupilRepository.findById(id)
+    public Pupil getPupilById(Long id) {
+        return pupilRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pupil not found with ID: " + id));
-        return PupilMapper.toDTO(pupil);
     }
 
     @Override
     @Transactional
-    public PupilDTO createPupil(PupilDTO pupildto) {
-        if (pupilRepository.findByEmail(pupildto.getEmail()).isPresent()) {
-            throw new RuntimeException("Pupil already exists" + pupildto.getEmail());
+    public Pupil createPupil(Pupil pupil) {
+        if (pupilRepository.findByEmail(pupil.getUser().getEmail()).isPresent()) {
+            throw new RuntimeException("Pupil already exists" + pupil.getEmail());
         }
-        Pupil pupil = PupilMapper.toEntity(pupildto);
         pupilValidator.validate(pupil);
         Pupil savedPupil = pupilRepository.save(pupil);
-        return PupilMapper.toDTO(savedPupil);
+        return savedPupil;
     }
 
     @Override
     @Transactional
-    public void updatePupil(PupilDTO pupilDTO) {
-        Pupil existingPupil =  pupilRepository.findById(pupilDTO.getId())
-                .orElseThrow(() -> new RuntimeException("Pupil not found with ID: " + pupilDTO.getEmail()));
+    public void updatePupil(Pupil pupil) {
+        Pupil existingPupil =  pupilRepository.findById(pupil.getId())
+                .orElseThrow(() -> new RuntimeException("Pupil not found with ID: " + pupil.getEmail()));
 
-        Pupil pupil = PupilMapper.toEntity(pupilDTO);
         pupilValidator.validate(pupil);
         pupil.setId(existingPupil.getId());
         pupilRepository.save(pupil);
