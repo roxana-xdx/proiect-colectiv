@@ -1,3 +1,5 @@
+DROP TABLE parent;
+
 CREATE TABLE parent
 (
     id BIGINT NOT NULL,
