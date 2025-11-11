@@ -1,9 +1,10 @@
-package backend.Service;
+package backend.service;
 
-import backend.Entity.User;
-import backend.Repository.I_UserRepository;
+import backend.entity.User;
+import backend.repository.I_UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,68 +16,53 @@ public class UserService implements I_UserService {
     @Autowired
     private I_UserRepository userRepository;
 
-    //am scris un pattern standard pentru adresa de email
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-
 
     @Override
     public Optional<User> login(String email, String password) {
         if (email == null || password == null) {
-            throw new RuntimeException("Email or password cannot be null");
+            throw new IllegalArgumentException("Email or password cannot be null");
         }
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) return Optional.empty();
 
-        Optional<User> userOpt = userRepository.findByEmailAndPassword(email, password);
-        if (userOpt.isEmpty()) {
-            throw new RuntimeException("Invalid email or password");
-        }
-
-        return userOpt;
+        User user = userOpt.get();
+        if (!password.equals(user.getPassword())) return Optional.empty();
+        return Optional.of(user);
     }
 
     @Override
+    @Transactional
     public User register(User user) {
         validateUser(user);
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new IllegalStateException("Email already registered");
         }
         return userRepository.save(user);
     }
 
     private void validateUser(User user) {
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new RuntimeException("Email cannot be null or empty");
+        if (user == null) throw new IllegalArgumentException("User cannot be null");
+        if (user.getEmail() == null || user.getEmail().isBlank()) {
+            throw new IllegalArgumentException("Email cannot be null or empty");
         }
-
-        // Format email
         if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
-            throw new RuntimeException("Invalid email format");
+            throw new IllegalArgumentException("Invalid email format");
         }
-
         if (user.getType() == null) {
-            throw new RuntimeException("User type must be specified");
+            throw new IllegalArgumentException("User type must be specified");
         }
-
         if (user.getPassword() == null || user.getPassword().length() < 8) {
-            throw new RuntimeException("Password must be at least 8 characters");
+            throw new IllegalArgumentException("Password must be at least 8 characters");
         }
-
-//        // Reguli speciale pe tip
-//        switch (user.getType()) {
-//            case TEACHER:
-//                break;
-//            case PUPIL:
-//                break;
-//            case ADMIN:
-//                break;
-//            case PARENT:
-//                break;
-//        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
     }
 
     @Override
     public Optional<User.Type> getUserType(String email) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        return userOpt.map(User::getType);
+        return userRepository.findByEmail(email).map(User::getType);
     }
 
     @Override
@@ -90,24 +76,28 @@ public class UserService implements I_UserService {
     }
 
     @Override
+    @Transactional
     public User updateUser(String email, User user) {
-        Optional<User> existingUserOpt = userRepository.findByEmail(email);
-        if (existingUserOpt.isPresent()) {
-            User existingUser = existingUserOpt.get();
-            existingUser.setName(user.getName());
-            existingUser.setPassword(user.getPassword());
-            existingUser.setType(user.getType());
-            validateUser(user);
-            return userRepository.save(existingUser);
-        } else {
-            throw new RuntimeException("User not found");
+        User existing = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found"));
+        if (user.getName() != null && !user.getName().isBlank()) {
+            existing.setName(user.getName());
         }
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            existing.setPassword(user.getPassword());
+        }
+        if (user.getType() != null) {
+            existing.setType(user.getType());
+        }
+        validateUser(existing);
+        return userRepository.save(existing);
     }
 
     @Override
+    @Transactional
     public void deleteUser(String email) {
         if (!userRepository.existsByEmail(email)) {
-            throw new RuntimeException("User with email " + email + " not found");
+            throw new IllegalStateException("User with email " + email + " not found");
         }
         userRepository.deleteById(email);
     }
