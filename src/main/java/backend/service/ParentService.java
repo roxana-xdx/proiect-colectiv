@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 @Validated
 public class ParentService implements I_ParentService {
 
+    @Autowired
     private I_ParentRepository parentRepository;
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");

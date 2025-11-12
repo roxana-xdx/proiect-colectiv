@@ -7,6 +7,8 @@ public class ParentDTO {
     private Long id;
     private String email;
 
+    public ParentDTO() {}
+
     public ParentDTO(Long id, String email){
         this.id = id;
         this.email = email;
