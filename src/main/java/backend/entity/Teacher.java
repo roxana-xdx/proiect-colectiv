@@ -1,23 +1,28 @@
-package backend.entities;
+package backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.util.Objects;
+
 
 @Entity
 @Table(name = "teacher")
-public class Teacher {
+public class Teacher implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "email", referencedColumnName = "email", nullable = false, unique = true)
+    private User user;
+
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", unique = true, insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
 
     //@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
@@ -30,6 +35,14 @@ public class Teacher {
         this.id = id;
         this.email = email;
     }
+
+    public Teacher(User user) {
+        this.user = user;
+    }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
 
     public Long getId() {
         return id;
@@ -55,4 +68,16 @@ public class Teacher {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Teacher)) return false;
+        Teacher teacher = (Teacher) o;
+        return Objects.equals(id, teacher.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
