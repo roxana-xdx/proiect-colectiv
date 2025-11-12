@@ -1,17 +1,16 @@
 package backend.dto.auth;
 
 import backend.entity.User;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 
 public class UpdateRequest {
-    // password optional
+    @Size(min = 8, max = 255)
     private String password;
 
-    @NotBlank
+    @Size(min = 1, max = 255)
     private String name;
 
-    @NotNull
     private User.Type type;
 
     public UpdateRequest() {}
