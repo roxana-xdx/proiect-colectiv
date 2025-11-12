@@ -3,21 +3,21 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name="Clasa")
-public Class Clasa {
+public class Clasa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Clasa_id;
+    private Long class_id;
     public Long getId() {
-        return Clasa_id;
+        return class_id;
     }
-    @Column(name="Clasa_name",unique=true,nullable=false)
-    @NotBlank(message="Clasa Name should not be Empty")
-    private String Clasa_name;
-    public String get_Clasa_name() {
-        return Clasa_name;
+    @Column(name="class_name",unique=true,nullable=false)
+    @NotBlank(message="Class Name should not be Empty")
+    private String class_name;
+    public String get_class_name() {
+        return class_name;
     }
-    public void set_Clasa_name(String Clasa_name) {
-        this.Clasa_name = Clasa_name;
+    public void set_class_name(String class_name) {
+        this.class_name = class_name;
     }
     //TO DO: de de-comentat cand avem toate entitatile
     //  @ManyToOne(fetch=FetchType.LAZY)
@@ -35,15 +35,15 @@ public Class Clasa {
     public Clasa() {
     }
 
-    public Clasa(String Clasa_name, Long homeroom_teacher_id) {
-        this.Clasa_name = Clasa_name;
+    public Clasa(String class_name, Long homeroom_teacher_id) {
+        this.class_name = class_name;
         this.homeroom_teacher_id = homeroom_teacher_id;
     }
 
     @Override
     public String toString() {
-        return "Clasa{" +
-                "id=" + Clasa_id +
+        return "Class{" +
+                "id=" + class_id +
                 ", teacher id='" + homeroom_teacher_id + ' ' +
                 '}';
     }
