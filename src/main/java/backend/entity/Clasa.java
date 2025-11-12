@@ -2,13 +2,23 @@ package backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 @Entity
-@Table(name="Clasa")
+@Table(name="Class")
 public class Clasa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long class_id;
+
+    public Clasa(Long id, String className, Long homeroomTeacherId) {
+        this.class_id = id;
+        this.class_name = className;
+        this.homeroom_teacher_id = homeroomTeacherId;
+    }
+
     public Long getId() {
         return class_id;
+    }
+    public void setId(Long class_id) {
+        this.class_id = class_id;
     }
     @Column(name="class_name",unique=true,nullable=false)
     @NotBlank(message="Class Name should not be Empty")

@@ -1,5 +1,5 @@
 package backend.service;
-import backend.entities.Clasa;
+import backend.entity.Clasa;
 import backend.repository.ClassRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -49,7 +49,7 @@ public class ClassService {
         }
         return classRepository.findClassByTeacherID(homeroom_teacher_id);
     }
-    public Optional<List<Clasa>> findClassByName (String name) {
+    public Optional<Clasa> findClassByName (String name) {
         if(name==null || name.isEmpty()) {
             throw new RuntimeException("Invalid class name");
         }
