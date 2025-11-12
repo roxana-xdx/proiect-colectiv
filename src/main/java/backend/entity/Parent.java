@@ -14,6 +14,10 @@ public class Parent implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name="email",referencedColumnName = "email", nullable = false, unique = true)
+    private User user;
+
     @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
