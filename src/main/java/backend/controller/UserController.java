@@ -5,6 +5,7 @@ import backend.dto.auth.LoginRequest;
 import backend.dto.auth.RegisterRequest;
 import backend.dto.auth.UpdateRequest;
 import backend.entity.User;
+import backend.mapper.UserMapper;
 import backend.service.I_UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/users")
@@ -35,13 +35,13 @@ public class UserController {
         }
     }
 
-    // register (controller receives DTO, service does regex validation)
+    // register (controller receives RegisterRequest; service does validation)
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody @Valid RegisterRequest req) {
         try {
             User u = new User();
             u.setEmail(req.getEmail());
-            u.setPassword(req.getPassword()); // plain-text per your constraint
+            u.setPassword(req.getPassword());
             u.setName(req.getName());
             u.setType(req.getType());
             userService.register(u);
@@ -60,16 +60,15 @@ public class UserController {
 
     // GETs return DTOs without password
     @GetMapping
-    public List<UserDTO> getAllUsers() {
-        return userService.getAllUsers().stream()
-                .map(UserDTO::fromEntity)
-                .collect(Collectors.toList());
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> dtos = UserMapper.toDTOList(userService.getAllUsers());
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{email}")
     public ResponseEntity<UserDTO> getUserByEmail(@PathVariable String email) {
         return userService.getUserByEmail(email)
-                .map(UserDTO::fromEntity)
+                .map(UserMapper::toDTO)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }

@@ -5,15 +5,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users") // avoid reserved word "User"
+@Table(name = "users")
 public class User implements Serializable {
 
     @Id
     @Column(name = "email", nullable = false, length = 255)
-    private String email; // no validation annotation here per your request
+    private String email;
 
     @Column(name = "password", nullable = false, length = 255)
-    private String password; // plain-text for now (you decided no hashing)
+    private String password;
 
     @Column(name = "name", nullable = false, length = 255)
     private String name;
@@ -65,7 +65,6 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        // intentionally do NOT include password
         return "User{" +
                 "email='" + email + '\'' +
                 ", name='" + name + '\'' +
