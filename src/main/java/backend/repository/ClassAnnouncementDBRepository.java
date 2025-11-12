@@ -14,11 +14,7 @@ public interface ClassAnnouncementDBRepository extends JpaRepository<ClassAnnoun
 
     List<ClassAnnouncement> findByAdminId(Long adminId);
 
-    List<ClassAnnouncement> findByDateBetween(LocalDate startDate, LocalDate endDate);
-
     List<ClassAnnouncement> findByClassEntityIdAndDateAfter(Long classId, LocalDate date);
-
-    List<ClassAnnouncement> findByMessageContaining(String text);
 
     List<ClassAnnouncement> findByClassEntityIdOrderByDateDesc(Long classId);
 }
