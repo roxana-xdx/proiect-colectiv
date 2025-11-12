@@ -1,11 +1,13 @@
-package backend.domain;
+package backend.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.io.Serializable;
+import java.util.Objects;
 
 @Entity
-@Table(name = "Class_Announcement")
-public class ClassAnnouncement {
+@Table(name = "class_announcements")
+public class ClassAnnouncement implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,9 +17,13 @@ public class ClassAnnouncement {
     @JoinColumn(name = "admin_id", nullable = false)
     private Admin admin;
 
-    @ManyToOne
-    @JoinColumn(name = "class_id", nullable = false)
-    private ClassEntity classEntity;
+    // Temporar inlocuim ClassEntity cu String pentru clasa
+    // @ManyToOne
+    // @JoinColumn(name = "class_id", nullable = false)
+    // private ClassEntity classEntity;
+
+    @Column(name = "class_id", nullable = false)
+    private Long classId;
 
     @Column(nullable = false)
     private String message;
@@ -28,9 +34,10 @@ public class ClassAnnouncement {
     public ClassAnnouncement() {
     }
 
-    public ClassAnnouncement(Admin admin, ClassEntity classEntity, String message, LocalDate date) {
+    // Constructor actualizat fara ClassEntity
+    public ClassAnnouncement(Admin admin, Long classId, String message, LocalDate date) {
         this.admin = admin;
-        this.classEntity = classEntity;
+        this.classId = classId;
         this.message = message;
         this.date = date;
     }
@@ -51,6 +58,17 @@ public class ClassAnnouncement {
         this.admin = admin;
     }
 
+    // Getteri si setteri pentru classId in loc de ClassEntity
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
+
+    // Metode comentate temporar pentru ClassEntity
+    /*
     public ClassEntity getClassEntity() {
         return classEntity;
     }
@@ -58,6 +76,7 @@ public class ClassAnnouncement {
     public void setClassEntity(ClassEntity classEntity) {
         this.classEntity = classEntity;
     }
+    */
 
     public String getMessage() {
         return message;
@@ -76,11 +95,24 @@ public class ClassAnnouncement {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ClassAnnouncement)) return false;
+        ClassAnnouncement that = (ClassAnnouncement) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public String toString() {
         return "ClassAnnouncement{" +
                 "id=" + id +
-                ", admin=" + admin.getId() +
-                ", classEntity=" + classEntity.getId() +
+                ", admin=" + (admin != null ? admin.getId() : null) +
+                ", classId=" + classId +
                 ", message='" + message + '\'' +
                 ", date=" + date +
                 '}';
