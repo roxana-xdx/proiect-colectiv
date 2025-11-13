@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface I_ParentService {
     public List<Parent> getAllParents();
-    public Parent getParentByEmail(String email);
+    public Optional<Parent> getParentByEmail(String email);
     public Parent createParent(Parent parent);
     public Parent updateParent(String email, Parent parent);
     void deleteParent(String email);

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "parent")
+@Table(name = "parents")
 public class Parent implements Serializable {
 
     @Id
@@ -26,6 +26,14 @@ public class Parent implements Serializable {
     public Parent(Long id, String email) {
         this.id = id;
         this.email = email;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Long getId() {
