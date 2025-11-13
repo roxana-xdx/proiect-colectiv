@@ -24,9 +24,6 @@ public class PupilController {
     @Autowired
     private I_PupilService pupilService;
 
-    @Autowired
-    private I_UserService userService;
-
     @GetMapping
     public ResponseEntity<List<PupilDTO>> getAllPupils() {
         try {
@@ -37,7 +34,6 @@ public class PupilController {
         }
     }
 
-    //doesn't work: gives error 404 Not Found all the time
     @GetMapping("/{id}")
     public ResponseEntity<?> getPupilById(@PathVariable Long id) {
         Optional<Pupil> pupils = pupilService.getPupilById(id);
