@@ -13,26 +13,25 @@ public class Pupil {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @NonNull
-//    @Column(name = "class_id", nullable = false)
-//    private Long class_id;
-//
-//    @NonNull
-//    @Column(name = "parent_id", nullable = false)
-//    private Long parent_id;
+//    @OneToMany(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = false, unique = true )
+//    private Class class;
 
     @Column(name = "class_id", nullable = false)
-    private Long class_id;  // Just a Long for now
+    private Long class_id;
+
+//    @OneToMany(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", nullable = false, unique = true )
+//    private Parent parent;
 
     @Column(name = "parent_id", nullable = false)
     private Long parent_id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "email", referencedColumnName = "email", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "email", referencedColumnName = "email", nullable = false, unique = true)
     private User user;
 
-    @NonNull
-    @Column(name = "email", insertable = false, updatable = false, nullable = false)
+    @Column(name = "email", insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
 
     ///TODO: reintrodu codul dupa ce ai si clasele Parent, Class, User si Pupil_Teacher_Feedback
@@ -53,12 +52,12 @@ public class Pupil {
     public Pupil() {
     }
 
-    public Pupil(Long id, Long class_id, Long parent_id, String email) {
-        this.id = id;
-        this.class_id = class_id;
-        this.parent_id = parent_id;
-        this.email = email;
-    }
+//    public Pupil(Long id, Long class_id, Long parent_id, String email) {
+//        this.id = id;
+//        this.class_id = class_id;
+//        this.parent_id = parent_id;
+//        this.email = email;
+//    }
 
     public Pupil(User user){
         this.user = user;

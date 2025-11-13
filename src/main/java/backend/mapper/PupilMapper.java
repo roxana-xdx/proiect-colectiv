@@ -2,36 +2,32 @@ package backend.mapper;
 
 import backend.dto.PupilDTO;
 import backend.entity.Pupil;
+import backend.entity.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class PupilMapper {
-    private PupilMapper(){}
+public final class PupilMapper {
+    private PupilMapper() {}
 
-    public static PupilDTO toDTO(Pupil pupil){
-        PupilDTO dto = new PupilDTO();
-        dto.setId(pupil.getId());
-        dto.setClass_id(pupil.getClass_id());
-        dto.setParent_id(pupil.getParent_id());
-        dto.setEmail(pupil.getEmail());
-        return dto;
+    public static PupilDTO toDTO(Pupil pupil) {
+        return PupilDTO.toDTO(pupil);
     }
 
-    public static Pupil toEntity(PupilDTO dto){
-        Pupil pupil = new Pupil();
-        pupil.setId(dto.getId());
-        pupil.setClass_id(dto.getClass_id());
-        pupil.setParent_id(dto.getParent_id());
-        pupil.setEmail(dto.getEmail());
-        return pupil;
+    public static Pupil toEntity(PupilDTO pupilDTO) {
+        if(pupilDTO == null) return null;
+        return pupilDTO.toEntity();
     }
 
-    public static List<Pupil> toEntityList(List<PupilDTO> dtos){
-        return dtos.stream().map(PupilMapper::toEntity).collect(Collectors.toList());
+    public static Pupil toEntity(PupilDTO pupilDTO, User user) {
+        if(pupilDTO == null) return null;
+        return pupilDTO.toEntityWithUser(user);
     }
 
-    public static List<PupilDTO> toDTOList(List<Pupil> pupils){
-        return pupils.stream().map(PupilMapper::toDTO).collect(Collectors.toList());
+    public static List<PupilDTO> toDTOList(List<Pupil> pupilList) {
+        return pupilList.stream().map(PupilMapper::toDTO).toList();
+    }
+
+    public static List<Pupil> toEntityList(List<PupilDTO> pupilDTOList) {
+        return pupilDTOList.stream().map(PupilMapper::toEntity).toList();
     }
 }
