@@ -18,7 +18,7 @@ public class Parent implements Serializable {
     @JoinColumn(name="email",referencedColumnName = "email", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "email", nullable = false, unique = true, length = 255)
+    @Column(name = "email", nullable = false, unique = true, length = 255, insertable = false, updatable = false)
     private String email;
 
     public Parent() { }
