@@ -1,7 +1,10 @@
-package backend.service;
+package backend.service.impl;
 
 import backend.entity.User;
+import backend.entity.validation.UserValidator;
 import backend.repository.I_UserRepository;
+import backend.service.I_AdminService;
+import backend.service.I_UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +19,11 @@ public class UserService implements I_UserService {
     @Autowired
     private I_UserRepository userRepository;
 
+    // This will be added for every new user type registration
+    @Autowired
+    private I_AdminService adminService;
+
+    // (kept for potential local use; validation moved to UserValidator)
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     @Override
@@ -34,30 +42,18 @@ public class UserService implements I_UserService {
     @Override
     @Transactional
     public User register(User user) {
-        validateUser(user);
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalStateException("Email already registered");
-        }
-        return userRepository.save(user);
-    }
+        // validation moved to UserValidator
+        UserValidator.validateRegister(user, userRepository);
 
-    private void validateUser(User user) {
-        if (user == null) throw new IllegalArgumentException("User cannot be null");
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email cannot be null or empty");
+        User saved = userRepository.save(user);
+
+        // If the user is an admin, create an admin profile
+        // This lines below will be added for every new user type registration
+        if (saved.getType() == User.Type.ADMIN) {
+            adminService.createAdminByEmail(saved.getEmail());
         }
-        if (!EMAIL_PATTERN.matcher(user.getEmail()).matches()) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
-        if (user.getType() == null) {
-            throw new IllegalArgumentException("User type must be specified");
-        }
-        if (user.getPassword() == null || user.getPassword().length() < 8) {
-            throw new IllegalArgumentException("Password must be at least 8 characters");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
+
+        return saved;
     }
 
     @Override
@@ -80,6 +76,7 @@ public class UserService implements I_UserService {
     public User updateUser(String email, User user) {
         User existing = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("User not found"));
+
         if (user.getName() != null && !user.getName().isBlank()) {
             existing.setName(user.getName());
         }
@@ -89,7 +86,10 @@ public class UserService implements I_UserService {
         if (user.getType() != null) {
             existing.setType(user.getType());
         }
-        validateUser(existing);
+
+        // validate the resulting entity
+        UserValidator.validateExisting(existing);
+
         return userRepository.save(existing);
     }
 
