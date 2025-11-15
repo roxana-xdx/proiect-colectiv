@@ -3,12 +3,13 @@ package backend.entity;
 import jakarta.persistence.*;
 import org.springframework.lang.NonNull;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 
 @Entity
 @Table(name = "pupil")
-public class Pupil {
+public class Pupil implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,12 +21,12 @@ public class Pupil {
     @Column(name = "class_id", nullable = false)
     private Long class_id;
 
-//    @OneToMany(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "parent_id", referencedColumnName = "parent_id", nullable = false, unique = true )
-//    private Parent parent;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = false)
+    private Parent parent;
 
-    @Column(name = "parent_id", nullable = false)
-    private Long parent_id;
+//    @Column(name = "parent_id", nullable = false)
+//    private Long parent_id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "email", referencedColumnName = "email", nullable = false, unique = true)
@@ -63,6 +64,14 @@ public class Pupil {
         this.user = user;
     }
 
+    public Parent getParent() {
+        return parent;
+    }
+
+    public void setParent(Parent parent) {
+        this.parent = parent;
+    }
+
     public User getUser() {
         return user;
     }
@@ -87,33 +96,33 @@ public class Pupil {
         this.class_id = class_id;
     }
 
-    public Long getParent_id() {
-        return parent_id;
-    }
-
-    public void setParent_id(Long parent_id) {
-        this.parent_id = parent_id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+//    public Long getParent_id() {
+//        return parent_id;
+//    }
+//
+//    public void setParent_id(Long parent_id) {
+//        this.parent_id = parent_id;
+//    }
+//
+//    public String getEmail() {
+//        return email;
+//    }
+//
+//    public void setEmail(String email) {
+//        this.email = email;
+//    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pupil pupil = (Pupil) o;
-        return Objects.equals(id, pupil.id) && Objects.equals(class_id, pupil.class_id) && Objects.equals(parent_id, pupil.parent_id) && Objects.equals(email, pupil.email);
+        return Objects.equals(id, pupil.id) && Objects.equals(class_id, pupil.class_id) && Objects.equals(parent.getId(), pupil.getParent().getId()) && Objects.equals(email, pupil.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, class_id, parent_id, email);
+        return Objects.hash(id, class_id, parent.getId(), email);
     }
 
     @Override
@@ -121,7 +130,7 @@ public class Pupil {
         return "Pupil{" +
                 "id=" + id +
                 ", class_id=" + class_id +
-                ", parent_id=" + parent_id +
+                ", parent_id=" + parent.getId() +
                 ", email='" + email + '\'' +
                 '}';
     }
