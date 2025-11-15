@@ -67,7 +67,7 @@ public class PupilService implements I_PupilService {
     @Override
     @Transactional
     public void deletePupil(Long id) {
-        if(!pupilRepository.existsById(id)){
+        if (!pupilRepository.existsById(id)) {
             throw new RuntimeException("Pupil not found with ID: " + id);
         }
         pupilRepository.deleteById(id);
@@ -75,7 +75,7 @@ public class PupilService implements I_PupilService {
 
     @Override
     public Optional<Pupil> findPupilByEmail(String email) {
-        if(email == null || email.trim().isEmpty()){
+        if (email == null || email.trim().isEmpty()) {
             throw new RuntimeException("Email cannot be null or empty");
         }
         return pupilRepository.findByEmail(email);
