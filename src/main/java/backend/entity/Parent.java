@@ -4,6 +4,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -11,6 +13,7 @@ import java.util.Objects;
 public class Parent implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //am adaugat ca sa se genereze automat id-ul
     @Column(name = "id", nullable = false)
     private Long id;
 
@@ -21,11 +24,24 @@ public class Parent implements Serializable {
     @Column(name = "email", nullable = false, unique = true, length = 255, insertable = false, updatable = false)
     private String email;
 
+    //am adaugat pentru a lega tabelele Pupil si Parent
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Pupil> pupils = new ArrayList<>();
+
     public Parent() { }
 
     public Parent(Long id, String email) {
         this.id = id;
         this.email = email;
+    }
+
+    //am adaugat setteri si getteri pentru a accesa copiii parintelui
+    public List<Pupil> getPupils() {
+        return pupils;
+    }
+
+    public void setPupils(List<Pupil> pupils) {
+        this.pupils = pupils;
     }
 
     public User getUser() {

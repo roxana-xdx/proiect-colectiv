@@ -61,7 +61,7 @@ public class PupilDTO {
     public static PupilDTO toDTO(Pupil pupil) {
         if(pupil == null) return null;
         User user = pupil.getUser();
-        return new PupilDTO(pupil.getId(), pupil.getClass_id(), pupil.getParent_id(), user != null ? user.getEmail() : null);
+        return new PupilDTO(pupil.getId(), pupil.getClass_id(), pupil.getParent().getId(), user != null ? user.getEmail() : null);
     }
 
     public Pupil toEntity() {

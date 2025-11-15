@@ -49,7 +49,7 @@ public class PupilService implements I_PupilService {
         Pupil pupil = new Pupil();
         pupil.setUser(user);
         pupil.setClass_id(class_id);
-        pupil.setParent_id(parent_id);
+        pupil.getParent().setId(parent_id);
         return pupilRepository.save(pupil);
     }
 
@@ -58,9 +58,9 @@ public class PupilService implements I_PupilService {
     public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
         Pupil existingPupil = pupilRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
-        PupilValidator.validate(existingPupil.getEmail(), userRepository, pupilRepository);
+        PupilValidator.validate(existingPupil.getUser().getEmail(), userRepository, pupilRepository);
         existingPupil.setClass_id(class_id);
-        existingPupil.setParent_id(parent_id);
+        existingPupil.getParent().setId(parent_id);
         return pupilRepository.save(existingPupil);
     }
 
