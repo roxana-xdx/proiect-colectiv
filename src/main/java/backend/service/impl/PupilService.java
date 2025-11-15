@@ -1,8 +1,10 @@
 package backend.service.impl;
 
+import backend.entity.Parent;
 import backend.entity.Pupil;
 import backend.entity.User;
 import backend.entity.validation.PupilValidator;
+import backend.repository.I_ParentRepository;
 import backend.repository.I_PupilRepository;
 import backend.repository.I_UserRepository;
 import backend.service.I_PupilService;
@@ -21,9 +23,10 @@ public class PupilService implements I_PupilService {
     private I_PupilRepository pupilRepository;
     @Autowired
     private I_UserRepository userRepository;
+    @Autowired
+    private I_ParentRepository parentRepository;
 
-//    public final Class_ScheduleRepository classScheduleRepository;
-//    public final Class_AnnoucementRepository classAnnoucementRepository;
+    //    public final Class_AnnoucementRepository classAnnoucementRepository;
 
     public PupilService(I_PupilRepository pupilRepository, I_UserRepository userRepository) {
         this.pupilRepository = pupilRepository;
@@ -46,23 +49,25 @@ public class PupilService implements I_PupilService {
         PupilValidator.validate(email, userRepository, pupilRepository);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        Parent parent = parentRepository.findById(parent_id)
+                .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
         Pupil pupil = new Pupil();
         pupil.setUser(user);
         pupil.setClass_id(class_id);
-        pupil.getParent().setId(parent_id);
+        pupil.setParent(parent);
         return pupilRepository.save(pupil);
     }
 
-    @Override
-    @Transactional
-    public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
-        Pupil existingPupil = pupilRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
-        PupilValidator.validate(existingPupil.getUser().getEmail(), userRepository, pupilRepository);
-        existingPupil.setClass_id(class_id);
-        existingPupil.getParent().setId(parent_id);
-        return pupilRepository.save(existingPupil);
-    }
+//    @Override
+//    @Transactional
+//    public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
+//        Pupil existingPupil = pupilRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
+//        PupilValidator.validate(existingPupil.getUser().getEmail(), userRepository, pupilRepository);
+//        existingPupil.setClass_id(class_id);
+//        existingPupil.getParent().setId(parent_id);
+//        return pupilRepository.save(existingPupil);
+//    }
 
     @Override
     @Transactional
@@ -79,17 +84,6 @@ public class PupilService implements I_PupilService {
             throw new RuntimeException("Email cannot be null or empty");
         }
         return pupilRepository.findByEmail(email);
-    }
-
-    @Override
-    @Transactional
-    public Pupil createPupilByEmail(String email) {
-        PupilValidator.validate(email, userRepository, pupilRepository);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        Pupil pupil = new Pupil(user);
-        pupil.setUser(user);
-        return pupilRepository.save(pupil);
     }
 
 //    @Override

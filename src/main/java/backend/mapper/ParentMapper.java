@@ -8,7 +8,7 @@ import backend.entity.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ParentMapper {
+public final class ParentMapper {
     private ParentMapper() {}
 
     public static ParentDTO toDTO(Parent parent) {

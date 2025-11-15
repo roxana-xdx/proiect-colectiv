@@ -11,7 +11,6 @@ import java.util.Objects;
 @Entity
 @Table(name = "parents")
 public class Parent implements Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //am adaugat ca sa se genereze automat id-ul
     @Column(name = "id", nullable = false)
