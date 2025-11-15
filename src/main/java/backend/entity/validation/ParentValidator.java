@@ -7,7 +7,7 @@ import backend.repository.I_UserRepository;
 
 import java.util.regex.Pattern;
 
-public class ParentValidator {
+public final class ParentValidator {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
@@ -25,8 +25,8 @@ public class ParentValidator {
             throw new IllegalStateException("No user found with email: " + email);
         }
         var user = userOpt.get();
-        if (user.getType() != User.Type.ADMIN) {
-            throw new IllegalStateException("User must be of type ADMIN to create Admin record");
+        if (user.getType() != User.Type.PARENT) {
+            throw new IllegalStateException("User must be of type PARENT to create Parent record");
         }
         if (parentRepo.existsByEmail(email)) {
             throw new IllegalStateException("Parent profile already exists for email: " + email);

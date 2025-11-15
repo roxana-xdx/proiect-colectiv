@@ -1,4 +1,4 @@
-package backend.dto.admin;
+package backend.dto.parent;
 
 public class CreateParentRequest {
     private String email;

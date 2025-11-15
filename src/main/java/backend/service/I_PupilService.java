@@ -12,13 +12,11 @@ public interface I_PupilService {
 
     public Pupil createPupil(String email, Long class_id, Long parent_id);
 
-    public Pupil updatePupil(Long id, Long class_id, Long parent_id);
+//    public Pupil updatePupil(Long id, Long class_id, Long parent_id);
 
     public void deletePupil(Long id);
 
     public Optional<Pupil> findPupilByEmail(String email);
-
-    Pupil createPupilByEmail(String email);
 
 //    public List<Pupil> findPupilByClass_id(Long id);
 

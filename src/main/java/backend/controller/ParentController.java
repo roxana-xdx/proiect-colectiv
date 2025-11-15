@@ -1,8 +1,8 @@
 package backend.controller;
 
 import backend.dto.ParentDTO;
-import backend.dto.admin.CreateParentRequest;
 import backend.dto.auth.UpdateRequest;
+import backend.dto.parent.CreateParentRequest;
 import backend.entity.Parent;
 import backend.entity.User;
 import backend.mapper.ParentMapper;
@@ -26,14 +26,11 @@ public class ParentController {
     private I_UserService userService;
 
     @PostMapping
-    public ResponseEntity<?> createParent(@RequestBody ParentDTO parentDTO) {
+    public ResponseEntity<?> createParent(@RequestBody CreateParentRequest request) {
         try {
-            User user = userService.getUserByEmail(parentDTO.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found for email: " + parentDTO.getEmail()));
-            Parent parent = new Parent();
-            parent.setUser(user);
-            parentService.createParent(parent);
-            return ResponseEntity.status(HttpStatus.CREATED).body(parent);
+            Parent created = parentService.createParent(request.getEmail());
+            ParentDTO dto = ParentMapper.toDTO(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating parent: " + e.getMessage());
@@ -57,26 +54,37 @@ public class ParentController {
         }
     }
 
-    @DeleteMapping("/{email}")
-    public  ResponseEntity<?> deleteParent(@PathVariable String email) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getParentById(@PathVariable Long id) {
+        Optional<Parent> opt =  parentService.getParentById(id);
+        if (opt.isPresent()) {
+            ParentDTO dto = ParentMapper.toDTO(opt.get());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parent not found for ID: " + id);
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public  ResponseEntity<?> deleteParent(@PathVariable Long id) {
         try {
-            parentService.deleteParent(email);
+            parentService.deleteParent(id);
             return ResponseEntity.ok("Parent deleted");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-    @PutMapping("/{email}")
-    public ResponseEntity<String> updateParent(@PathVariable String email, @RequestBody @Valid UpdateRequest req) {
-        try {
-            Parent p = new Parent();
-            p.setEmail(email);
-            parentService.updateParent(email, p);
-            return ResponseEntity.ok("Parent updated successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+//    @PutMapping("/{email}")
+//    public ResponseEntity<String> updateParent(@PathVariable String email, @RequestBody @Valid UpdateRequest req) {
+//        try {
+//            Parent p = new Parent();
+//            p.setEmail(email);
+//            parentService.updateParent(email, p);
+//            return ResponseEntity.ok("Parent updated successfully");
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 
 }
