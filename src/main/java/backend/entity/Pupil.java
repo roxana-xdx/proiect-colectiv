@@ -1,7 +1,6 @@
 package backend.entity;
 
 import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -98,19 +97,19 @@ public class Pupil implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pupil pupil = (Pupil) o;
-        return Objects.equals(id, pupil.id) && Objects.equals(clasa.getId(), pupil.getClasa()) && Objects.equals(parent.getId(), pupil.getParent().getId()) && Objects.equals(email, pupil.email);
+        return Objects.equals(id, pupil.id) && Objects.equals(clasa.getClassId(), pupil.getClasa()) && Objects.equals(parent.getId(), pupil.getParent().getId()) && Objects.equals(email, pupil.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, clasa.getId(), parent.getId(), email);
+        return Objects.hash(id, clasa.getClassId(), parent.getId(), email);
     }
 
     @Override
     public String toString() {
         return "Pupil{" +
                 "id=" + id +
-                ", class_id=" + clasa.getId() +
+                ", class_id=" + clasa.getClassId() +
                 ", parent_id=" + parent.getId() +
                 ", email='" + email + '\'' +
                 '}';

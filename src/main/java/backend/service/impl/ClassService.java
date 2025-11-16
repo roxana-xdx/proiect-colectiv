@@ -20,8 +20,8 @@ public class ClassService implements I_ClassService {
         this.classRepository = classRepository;
     }
 
-    public Clasa createClass(String name, Long homeroom_teacher_id) {
-        Clasa clasa = new Clasa(name, homeroom_teacher_id);
+    public Clasa createClass(String name, Long homeroomTeacherId) {
+        Clasa clasa = new Clasa(name, homeroomTeacherId);
         return classRepository.save(clasa);
     }
 
@@ -32,8 +32,8 @@ public class ClassService implements I_ClassService {
     public Clasa updateClass(Long id, Clasa newClass) {
         return classRepository.findById(id)
                 .map(current -> {
-                    current.set_homeroom_teacher_id(newClass.get_homeroom_teacher_id());
-                    current.set_class_name(newClass.get_class_name());
+                    current.setHomeroomTeacherId(newClass.getHomeroomTeacherId());
+                    current.setClassName(newClass.getClassName());
                     return classRepository.save(current);
                 })
                 .orElseThrow(() -> new RuntimeException("No class found with id: " + id));
@@ -50,18 +50,18 @@ public class ClassService implements I_ClassService {
         return classRepository.findAll();
     }
 
-    public Optional<List<Clasa>> findClassByTeacherID(Long homeroom_teacher_id) {
-        if (homeroom_teacher_id <= 0) {
+    public Optional<List<Clasa>> findClassByTeacherID(Long homeroomTeacherId) {
+        if (homeroomTeacherId <= 0) {
             throw new RuntimeException("Invalid homeroom teacher id");
         }
-        return classRepository.findClassByTeacherID(homeroom_teacher_id);
+        return classRepository.findByHomeroomTeacherId(homeroomTeacherId);
     }
 
     public Optional<Clasa> findClassByName(String name) {
         if (name == null || name.isEmpty()) {
             throw new RuntimeException("Invalid class name");
         }
-        return classRepository.findClassByName(name);
+        return classRepository.findByClassName(name);
     }
 }
 

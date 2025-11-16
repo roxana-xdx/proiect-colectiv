@@ -51,8 +51,8 @@ public class ParentService implements I_ParentService {
 //    public Parent updateParent(String email, Parent parent) {
 //        Parent existing = parentRepository.findByEmail(email)
 //                .orElseThrow(() -> new IllegalStateException("Parent not found"));
-//        if (parent.getId() != null) {
-//            existing.setId(parent.getId());
+//        if (parent.getClassId() != null) {
+//            existing.setClassId(parent.getClassId());
 //        }
 //        validateParent(existing);
 //        return parentRepository.save(existing);

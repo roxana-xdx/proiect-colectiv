@@ -17,13 +17,13 @@ public class ClassDTO {
     }
 
     public static ClassDTO fromEntity(Clasa c) {
-        return new ClassDTO(c.getId(), c.get_class_name(), c.get_homeroom_teacher_id());
+        return new ClassDTO(c.getClassId(), c.getClassName(), c.getHomeroomTeacherId());
     }
 
     public Clasa toEntity() {
         Clasa c = new Clasa();
         if(this.class_id != null) {
-            c.setId(this.class_id);
+            c.setClassId(this.class_id);
         }
         return c;
     }

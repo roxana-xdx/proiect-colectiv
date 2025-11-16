@@ -41,7 +41,7 @@ public class ClassController {
     @PutMapping("/{id}")
     public ResponseEntity<String> updateClass (@PathVariable Long class_id, @RequestBody Clasa c) {
         try {
-            c.setId(class_id);
+            c.setClassId(class_id);
             classService.updateClass(class_id, c);
             return ResponseEntity.ok("Class updated successfully");
         } catch (RuntimeException e) {

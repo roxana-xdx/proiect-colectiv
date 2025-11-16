@@ -1,9 +1,11 @@
 package backend.service.impl;
 
+import backend.entity.Clasa;
 import backend.entity.Parent;
 import backend.entity.Pupil;
 import backend.entity.User;
 import backend.entity.validation.PupilValidator;
+import backend.repository.I_ClassRepository;
 import backend.repository.I_ParentRepository;
 import backend.repository.I_PupilRepository;
 import backend.repository.I_UserRepository;
@@ -25,6 +27,8 @@ public class PupilService implements I_PupilService {
     private I_UserRepository userRepository;
     @Autowired
     private I_ParentRepository parentRepository;
+    @Autowired
+    private I_ClassRepository classRepository;
 
     //    public final Class_AnnoucementRepository classAnnoucementRepository;
 
@@ -51,9 +55,11 @@ public class PupilService implements I_PupilService {
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         Parent parent = parentRepository.findById(parent_id)
                 .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
+        Clasa clasa = classRepository.findById(class_id)
+                .orElseThrow(() -> new RuntimeException("Class not found with id: " + class_id));
         Pupil pupil = new Pupil();
         pupil.setUser(user);
-        pupil.setClass_id(class_id);
+        pupil.setClasa(clasa);
         pupil.setParent(parent);
         return pupilRepository.save(pupil);
     }
@@ -65,7 +71,7 @@ public class PupilService implements I_PupilService {
 //                .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
 //        PupilValidator.validate(existingPupil.getUser().getEmail(), userRepository, pupilRepository);
 //        existingPupil.setClass_id(class_id);
-//        existingPupil.getParent().setId(parent_id);
+//        existingPupil.getParent().setClassId(parent_id);
 //        return pupilRepository.save(existingPupil);
 //    }
 
@@ -102,7 +108,7 @@ public class PupilService implements I_PupilService {
     public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
         Pupil existing = pupilRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
-        existing.setClass_id(class_id);
+        existing.getClasa().setClassId(class_id);
         if (parent_id != null) {
             Parent parent = parentRepository.findById(parent_id)
                     .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
