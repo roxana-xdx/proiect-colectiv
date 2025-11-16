@@ -21,7 +21,6 @@ public class Teacher implements Serializable {
     private User user;
 
     @Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
     @Column(name = "email", unique = true, insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
 
