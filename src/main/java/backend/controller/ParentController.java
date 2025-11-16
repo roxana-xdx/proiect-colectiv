@@ -55,6 +55,17 @@ public class ParentController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getParentById(@PathVariable Long id) {
+        Optional<Parent> opt =  parentService.getParentById(id);
+        if (opt.isPresent()) {
+            ParentDTO dto = ParentMapper.toDTO(opt.get());
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parent not found for ID: " + id);
+        }
+    }
+
     @DeleteMapping("/{id}")
     public  ResponseEntity<?> deleteParent(@PathVariable Long id) {
         try {

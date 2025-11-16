@@ -6,7 +6,7 @@ import backend.repository.I_UserRepository;
 
 import java.util.regex.Pattern;
 
-public class ParentValidator {
+public final class ParentValidator {
     private static final Pattern EMAIL_PATTERN =
             Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 

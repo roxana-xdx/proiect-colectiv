@@ -45,6 +45,11 @@ public class ParentService implements I_ParentService {
     }
 
     @Override
+    public Optional<Parent> getParentById(Long id) {
+        return parentRepository.findById(id);
+    }
+
+    @Override
     public void deleteParent(Long id) {
         if(!parentRepository.existsById(id)){
             throw new IllegalStateException("Parent with email" + id + " not found.");
