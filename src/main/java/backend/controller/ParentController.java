@@ -4,7 +4,6 @@ import backend.dto.ParentDTO;
 import backend.dto.admin.CreateParentRequest;
 import backend.dto.auth.UpdateRequest;
 import backend.entity.Parent;
-import backend.entity.User;
 import backend.mapper.ParentMapper;
 import backend.service.I_ParentService;
 import backend.service.I_UserService;
@@ -23,17 +22,16 @@ public class ParentController {
 
     @Autowired
     private I_ParentService parentService;
+
+    @Autowired
     private I_UserService userService;
 
     @PostMapping
-    public ResponseEntity<?> createParent(@RequestBody ParentDTO parentDTO) {
+    public ResponseEntity<?> createParent(@RequestBody @Valid CreateParentRequest req) {
         try {
-            User user = userService.getUserByEmail(parentDTO.getEmail())
-                    .orElseThrow(() -> new RuntimeException("User not found for email: " + parentDTO.getEmail()));
-            Parent parent = new Parent();
-            parent.setUser(user);
-            parentService.createParent(parent);
-            return ResponseEntity.status(HttpStatus.CREATED).body(parent);
+            Parent parent = parentService.createParent(req.getEmail());
+            ParentDTO dto = ParentMapper.toDTO(parent);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating parent: " + e.getMessage());
@@ -57,25 +55,13 @@ public class ParentController {
         }
     }
 
-    @DeleteMapping("/{email}")
-    public  ResponseEntity<?> deleteParent(@PathVariable String email) {
+    @DeleteMapping("/{id}")
+    public  ResponseEntity<?> deleteParent(@PathVariable Long id) {
         try {
-            parentService.deleteParent(email);
+            parentService.deleteParent(id);
             return ResponseEntity.ok("Parent deleted");
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @PutMapping("/{email}")
-    public ResponseEntity<String> updateParent(@PathVariable String email, @RequestBody @Valid UpdateRequest req) {
-        try {
-            Parent p = new Parent();
-            p.setEmail(email);
-            parentService.updateParent(email, p);
-            return ResponseEntity.ok("Parent updated successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

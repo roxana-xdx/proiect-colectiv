@@ -1,7 +1,6 @@
 package backend.entity.validation;
 
 import backend.entity.User;
-import backend.repository.I_AdminRepository;
 import backend.repository.I_ParentRepository;
 import backend.repository.I_UserRepository;
 
@@ -25,8 +24,8 @@ public class ParentValidator {
             throw new IllegalStateException("No user found with email: " + email);
         }
         var user = userOpt.get();
-        if (user.getType() != User.Type.ADMIN) {
-            throw new IllegalStateException("User must be of type ADMIN to create Admin record");
+        if (user.getType() != User.Type.PARENT) {
+            throw new IllegalStateException("User must be of type PARENT to create Parent record");
         }
         if (parentRepo.existsByEmail(email)) {
             throw new IllegalStateException("Parent profile already exists for email: " + email);

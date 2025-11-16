@@ -11,6 +11,7 @@ import java.util.Objects;
 public class Parent implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long id;
 

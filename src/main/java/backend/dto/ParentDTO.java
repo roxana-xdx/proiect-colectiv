@@ -1,7 +1,6 @@
 package backend.dto;
 
 
-import backend.entity.Admin;
 import backend.entity.Parent;
 import backend.entity.User;
 import jakarta.validation.constraints.Email;
