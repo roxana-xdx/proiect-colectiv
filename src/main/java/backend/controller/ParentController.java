@@ -74,17 +74,4 @@ public class ParentController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
-//    @PutMapping("/{email}")
-//    public ResponseEntity<String> updateParent(@PathVariable String email, @RequestBody @Valid UpdateRequest req) {
-//        try {
-//            Parent p = new Parent();
-//            p.setEmail(email);
-//            parentService.updateParent(email, p);
-//            return ResponseEntity.ok("Parent updated successfully");
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.badRequest().body(e.getMessage());
-//        }
-//    }
-
 }

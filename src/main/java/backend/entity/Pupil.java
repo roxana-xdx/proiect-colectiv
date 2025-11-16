@@ -14,15 +14,12 @@ public class Pupil implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @OneToMany(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = false, unique = true )
-//    private Class class;
-
-    @Column(name = "class_id", nullable = false)
-    private Long class_id;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = true)
+    private Clasa clasa;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = true)
     private Parent parent;
 
 //    @Column(name = "parent_id", nullable = false)
@@ -64,6 +61,14 @@ public class Pupil implements Serializable {
         this.user = user;
     }
 
+    public Clasa getClasa() {
+        return clasa;
+    }
+
+    public void setClasa(Clasa clasa) {
+        this.clasa = clasa;
+    }
+
     public Parent getParent() {
         return parent;
     }
@@ -88,48 +93,24 @@ public class Pupil implements Serializable {
         this.id = id;
     }
 
-    public Long getClass_id() {
-        return class_id;
-    }
-
-    public void setClass_id(Long class_id) {
-        this.class_id = class_id;
-    }
-
-//    public Long getParent_id() {
-//        return parent_id;
-//    }
-//
-//    public void setParent_id(Long parent_id) {
-//        this.parent_id = parent_id;
-//    }
-//
-//    public String getEmail() {
-//        return email;
-//    }
-//
-//    public void setEmail(String email) {
-//        this.email = email;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Pupil pupil = (Pupil) o;
-        return Objects.equals(id, pupil.id) && Objects.equals(class_id, pupil.class_id) && Objects.equals(parent.getId(), pupil.getParent().getId()) && Objects.equals(email, pupil.email);
+        return Objects.equals(id, pupil.id) && Objects.equals(clasa.getId(), pupil.getClasa()) && Objects.equals(parent.getId(), pupil.getParent().getId()) && Objects.equals(email, pupil.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, class_id, parent.getId(), email);
+        return Objects.hash(id, clasa.getId(), parent.getId(), email);
     }
 
     @Override
     public String toString() {
         return "Pupil{" +
                 "id=" + id +
-                ", class_id=" + class_id +
+                ", class_id=" + clasa.getId() +
                 ", parent_id=" + parent.getId() +
                 ", email='" + email + '\'' +
                 '}';

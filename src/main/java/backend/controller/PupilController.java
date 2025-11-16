@@ -3,6 +3,7 @@ package backend.controller;
 
 import backend.dto.PupilDTO;
 import backend.dto.pupil.CreatePupilRequest;
+import backend.dto.pupil.UpdatePupilRequest;
 import backend.entity.Pupil;
 import backend.mapper.PupilMapper;
 import backend.service.I_PupilService;
@@ -54,19 +55,17 @@ public class PupilController {
         }
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody @Valid UpdatePupilRequest request) {
-//        try {
-//            Pupil updated = pupilService.updatePupil(id, request.getClass_id(), request.getParent_id());
-//            PupilDTO dto = PupilMapper.toDTO(updated);
-//            return ResponseEntity.ok(dto);
-//        } catch (RuntimeException e) {
-//            return ResponseEntity.notFound().build();
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Error updating pupil: " + e.getMessage());
-//        }
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updatePupil(@PathVariable Long id, @RequestBody UpdatePupilRequest request) {
+        try {
+            Pupil updated = pupilService.updatePupil(id, request.getClass_id(), request.getParent_id());
+            return ResponseEntity.ok(PupilMapper.toDTO(updated));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating pupil: " + e.getMessage());
+        }
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePupil(@PathVariable Long id) {

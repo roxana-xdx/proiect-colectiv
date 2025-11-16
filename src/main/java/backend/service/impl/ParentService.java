@@ -22,20 +22,6 @@ public class ParentService implements I_ParentService {
     @Autowired
     private I_UserRepository userRepository;
 
-//    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
-//    private void validateParent(Parent parent) {
-//        if (parent == null) throw new IllegalArgumentException("Parent cannot be null");
-//        if (parent.getEmail() == null || parent.getEmail().isBlank()) {
-//            throw new IllegalArgumentException("Email cannot be null or empty");
-//        }
-//        if (!EMAIL_PATTERN.matcher(parent.getEmail()).matches()) {
-//            throw new IllegalArgumentException("Invalid email format");
-//        }
-//        if (parent.getId() == null) {
-//            throw new IllegalArgumentException("Parent id cannot be null");
-//        }
-//    }
-
     @Override
     public List<Parent> getAllParents() {
         return parentRepository.findAll();

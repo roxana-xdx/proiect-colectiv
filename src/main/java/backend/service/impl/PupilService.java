@@ -86,6 +86,33 @@ public class PupilService implements I_PupilService {
         return pupilRepository.findByEmail(email);
     }
 
+    @Override
+    @Transactional
+    public Pupil createPupilByEmail(String email) {
+        PupilValidator.validate(email, userRepository, pupilRepository);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        Pupil pupil = new Pupil();
+        pupil.setUser(user);
+        return pupilRepository.save(pupil);
+    }
+
+    @Override
+    @Transactional
+    public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
+        Pupil existing = pupilRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
+        existing.setClass_id(class_id);
+        if (parent_id != null) {
+            Parent parent = parentRepository.findById(parent_id)
+                    .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
+            existing.setParent(parent);
+        } else {
+            existing.setParent(null);
+        }
+        return pupilRepository.save(existing);
+    }
+
 //    @Override
 //    public List<Pupil> findPupilByClass_id(Long id) {
 //        return pupilRepository.findByClass_id(id);

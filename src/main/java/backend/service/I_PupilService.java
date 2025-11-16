@@ -18,7 +18,10 @@ public interface I_PupilService {
 
     public Optional<Pupil> findPupilByEmail(String email);
 
+    Pupil createPupilByEmail(String email);
+
+    Pupil updatePupil(Long id, Long class_id, Long parent_id);
+
 //    public List<Pupil> findPupilByClass_id(Long id);
 
-    ///TODO methods for class announcements and class schedule
 }

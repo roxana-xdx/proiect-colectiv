@@ -1,6 +1,9 @@
 package backend.controller;
+import backend.dto.ClassDTO;
+import backend.dto.clasa.CreateClassRequest;
 import backend.entity.Clasa;
-import backend.service.ClassService;
+import backend.mapper.ClassMapper;
+import backend.service.impl.ClassService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +15,9 @@ public class ClassController {
     @Autowired
     private ClassService classService;
     @GetMapping
-    public List<Clasa> getAllClasses() {
-        return classService.getAllClasses();
+    public ResponseEntity<List<ClassDTO>> getAllClasses() {
+        List<ClassDTO> dtos = ClassMapper.toDTOList(classService.getAllClasses());
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{ClassName}")
@@ -21,6 +25,17 @@ public class ClassController {
         return classService.findClassByName(ClassName)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createClass(@RequestBody CreateClassRequest request) {
+        try{
+            Clasa created = classService.createClass(request.getName(), request.getHomeroom_teacher_id());
+            ClassDTO dto = ClassMapper.toDTO(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating class: " + e.getMessage());
+        }
     }
 
     @PutMapping("/{id}")

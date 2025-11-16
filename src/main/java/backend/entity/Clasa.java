@@ -1,8 +1,13 @@
 package backend.entity;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
-@Table(name="Class")
+@Table(name = "Class")
 public class Clasa {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,29 +22,47 @@ public class Clasa {
     public Long getId() {
         return class_id;
     }
+
     public void setId(Long class_id) {
         this.class_id = class_id;
     }
-    @Column(name="class_name",unique=true,nullable=false)
-    @NotBlank(message="Class Name should not be Empty")
+
+    @Column(name = "class_name", unique = true, nullable = false)
+    @NotBlank(message = "Class Name should not be Empty")
     private String class_name;
+
     public String get_class_name() {
         return class_name;
     }
+
     public void set_class_name(String class_name) {
         this.class_name = class_name;
     }
+
     //TO DO: de de-comentat cand avem toate entitatile
     //  @ManyToOne(fetch=FetchType.LAZY)
     //  @JoinColumn(name="id", insertable=false, updatable=false)
-    @Column(name="homeroom_teacher_id", nullable=false)
+    @Column(name = "homeroom_teacher_id", nullable = false)
     @NotBlank
     private Long homeroom_teacher_id;
+
     public Long get_homeroom_teacher_id() {
         return homeroom_teacher_id;
     }
+
     public void set_homeroom_teacher_id(Long homeroom_teacher_id) {
         this.homeroom_teacher_id = homeroom_teacher_id;
+    }
+
+    @OneToMany(mappedBy = "clasa", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Pupil> pupils = new ArrayList<>();
+
+    public List<Pupil> getPupils() {
+        return pupils;
+    }
+
+    public void setPupils(List<Pupil> pupils) {
+        this.pupils = pupils;
     }
 
     public Clasa() {
