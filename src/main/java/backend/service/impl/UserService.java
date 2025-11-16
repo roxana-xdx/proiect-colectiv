@@ -1,9 +1,11 @@
 package backend.service.impl;
 
+import backend.entity.Teacher;
 import backend.entity.User;
 import backend.entity.validation.UserValidator;
 import backend.repository.I_UserRepository;
 import backend.service.I_AdminService;
+import backend.service.I_TeacherService;
 import backend.service.I_UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,9 @@ public class UserService implements I_UserService {
     // This will be added for every new user type registration
     @Autowired
     private I_AdminService adminService;
+
+    @Autowired
+    private I_TeacherService teacherService;
 
     // (kept for potential local use; validation moved to UserValidator)
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
@@ -51,6 +56,9 @@ public class UserService implements I_UserService {
         // This lines below will be added for every new user type registration
         if (saved.getType() == User.Type.ADMIN) {
             adminService.createAdminByEmail(saved.getEmail());
+        }
+        if (saved.getType() == User.Type.TEACHER) {
+            teacherService.createTeacherByEmail(saved.getEmail());
         }
 
         return saved;
