@@ -64,17 +64,6 @@ public class PupilService implements I_PupilService {
         return pupilRepository.save(pupil);
     }
 
-//    @Override
-//    @Transactional
-//    public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
-//        Pupil existingPupil = pupilRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
-//        PupilValidator.validate(existingPupil.getUser().getEmail(), userRepository, pupilRepository);
-//        existingPupil.setClass_id(class_id);
-//        existingPupil.getParent().setClassId(parent_id);
-//        return pupilRepository.save(existingPupil);
-//    }
-
     @Override
     @Transactional
     public void deletePupil(Long id) {
@@ -108,13 +97,19 @@ public class PupilService implements I_PupilService {
     public Pupil updatePupil(Long id, Long class_id, Long parent_id) {
         Pupil existing = pupilRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
-        existing.getClasa().setClassId(class_id);
         if (parent_id != null) {
             Parent parent = parentRepository.findById(parent_id)
                     .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
             existing.setParent(parent);
         } else {
             existing.setParent(null);
+        }
+        if (class_id != null) {
+            Clasa clasa = classRepository.findById(class_id)
+                    .orElseThrow(() -> new RuntimeException("Class not found with id: " + class_id));
+            existing.setClasa(clasa);
+        } else {
+            existing.setClasa(null);
         }
         return pupilRepository.save(existing);
     }

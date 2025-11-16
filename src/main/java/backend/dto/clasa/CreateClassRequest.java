@@ -1,7 +1,11 @@
 package backend.dto.clasa;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CreateClassRequest {
+    @JsonProperty("class_name")
     private String name;
+    @JsonProperty("homeroom_teacher_id")
     private Long homeroom_teacher_id;
 
     public CreateClassRequest() {}

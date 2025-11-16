@@ -2,6 +2,7 @@ package backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +45,7 @@ public class Clasa {
     //  @ManyToOne(fetch=FetchType.LAZY)
     //  @JoinColumn(name="id", insertable=false, updatable=false)
     @Column(name = "homeroom_teacher_id", nullable = false)
-    @NotBlank
+    @NotNull
     private Long homeroomTeacherId;
 
     public Long getHomeroomTeacherId() {

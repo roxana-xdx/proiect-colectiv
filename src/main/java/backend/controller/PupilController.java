@@ -45,8 +45,6 @@ public class PupilController {
     public ResponseEntity<?> createPupil(@RequestBody CreatePupilRequest request) {
         try {
             Pupil created = pupilService.createPupil(request.getEmail(), request.getClass_id(), request.getParent_id());
-//            created.setClass_id(request.getClass_id());
-//            created.setParent_id(request.getParent_id());
             PupilDTO dto = PupilMapper.toDTO(created);
             return ResponseEntity.status(HttpStatus.CREATED).body("Pupil created successfully: " + dto);
         } catch (Exception e) {

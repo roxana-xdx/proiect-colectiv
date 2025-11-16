@@ -13,12 +13,12 @@ public class Pupil implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id")
     private Clasa clasa;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "parent_id", referencedColumnName = "id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id", referencedColumnName = "id")
     private Parent parent;
 
 //    @Column(name = "parent_id", nullable = false)
@@ -31,30 +31,8 @@ public class Pupil implements Serializable {
     @Column(name = "email", insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
 
-    ///TODO: reintrodu codul dupa ce ai si clasele Parent, Class, User si Pupil_Teacher_Feedback
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "class_id", insertable = false, updatable = false)
-//    private Class classEntity;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "parent_id", insertable = false, updatable = false)
-//    private Parent parent;
-
-    //un singur mail pt user care e si copil
-
-//
-//    @OneToMany(mappedBy = "pupil", cascade = CascadeType.ALL)
-//    private List<Pupil_teacher_Feedback> feedbacks = new ArrayList<>();
-
     public Pupil() {
     }
-
-//    public Pupil(Long id, Long class_id, Long parent_id, String email) {
-//        this.id = id;
-//        this.class_id = class_id;
-//        this.parent_id = parent_id;
-//        this.email = email;
-//    }
 
     public Pupil(User user){
         this.user = user;
