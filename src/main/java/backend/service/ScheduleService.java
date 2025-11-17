@@ -1,11 +1,14 @@
 package backend.service;
 
 import backend.Repository.I_Repo;
+import backend.dto.ScheduleDTO;
 import backend.entities.Schedule;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Validated
 public class ScheduleService implements I_service{
@@ -15,56 +18,118 @@ public class ScheduleService implements I_service{
         this.ScheduleRepository = ScheduleRepository;
     }
 
+    // ===================================================================
+    // METODE DE MAPARE (CONVERSIE DTO <-> ENTITY)
+    // ===================================================================
+
+    /**
+     * Convertește Schedule Entity -> ScheduleDTO
+     */
+    private ScheduleDTO toDTO(Schedule entity) {
+        return new ScheduleDTO(
+                entity.getId(),
+                entity.getTeacher_id(),
+                entity.getSubject_id(),
+                entity.getClass_id(),
+                entity.getDate(),
+                entity.getStart_hour(),
+                entity.getEnd_hour()
+        );
+    }
+
+    /**
+     * Convertește ScheduleDTO -> Schedule Entity
+     * ACEASTA ERA METODA CARE LIPSEA ȘI GENERA EROAREA.
+     */
+    private Schedule toEntity(ScheduleDTO dto) {
+        // Presupunem că constructorul entității Schedule suportă toate câmpurile
+        return new Schedule(
+                dto.getId(),
+                dto.getTeacher_id(),
+                dto.getSubject_id(),
+                dto.getClass_id(),
+                dto.getDate(),
+                dto.getStart_hour(),
+                dto.getEnd_hour()
+        );
+    }
+
+    // ===================================================================
+    // IMPLEMENTAREA METODELOR DIN INTERFATA SERVICE
+    // ===================================================================
+
     @Override
-    public List<Schedule> getAllSchedules() {
-        return ScheduleRepository.findAll();
+    public List<ScheduleDTO> getAllSchedules() {
+        return ScheduleRepository.findAll().stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Schedule getScheduleById(Long id) {
-        return ScheduleRepository.findById(id)
+    public ScheduleDTO getScheduleById(Long id) {
+        Schedule entity = ScheduleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + id));
+
+        return toDTO(entity);
     }
 
     @Override
-    public Schedule createSchedule(Schedule schedule) {
-        // Validare: ora de incepu sa fie mai mica ca ora de sfarsit
-        if (!schedule.getStart_hour().isBefore(schedule.getEnd_hour())) {
+    public ScheduleDTO createSchedule(ScheduleDTO scheduleDTO) {
+        // 1. Validare
+        if (!scheduleDTO.getStart_hour().isBefore(scheduleDTO.getEnd_hour())) {
             throw new IllegalArgumentException("Start hour must be before end hour.");
         }
-        return ScheduleRepository.save(schedule);
+
+        // 2. Mapare DTO -> Entity (apelăm metoda nou adăugată)
+        Schedule scheduleEntity = toEntity(scheduleDTO);
+
+        // 3. Salvare Entity
+        Schedule savedEntity = ScheduleRepository.save(scheduleEntity);
+
+        // 4. Mapare Entity salvat -> DTO de returnat
+        return toDTO(savedEntity);
     }
 
     @Override
-    public Schedule updateSchedule(Long id, Schedule updatedSchedule) {
-        return ScheduleRepository.findById(id)
-                .map(existing -> {
-                    // VAlidare: ora de incepu sa fie inainte de ora de sfarsit
-                    if (!updatedSchedule.getStart_hour().isBefore(updatedSchedule.getEnd_hour())) {
+    public void updateSchedule(ScheduleDTO scheduleDTO) {
+        Long id = scheduleDTO.getId();
+        if (id == null) {
+            throw new IllegalArgumentException("ID cannot be null for update operation.");
+        }
+
+        ScheduleRepository.findById(id)
+                .map(existingEntity -> {
+                    // 1. Validare
+                    if (!scheduleDTO.getStart_hour().isBefore(scheduleDTO.getEnd_hour())) {
                         throw new IllegalArgumentException("Start hour must be before end hour.");
                     }
 
-                    existing.setTeacher_id(updatedSchedule.getTeacher_id());
-                    existing.setSubject_id(updatedSchedule.getSubject_id());
-                    existing.setClass_id(updatedSchedule.getClass_id());
-                    existing.setDate(updatedSchedule.getDate());
-                    existing.setStart_hour(updatedSchedule.getStart_hour());
-                    existing.setEnd_hour(updatedSchedule.getEnd_hour());
-                    return ScheduleRepository.save(existing);
+                    // 2. Transfer date din DTO in Entity-ul existent
+                    existingEntity.setTeacher_id(scheduleDTO.getTeacher_id());
+                    existingEntity.setSubject_id(scheduleDTO.getSubject_id());
+                    existingEntity.setClass_id(scheduleDTO.getClass_id());
+                    existingEntity.setDate(scheduleDTO.getDate());
+                    existingEntity.setStart_hour(scheduleDTO.getStart_hour());
+                    existingEntity.setEnd_hour(scheduleDTO.getEnd_hour());
+
+                    // 3. Salvare Entity actualizat
+                    return ScheduleRepository.save(existingEntity);
                 })
                 .orElseThrow(() -> new RuntimeException("Schedule not found with ID: " + id));
     }
 
     @Override
     public void deleteSchedule(Long id) {
-        if (!ScheduleRepository.existsById(id)) {
+        if(!ScheduleRepository.existsById(id)){
             throw new RuntimeException("Schedule not found with ID: " + id);
         }
         ScheduleRepository.deleteById(id);
     }
 
     @Override
-    public List<Schedule> findByClassId(Long classId) {
-        return ScheduleRepository.findByClass_id(classId);
+    public List<ScheduleDTO> findByClassId(Long classId) {
+        return ScheduleRepository.findByClass_id(classId).stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 }

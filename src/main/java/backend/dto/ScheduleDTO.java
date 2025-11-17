@@ -1,53 +1,36 @@
-package backend.entities;
-
-import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
-
+package backend.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
-
-@Entity
-@Table(name = "schedule") // Numele tabelei din baza de date este acum "schedule"
-public class Schedule {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ScheduleDTO {
+    // ID-ul este necesar pentru operațiile de citire și actualizare
     private Long id;
 
-    // Chei externe, momentan ca Long
-    @Column(name = "teacher_id", nullable = false)
     private Long teacher_id;
-
-    @Column(name = "subject_id", nullable = false)
     private Long subject_id;
-
-    @Column(name = "class_id", nullable = false)
     private Long class_id;
 
-    @NonNull
-    @Column(name = "date", nullable = false)
     private LocalDate date;
-
-    @NonNull
-    @Column(name = "start_hour", nullable = false)
     private LocalTime start_hour;
-
-    @NonNull
-    @Column(name = "end_hour", nullable = false)
     private LocalTime end_hour;
 
-    // ===================================================================
-    // CONSTRUCTORI
-    // ===================================================================
-
-    // 1. Constructor implicit (fără argumente) - NECESAR pentru JPA/Hibernate
-    public Schedule() {
+    // Constructor implicit (necesar pentru deserializarea JSON/Jackson)
+    public ScheduleDTO() {
     }
 
-    // 2. Constructor complet - NECESAR pentru metoda toEntity() din Service
-    public Schedule(Long id, Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
+    // Constructor pentru creare (fără ID)
+    public ScheduleDTO(Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
+        this.teacher_id = teacher_id;
+        this.subject_id = subject_id;
+        this.class_id = class_id;
+        this.date = date;
+        this.start_hour = start_hour;
+        this.end_hour = end_hour;
+    }
+
+    // Constructor complet
+    public ScheduleDTO(Long id, Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
         this.id = id;
         this.teacher_id = teacher_id;
         this.subject_id = subject_id;
@@ -56,21 +39,6 @@ public class Schedule {
         this.start_hour = start_hour;
         this.end_hour = end_hour;
     }
-
-    // 3. Constructor pentru creare (fără ID)
-    public Schedule(Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
-        this.teacher_id = teacher_id;
-        this.subject_id = subject_id;
-        this.class_id = class_id;
-        this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
-    }
-
-
-    // ===================================================================
-    // GETTERS AND SETTERS
-    // ===================================================================
 
     public Long getId() {
         return id;
@@ -128,16 +96,13 @@ public class Schedule {
         this.end_hour = end_hour;
     }
 
-    // ===================================================================
-    // EQUALS, HASHCODE ȘI TOSTRING
-    // ===================================================================
-
+    // Implementează equals, hashCode și toString
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Schedule schedule = (Schedule) o;
-        return Objects.equals(id, schedule.id) && Objects.equals(teacher_id, schedule.teacher_id) && Objects.equals(subject_id, schedule.subject_id) && Objects.equals(class_id, schedule.class_id) && Objects.equals(date, schedule.date) && Objects.equals(start_hour, schedule.start_hour) && Objects.equals(end_hour, schedule.end_hour);
+        ScheduleDTO that = (ScheduleDTO) o;
+        return Objects.equals(id, that.id) && Objects.equals(teacher_id, that.teacher_id) && Objects.equals(subject_id, that.subject_id) && Objects.equals(class_id, that.class_id) && Objects.equals(date, that.date) && Objects.equals(start_hour, that.start_hour) && Objects.equals(end_hour, that.end_hour);
     }
 
     @Override
@@ -147,7 +112,7 @@ public class Schedule {
 
     @Override
     public String toString() {
-        return "Schedule{" +
+        return "ScheduleDTO{" +
                 "id=" + id +
                 ", teacher_id=" + teacher_id +
                 ", subject_id=" + subject_id +
