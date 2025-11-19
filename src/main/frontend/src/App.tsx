@@ -5,6 +5,9 @@ import { ClassesTable } from "./components/ClassesTable.tsx";
 import { TeachersTable } from "./components/TeachersTable.tsx";
 import { AddNewsSection } from "./components/AddNewsSection.tsx";
 
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+
 type TabType = "students" | "parents" | "classes" | "teachers" | "addNews";
 
 export default function App() {
@@ -23,12 +26,12 @@ export default function App() {
           <div className="flex items-center justify-between">
             {/* Logo and Title */}
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#c8e6dc] rounded flex items-center justify-center">
+              <div className="w-10 h-10 bg-[#c8e6dc] rounded-md flex items-center justify-center">
                 <span className="text-gray-700">AS</span>
               </div>
               <div>
                 <h1 className="text-gray-900">School Admin Panel</h1>
-                <p className="text-sm text-gray-500">Attendance & Lunch Tracking</p>
+                <p className="text-sm text-gray-500">Attendance Tracking</p>
               </div>
             </div>
 

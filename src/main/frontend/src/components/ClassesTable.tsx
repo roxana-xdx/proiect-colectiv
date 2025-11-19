@@ -15,6 +15,9 @@ export function ClassesTable() {
     { id: 3, name: "Class 3", students: 27, teacher: "Mr. Smith" },
   ]);
 
+const [mode, setMode] = useState<"add" | null>(null);
+{/*see the same 'feature' ;; if the add opens immediatly or not*/}
+
   const [newClass, setNewClass] = useState({
     teacher: "",
     name: "",
@@ -27,6 +30,20 @@ export function ClassesTable() {
   const handleUpdate = (id: number) => {
     // This will be handled elsewhere as per requirements
     console.log("Update class with ID:", id);
+  };
+
+  const handleAddClass = () => {
+    if (newClass.name.trim() && newClass.teacher.trim()) {
+      const newId = Math.max(...classes.map(c => c.id), 0) + 1;
+      const classToAdd: Class = {
+        id: newId,
+        name: newClass.name,
+        teacher: newClass.teacher,
+        students: 0, // New class starts with 0 students
+      };
+      setClasses([...classes, classToAdd]);
+      setNewClass({ teacher: "", name: "" });
+    }
   };
 
   return (
@@ -102,6 +119,12 @@ export function ClassesTable() {
             className="w-full px-4 py-2 bg-[#e8dff0] border-none rounded placeholder-gray-500 text-gray-700"
           />
         </div>
+                <button
+            onClick={handleAddClass}
+            className="mt-4 px-5 py-2 bg-[#b899d4] text-white rounded transition-colors hover:bg-[#a889c4]"
+          >
+            Add Class
+          </button>
       </div>
     </div>
   );

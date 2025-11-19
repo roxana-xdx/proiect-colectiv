@@ -142,7 +142,7 @@ function ChartTooltipContent({
 }) {
   const { config } = useChart();
 
-  // Recharts payload shapes vary; use any[] at runtime
+
   const entries: any[] = Array.isArray(payload) ? payload : [];
 
   const tooltipLabel = React.useMemo(() => {
@@ -210,8 +210,7 @@ function ChartTooltipContent({
               )}
             >
               {formatter && item?.value !== undefined && item.name ? (
-                // Recharts formatter signature can vary; pass the common args
-                // and allow it to return ReactNode/string
+
                 (formatter as any)(item.value, item.name, item, index)
               ) : (
                 <>
@@ -278,7 +277,7 @@ function ChartLegendContent({
   verticalAlign = "bottom",
   nameKey,
 }: React.ComponentProps<"div"> & {
-  payload?: any[]; // Recharts payload shapes vary by version/chart, keep any[] for safety
+  payload?: any[]; 
   verticalAlign?: "top" | "bottom" | "middle" | "left" | "right";
   hideIcon?: boolean;
   nameKey?: string;
@@ -328,13 +327,13 @@ function ChartLegendContent({
   );
 }
 
-// Helper to extract item config from a payload.
+
 function getPayloadConfigFromPayload(
   config: ChartConfig,
   payload: any,
   key: string,
 ) {
-  // payload can be many shapes depending on chart type / recharts version
+
   if (payload === null || typeof payload !== "object") {
     return undefined;
   }
@@ -346,7 +345,6 @@ function getPayloadConfigFromPayload(
 
   let configLabelKey: string = key;
 
-  // Accept that the payload object might contain a mapping of keys -> label
   if (key in p && typeof p[key as keyof typeof p] === "string") {
     configLabelKey = p[key as keyof typeof p] as string;
   } else if (
