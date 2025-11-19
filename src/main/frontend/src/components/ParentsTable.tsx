@@ -14,7 +14,8 @@ export function ParentsTable() {
     { id: 3, name: "Alexandra Montevardo-Howard", email: "alexandra3@example.com" },
   ]);
 
-  const [mode, setMode] = useState<"add" | "edit">("add");
+const [mode, setMode] = useState<"add" | "edit" | null>(null);
+{/*see the same 'feature' ;; if the add opens immediatly or not*/}
 
   const [newParent, setNewParent] = useState({
     email: "",
@@ -29,6 +30,37 @@ export function ParentsTable() {
 
   const handleDelete = (id: number) => {
     setParents(parents.filter((parent) => parent.id !== id));
+  };
+
+  const handleAddParent = () => {
+    if (newParent.nameParent.trim() && newParent.email.trim()) {
+      const newId = Math.max(...parents.map(p => p.id), 0) + 1;
+      const parentToAdd: Parent = {
+        id: newId,
+        name: newParent.nameParent,
+        email: newParent.email,
+      };
+      setParents([...parents, parentToAdd]);
+      setNewParent({ email: "", nameParent: "" });
+    }
+  };
+
+    const handleEditParent = () => {
+    const parentId = parseInt(editParent.id);
+    if (parentId && !isNaN(parentId)) {
+      setParents(
+        parents.map((parent) =>
+          parent.id === parentId
+            ? {
+                ...parent,
+                name: editParent.nameParent || parent.name,
+                email: editParent.email || parent.email,
+              }
+            : parent
+        )
+      );
+      setEditParent({ id: "", email: "", nameParent: "" });
+    }
   };
 
   return (
@@ -117,6 +149,12 @@ export function ParentsTable() {
               className="w-full px-4 py-2 bg-[#e8dff0] border-none rounded placeholder-gray-500 text-gray-700"
             />
           </div>
+            <button
+              onClick={handleAddParent}
+              className="mt-4 px-5 py-2 bg-[#b899d4] text-white rounded hover:bg-[#a888c4] transition-colors"
+            >
+              Save
+            </button>
         </div>
       )}
 
@@ -151,8 +189,15 @@ export function ParentsTable() {
               className="w-full px-4 py-2 bg-[#e8dff0] border-none rounded placeholder-gray-500 text-gray-700"
             />
           </div>
-        </div>
+                         <button
+              onClick={handleEditParent}
+              className="mt-4 px-5 py-2 bg-[#b899d4] text-white rounded hover:bg-[#a888c4] transition-colors"
+            >
+              Save
+            </button>
+        </div>          
       )}
     </div>
+
   );
 }

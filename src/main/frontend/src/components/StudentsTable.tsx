@@ -18,7 +18,7 @@ export function StudentsTable() {
     { id: 3, name: "Alexandra Montevardo-Howard", nameParent: "Michael Chen", class: "Grade 1", attendedSchool: false, actions: "" },
   ]);
 
-  const [mode, setMode] = useState<"add" | "edit">("add");
+const [mode, setMode] = useState<"add" | "edit" | null>(null);
 
   const [newStudent, setNewStudent] = useState({
     nameStudent: "",
@@ -44,6 +44,41 @@ export function StudentsTable() {
 
   const handleDelete = (id: number) => {
     setStudents(students.filter((student) => student.id !== id));
+  };
+
+   const handleAddStudent = () => {
+    if (newStudent.nameStudent.trim()) {
+      const newId = Math.max(...students.map(s => s.id), 0) + 1;
+      const studentToAdd: Student = {
+        id: newId,
+        name: newStudent.nameStudent,
+        nameParent: newStudent.nameParent,
+        class: newStudent.class,
+        attendedSchool: false,
+        actions: "",
+      };
+      setStudents([...students, studentToAdd]);
+      setNewStudent({ nameStudent: "", email: "", nameParent: "", class: "" });
+    }
+  };
+
+  const handleEditStudent = () => {
+    const studentId = parseInt(editStudent.id);
+    if (studentId && !isNaN(studentId)) {
+      setStudents(
+        students.map((student) =>
+          student.id === studentId
+            ? {
+                ...student,
+                name: editStudent.nameStudent || student.name,
+                nameParent: editStudent.nameParent || student.nameParent,
+                class: editStudent.class || student.class,
+              }
+            : student
+        )
+      );
+      setEditStudent({ id: "", nameStudent: "", nameParent: "", class: "" });
+    }
   };
 
   return (
@@ -151,6 +186,13 @@ export function StudentsTable() {
               className="px-4 py-2 bg-[#e8dff0] border-none rounded placeholder-gray-500 text-gray-700"
             />
           </div>
+
+          <button
+            onClick={handleAddStudent}
+            className="mt-4 px-5 py-2 bg-[#b899d4] text-white rounded transition-colors hover:bg-[#a889c4]"
+          >
+            Add Student
+          </button>
         </div>
       )}
 
@@ -194,6 +236,12 @@ export function StudentsTable() {
               className="px-4 py-2 bg-[#e8dff0] border-none rounded placeholder-gray-500 text-gray-700 col-span-2"
             />
           </div>
+          <button
+            onClick={handleEditStudent}
+            className="mt-4 px-5 py-2 bg-[#b899d4] text-white rounded transition-colors hover:bg-[#a889c4]"
+          >
+            Edit Student
+          </button>
         </div>
       )}
     </div>
