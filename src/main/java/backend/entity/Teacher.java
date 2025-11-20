@@ -2,9 +2,9 @@ package backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -23,6 +23,9 @@ public class Teacher implements Serializable {
     @Email(message = "Email should be valid")
     @Column(name = "email", unique = true, insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
+
+    @OneToMany(mappedBy = "teacher", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Clasa> classes = new ArrayList<>();
 
     //@OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     //private List<Pupil_Teacher_Feedback> feedback = new ArrayList<>();
@@ -58,6 +61,10 @@ public class Teacher implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public List<Clasa> getClasses() { return classes; }
+
+    public void setClasses(List<Clasa> classes) { this.classes = classes; }
 
     @Override
     public String toString() {
