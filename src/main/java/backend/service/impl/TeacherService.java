@@ -48,16 +48,7 @@ public class TeacherService implements I_TeacherService {
     }
 
     @Override
-    public Teacher updateTeacher(Long id, Teacher newDetails) {
-        return teacherRepository.findById(id)
-                .map(current -> {
-                    current.setEmail(newDetails.getEmail());
-                    return teacherRepository.save(current);
-                })
-                .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id));
-    }
-
-    @Override
+    @Transactional
     public void deleteTeacher(Long id) {
         if (!teacherRepository.existsById(id)) {
             throw new RuntimeException("Teacher not found with id: " + id);

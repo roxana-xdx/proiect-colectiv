@@ -10,6 +10,5 @@ public interface I_TeacherService {
     List<Teacher> getAllTeachers();
     Optional<Teacher> getTeacherById(Long id);
     Optional<Teacher> getTeacherByEmail(String email);
-    Teacher updateTeacher(Long id, Teacher newDetails);
     void deleteTeacher(Long id);
 }

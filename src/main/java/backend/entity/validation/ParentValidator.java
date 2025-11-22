@@ -1,7 +1,6 @@
 package backend.entity.validation;
 
 import backend.entity.User;
-import backend.repository.I_AdminRepository;
 import backend.repository.I_ParentRepository;
 import backend.repository.I_UserRepository;
 
@@ -28,7 +27,7 @@ public final class ParentValidator {
         if (user.getType() != User.Type.PARENT) {
             throw new IllegalStateException("User must be of type PARENT to create Parent record");
         }
-        if (parentRepo.existsByEmail(email)) {
+        if (parentRepo.existsByUser_Email(email)) {
             throw new IllegalStateException("Parent profile already exists for email: " + email);
         }
     }
