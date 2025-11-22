@@ -13,17 +13,19 @@ public class ClassAnnouncement implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "admin_id", referencedColumnName = "id", nullable = false)
     private Admin admin;
 
-    // Temporar inlocuim ClassEntity cu String pentru clasa
-    // @ManyToOne
-    // @JoinColumn(name = "class_id", nullable = false)
-    // private ClassEntity classEntity;
+    @Column(name = "admin_id", insertable = false, updatable = false, nullable = false)
+    private Long adminId;
 
-    @Column(name = "class_id", nullable = false)
-    private Long classId;
+//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+//    @JoinColumn(name = "class_id", referencedColumnName = "id", nullable = false)
+//    private Class classEntity;
+//
+//    @Column(name = "class_id", insertable = false, updatable = false, nullable = false)
+//    private Long classId;
 
     @Column(nullable = false)
     private String message;
@@ -34,10 +36,10 @@ public class ClassAnnouncement implements Serializable {
     public ClassAnnouncement() {
     }
 
-    // Constructor actualizat fara ClassEntity
-    public ClassAnnouncement(Admin admin, Long classId, String message, LocalDate date) {
-        this.admin = admin;
-        this.classId = classId;
+    public ClassAnnouncement(Long id, Long adminId, Long classId, String message, LocalDate date) {
+        this.id = id;
+        this.adminId = adminId;
+//        this.classId = classId;
         this.message = message;
         this.date = date;
     }
@@ -58,25 +60,29 @@ public class ClassAnnouncement implements Serializable {
         this.admin = admin;
     }
 
-    // Getteri si setteri pentru classId in loc de ClassEntity
-    public Long getClassId() {
-        return classId;
+    public Long getAdminId() {
+        return adminId;
     }
 
-    public void setClassId(Long classId) {
-        this.classId = classId;
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
     }
 
-    // Metode comentate temporar pentru ClassEntity
-    /*
-    public ClassEntity getClassEntity() {
-        return classEntity;
-    }
-
-    public void setClassEntity(ClassEntity classEntity) {
-        this.classEntity = classEntity;
-    }
-    */
+//    public Class getClassEntity() {
+//        return classEntity;
+//    }
+//
+//    public void setClassEntity(Class classEntity) {
+//        this.classEntity = classEntity;
+//    }
+//
+//    public Long getClassId() {
+//        return classId;
+//    }
+//
+//    public void setClassId(Long classId) {
+//        this.classId = classId;
+//    }
 
     public String getMessage() {
         return message;
@@ -111,8 +117,8 @@ public class ClassAnnouncement implements Serializable {
     public String toString() {
         return "ClassAnnouncement{" +
                 "id=" + id +
-                ", admin=" + (admin != null ? admin.getId() : null) +
-                ", classId=" + classId +
+                ", adminId=" + adminId +
+//                ", classId=" + classId +
                 ", message='" + message + '\'' +
                 ", date=" + date +
                 '}';

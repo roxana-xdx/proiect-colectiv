@@ -19,8 +19,8 @@ public class ClassAnnouncementDTO {
     @NotNull
     private Long adminId;
 
-    @NotNull
-    private Long classId;
+//    @NotNull
+//    private Long classId;
 
     @NotNull
     @Size(min = 1, max = 255)
@@ -40,7 +40,7 @@ public class ClassAnnouncementDTO {
                                 String adminEmail, String adminName) {
         this.id = id;
         this.adminId = adminId;
-        this.classId = classId;
+//        this.classId = classId;
         this.message = message;
         this.date = date;
         this.adminEmail = adminEmail;
@@ -65,7 +65,7 @@ public class ClassAnnouncementDTO {
         return new ClassAnnouncementDTO(
                 announcement.getId(),
                 admin != null ? admin.getId() : null,
-                announcement.getClassId(),
+                null, // classId comentat
                 announcement.getMessage(),
                 announcement.getDate(),
                 admin != null && admin.getUser() != null ? admin.getUser().getEmail() : null,
@@ -84,7 +84,7 @@ public class ClassAnnouncementDTO {
         if (this.id != null) {
             announcement.setId(this.id);
         }
-        announcement.setClassId(this.classId);
+//        announcement.setClass_id(this.classId);
         announcement.setMessage(this.message);
         announcement.setDate(this.date);
         // do not set announcement.setAdmin(...) here - service must provide managed Admin
@@ -103,7 +103,7 @@ public class ClassAnnouncementDTO {
             announcement.setId(this.id);
         }
         announcement.setAdmin(admin);
-        announcement.setClassId(this.classId);
+//        announcement.setClass_id(this.classId);
         announcement.setMessage(this.message);
         announcement.setDate(this.date);
         return announcement;
@@ -127,13 +127,13 @@ public class ClassAnnouncementDTO {
         this.adminId = adminId;
     }
 
-    public Long getClassId() {
-        return classId;
-    }
-
-    public void setClassId(Long classId) {
-        this.classId = classId;
-    }
+//    public Long getClassId() {
+//        return classId;
+//    }
+//
+//    public void setClassId(Long classId) {
+//        this.classId = classId;
+//    }
 
     public String getMessage() {
         return message;
