@@ -29,9 +29,9 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
         if (adminId == null) {
             throw new IllegalArgumentException("Admin ID cannot be null");
         }
-        if (classId == null) {
-            throw new IllegalArgumentException("Class ID cannot be null");
-        }
+//        if (classId == null) {
+//            throw new IllegalArgumentException("Class ID cannot be null");
+//        }
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("Message cannot be empty");
         }
@@ -46,7 +46,7 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
         // Cream anuntul
         ClassAnnouncement announcement = new ClassAnnouncement();
         announcement.setAdmin(admin);
-        announcement.setClassId(classId);
+//        announcement.setClassId(classId);
         announcement.setMessage(message);
         announcement.setDate(date);
 
