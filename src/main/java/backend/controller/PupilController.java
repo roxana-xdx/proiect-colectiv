@@ -1,12 +1,12 @@
 package backend.controller;
 
-
 import backend.dto.PupilDTO;
 import backend.dto.pupil.CreatePupilRequest;
 import backend.dto.pupil.UpdatePupilRequest;
 import backend.entity.Pupil;
 import backend.mapper.PupilMapper;
 import backend.service.I_PupilService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,35 +18,31 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/pupils")
 public class PupilController {
+
     @Autowired
     private I_PupilService pupilService;
 
     @GetMapping
     public ResponseEntity<List<PupilDTO>> getAllPupils() {
-        try {
-            List<PupilDTO> dtos = PupilMapper.toDTOList(pupilService.getAllPupils());
-            return ResponseEntity.ok(dtos);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+        List<PupilDTO> dtos = PupilMapper.toDTOList(pupilService.getAllPupils());
+        return ResponseEntity.ok(dtos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPupilById(@PathVariable Long id) {
-        Optional<Pupil> pupils = pupilService.getPupilById(id);
-        if (pupils.isPresent()) {
-            PupilDTO dto = PupilMapper.toDTO(pupils.get());
-            return ResponseEntity.ok(dto);
-        } else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pupil not found");
+    public ResponseEntity<PupilDTO> getPupilById(@PathVariable Long id) {
+        Optional<Pupil> opt = pupilService.getPupilById(id);
+        return opt.map(p -> ResponseEntity.ok(PupilMapper.toDTO(p)))
+                .orElseGet(() -> ResponseEntity.<PupilDTO>status(HttpStatus.NOT_FOUND).build());
     }
 
     @PostMapping
-    public ResponseEntity<?> createPupil(@RequestBody CreatePupilRequest request) {
+    public ResponseEntity<?> createPupil(@RequestBody @Valid CreatePupilRequest request) {
         try {
             Pupil created = pupilService.createPupil(request.getEmail(), request.getClass_id(), request.getParent_id());
             PupilDTO dto = PupilMapper.toDTO(created);
-            return ResponseEntity.status(HttpStatus.CREATED).body("Pupil created successfully: " + dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating pupil: " + e.getMessage());
@@ -58,6 +54,8 @@ public class PupilController {
         try {
             Pupil updated = pupilService.updatePupil(id, request.getClass_id(), request.getParent_id());
             return ResponseEntity.ok(PupilMapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
@@ -71,7 +69,7 @@ public class PupilController {
             pupilService.deletePupil(id);
             return ResponseEntity.ok("Pupil deleted successfully");
         } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error deleting pupil: " + e.getMessage());
@@ -79,17 +77,17 @@ public class PupilController {
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<?> getPupilByEmail(@PathVariable String email) {
+    public ResponseEntity<PupilDTO> getPupilByEmail(@PathVariable String email) {
         try {
-            Optional<PupilDTO> pupil = pupilService.findPupilByEmail(email).stream().map(PupilDTO::toDTO).findFirst();
-            return pupil.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-        } catch (RuntimeException e) {
+            Optional<Pupil> opt = pupilService.findPupilByEmail(email);
+            return opt.map(p -> ResponseEntity.ok(PupilMapper.toDTO(p)))
+                    .orElseGet(() -> ResponseEntity.<PupilDTO>status(HttpStatus.NOT_FOUND).build());
+        } catch (IllegalArgumentException e) {
+            // invalid input
             return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error retrieving pupil: " + e.getMessage());
+                    .body(null);
         }
     }
-
-
 }

@@ -4,9 +4,7 @@ import backend.entity.Teacher;
 import backend.entity.User;
 import backend.entity.validation.UserValidator;
 import backend.repository.I_UserRepository;
-import backend.service.I_AdminService;
-import backend.service.I_TeacherService;
-import backend.service.I_UserService;
+import backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +25,12 @@ public class UserService implements I_UserService {
 
     @Autowired
     private I_TeacherService teacherService;
+
+    @Autowired
+    private I_ParentService parentService;
+
+    @Autowired
+    private I_PupilService pupilService;
 
     // (kept for potential local use; validation moved to UserValidator)
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
@@ -59,6 +63,12 @@ public class UserService implements I_UserService {
         }
         if (saved.getType() == User.Type.TEACHER) {
             teacherService.createTeacherByEmail(saved.getEmail());
+        }
+        if(saved.getType() == User.Type.PARENT){
+            parentService.createParent(saved.getEmail());
+        }
+        if(saved.getType() == User.Type.PUPIL){
+            pupilService.createPupilByEmail(saved.getEmail());
         }
 
         return saved;

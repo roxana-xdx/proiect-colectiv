@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface I_SchoolClassRepository extends JpaRepository<SchoolClass, Long> {
-    Optional<List<SchoolClass>> findByHomeroomTeacherId(Long homeroom_teacher_id);
+    List<SchoolClass> findByHomeroomTeacherId(Long homeroomTeacherId);
 
     Optional<SchoolClass> findByClassName(String name);
 }

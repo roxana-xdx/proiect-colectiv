@@ -4,6 +4,7 @@ import backend.dto.SchoolClassDTO;
 import backend.entity.SchoolClass;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public final class SchoolClassMapper {
     private SchoolClassMapper() {}
@@ -12,16 +13,7 @@ public final class SchoolClassMapper {
         return SchoolClassDTO.fromEntity(clasa);
     }
 
-    public static SchoolClass toEntity(SchoolClassDTO dto){
-        if(dto == null) return null;
-        return dto.toEntity();
-    }
-
     public static List<SchoolClassDTO> toDTOList(List<SchoolClass> classes){
-        return classes.stream().map(SchoolClassMapper::toDTO).toList();
-    }
-
-    public static List<SchoolClass> toEntityList(List<SchoolClassDTO> dtos){
-        return dtos.stream().map(SchoolClassMapper::toEntity).toList();
+        return classes.stream().map(SchoolClassMapper::toDTO).collect(Collectors.toList());
     }
 }

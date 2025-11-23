@@ -20,21 +20,23 @@ import java.util.Optional;
 
 @Service
 @Validated
+@Transactional(readOnly = true)
 public class PupilService implements I_PupilService {
-    @Autowired
-    private I_PupilRepository pupilRepository;
-    @Autowired
-    private I_UserRepository userRepository;
-    @Autowired
-    private I_ParentRepository parentRepository;
-    @Autowired
-    private I_SchoolClassRepository classRepository;
 
-    //    public final Class_AnnoucementRepository classAnnoucementRepository;
+    private final I_PupilRepository pupilRepository;
+    private final I_UserRepository userRepository;
+    private final I_ParentRepository parentRepository;
+    private final I_SchoolClassRepository classRepository;
 
-    public PupilService(I_PupilRepository pupilRepository, I_UserRepository userRepository) {
+    @Autowired
+    public PupilService(I_PupilRepository pupilRepository,
+                        I_UserRepository userRepository,
+                        I_ParentRepository parentRepository,
+                        I_SchoolClassRepository classRepository) {
         this.pupilRepository = pupilRepository;
         this.userRepository = userRepository;
+        this.parentRepository = parentRepository;
+        this.classRepository = classRepository;
     }
 
     @Override
@@ -52,11 +54,11 @@ public class PupilService implements I_PupilService {
     public Pupil createPupil(String email, Long class_id, Long parent_id) {
         PupilValidator.validate(email, userRepository, pupilRepository);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         Parent parent = parentRepository.findById(parent_id)
-                .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
+                .orElseThrow(() -> new IllegalArgumentException("Parent not found with id: " + parent_id));
         SchoolClass clasa = classRepository.findById(class_id)
-                .orElseThrow(() -> new RuntimeException("Class not found with id: " + class_id));
+                .orElseThrow(() -> new IllegalArgumentException("Class not found with id: " + class_id));
         Pupil pupil = new Pupil();
         pupil.setUser(user);
         pupil.setClasa(clasa);
@@ -76,9 +78,10 @@ public class PupilService implements I_PupilService {
     @Override
     public Optional<Pupil> findPupilByEmail(String email) {
         if (email == null || email.trim().isEmpty()) {
-            throw new RuntimeException("Email cannot be null or empty");
+            throw new IllegalArgumentException("Email cannot be null or empty");
         }
-        return pupilRepository.findByEmail(email);
+        // preferăm găsirea pe user.email (mai robust) dar păstrăm fallback
+        return pupilRepository.findByUser_Email(email).or(() -> pupilRepository.findByEmail(email));
     }
 
     @Override
@@ -86,7 +89,7 @@ public class PupilService implements I_PupilService {
     public Pupil createPupilByEmail(String email) {
         PupilValidator.validate(email, userRepository, pupilRepository);
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         Pupil pupil = new Pupil();
         pupil.setUser(user);
         return pupilRepository.save(pupil);
@@ -99,23 +102,18 @@ public class PupilService implements I_PupilService {
                 .orElseThrow(() -> new RuntimeException("Pupil not found with id: " + id));
         if (parent_id != null) {
             Parent parent = parentRepository.findById(parent_id)
-                    .orElseThrow(() -> new RuntimeException("Parent not found with id: " + parent_id));
+                    .orElseThrow(() -> new IllegalArgumentException("Parent not found with id: " + parent_id));
             existing.setParent(parent);
         } else {
             existing.setParent(null);
         }
         if (class_id != null) {
             SchoolClass clasa = classRepository.findById(class_id)
-                    .orElseThrow(() -> new RuntimeException("Class not found with id: " + class_id));
+                    .orElseThrow(() -> new IllegalArgumentException("Class not found with id: " + class_id));
             existing.setClasa(clasa);
         } else {
             existing.setClasa(null);
         }
         return pupilRepository.save(existing);
     }
-
-//    @Override
-//    public List<Pupil> findPupilByClass_id(Long id) {
-//        return pupilRepository.findByClass_id(id);
-//    }
 }

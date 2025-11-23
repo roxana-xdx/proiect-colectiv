@@ -1,5 +1,6 @@
 package backend.service;
 
+import backend.dto.schoolclass.CreateSchoolClassRequest;
 import backend.entity.SchoolClass;
 
 import java.util.List;
@@ -12,9 +13,11 @@ public interface I_SchoolClassService {
 
     SchoolClass createClass(String name, Long homeroomTeacherId);
 
-    SchoolClass updateClass(Long id, SchoolClass newClass);
+    SchoolClass updateClass(Long id, CreateSchoolClassRequest request);
 
-    void deleteClassByID(Long id);
+    void deleteClassById(Long id);
 
     Optional<SchoolClass> findClassByName(String name);
+
+    List<SchoolClass> findClassesByTeacherId(Long teacherId);
 }

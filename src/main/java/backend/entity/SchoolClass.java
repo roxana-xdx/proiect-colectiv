@@ -45,7 +45,6 @@ public class SchoolClass {
     public void setHomeroomTeacher(Teacher homeroomTeacher) { this.homeroomTeacher = homeroomTeacher; }
 
     public Long getHomeroomTeacherId() { return homeroomTeacherId; }
-    public void setHomeroomTeacherId(Long homeroomTeacherId) { this.homeroomTeacherId = homeroomTeacherId; }
 
     public List<Pupil> getPupils() { return pupils; }
     public void setPupils(List<Pupil> pupils) { this.pupils = pupils; }
