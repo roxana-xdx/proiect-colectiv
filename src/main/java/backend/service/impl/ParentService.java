@@ -1,0 +1,63 @@
+package backend.service.impl;
+
+import backend.entity.Parent;
+import backend.entity.User;
+import backend.entity.validation.ParentValidator;
+import backend.repository.I_ParentRepository;
+import backend.repository.I_UserRepository;
+import backend.service.I_ParentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class ParentService implements I_ParentService {
+
+    private final I_ParentRepository parentRepository;
+    private final I_UserRepository userRepository;
+
+    @Autowired
+    public ParentService(I_ParentRepository parentRepository,
+                         I_UserRepository userRepository) {
+        this.parentRepository = parentRepository;
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public List<Parent> getAllParents() {
+        return parentRepository.findAll();
+    }
+
+    @Override
+    public Optional<Parent> getParentById(Long id) {
+        return parentRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Parent> getParentByEmail(String email) {
+        return parentRepository.findByUser_Email(email);
+    }
+
+    @Override
+    @Transactional
+    public Parent createParent(String email) {
+        ParentValidator.validateCreate(email, userRepository, parentRepository);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalStateException("User not found with email: " + email));
+        Parent parent = new Parent();
+        parent.setUser(user);
+        return parentRepository.save(parent);
+    }
+
+    @Override
+    @Transactional
+    public void deleteParent(Long id) {
+        if (!parentRepository.existsById(id)) {
+            throw new IllegalStateException("Parent with ID " + id + " not found");
+        }
+        parentRepository.deleteById(id);
+    }
+}
