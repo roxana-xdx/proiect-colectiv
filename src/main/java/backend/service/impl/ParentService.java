@@ -16,11 +16,15 @@ import java.util.Optional;
 @Service
 public class ParentService implements I_ParentService {
 
-    @Autowired
-    private I_ParentRepository parentRepository;
+    private final I_ParentRepository parentRepository;
+    private final I_UserRepository userRepository;
 
     @Autowired
-    private I_UserRepository userRepository;
+    public ParentService(I_ParentRepository parentRepository,
+                         I_UserRepository userRepository) {
+        this.parentRepository = parentRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<Parent> getAllParents() {
@@ -52,7 +56,7 @@ public class ParentService implements I_ParentService {
     @Transactional
     public void deleteParent(Long id) {
         if (!parentRepository.existsById(id)) {
-            throw new IllegalStateException("Parent with ID " + id + " not found.");
+            throw new IllegalStateException("Parent with ID " + id + " not found");
         }
         parentRepository.deleteById(id);
     }

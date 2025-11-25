@@ -16,11 +16,15 @@ import java.util.Optional;
 @Service
 public class AdminService implements I_AdminService {
 
-    @Autowired
-    private I_AdminRepository adminRepository;
+    private final I_AdminRepository adminRepository;
+    private final I_UserRepository userRepository;
 
     @Autowired
-    private I_UserRepository userRepository;
+    public AdminService(I_AdminRepository adminRepository,
+                        I_UserRepository userRepository) {
+        this.adminRepository = adminRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional

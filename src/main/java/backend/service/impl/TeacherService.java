@@ -7,22 +7,25 @@ import backend.repository.I_TeacherRepository;
 import backend.repository.I_UserRepository;
 import backend.service.I_TeacherService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 public class TeacherService implements I_TeacherService {
 
-    @Autowired
-    private I_TeacherRepository teacherRepository;
+    private final I_TeacherRepository teacherRepository;
+    private final I_UserRepository userRepository;
 
     @Autowired
-    private I_UserRepository userRepository;
-
+    public TeacherService(I_TeacherRepository teacherRepository,
+                          I_UserRepository userRepository) {
+        this.teacherRepository = teacherRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
@@ -30,30 +33,8 @@ public class TeacherService implements I_TeacherService {
         TeacherValidator.validateCreate(email, userRepository, teacherRepository);
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("User not found after validation"));
-        Teacher teacher = new Teacher();
-        teacher.setUser(user);
+        Teacher teacher = new Teacher(user);
         return teacherRepository.save(teacher);
-    }
-
-    @Override
-    public Optional<Teacher> getTeacherById(Long id) {
-        return Optional.ofNullable(teacherRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Teacher not found with id: " + id)));
-    }
-
-    @Override
-    public Optional<Teacher> getTeacherByEmail(String email) {
-        return Optional.ofNullable(teacherRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Teacher not found with email: " + email)));
-    }
-
-    @Override
-    @Transactional
-    public void deleteTeacher(Long id) {
-        if (!teacherRepository.existsById(id)) {
-            throw new RuntimeException("Teacher not found with id: " + id);
-        }
-        teacherRepository.deleteById(id);
     }
 
     @Override
@@ -61,10 +42,22 @@ public class TeacherService implements I_TeacherService {
         return teacherRepository.findAll();
     }
 
-    public Optional<Teacher> findTeacherByEmail(String email) {
-        if(email == null || email.trim().isEmpty()){
-            throw new RuntimeException("Email cannot be empty.");
-        }
+    @Override
+    public Optional<Teacher> getTeacherById(Long id) {
+        return teacherRepository.findById(id);
+    }
+
+    @Override
+    public Optional<Teacher> getTeacherByEmail(String email) {
         return teacherRepository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public void deleteTeacher(Long id) {
+        if (!teacherRepository.existsById(id)) {
+            throw new IllegalStateException("Teacher not found with id: " + id);
+        }
+        teacherRepository.deleteById(id);
     }
 }

@@ -23,7 +23,7 @@ public class Teacher implements Serializable {
     @Column(name = "email", unique = true, insertable = false, updatable = false, nullable = false, length = 255)
     private String email;
 
-    @OneToMany(mappedBy = "homeroomTeacher", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "homeroomTeacher", fetch = FetchType.LAZY)
     private List<SchoolClass> classes = new ArrayList<>();
 
     public Teacher() { }

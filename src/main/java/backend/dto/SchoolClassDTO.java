@@ -18,8 +18,18 @@ public class SchoolClassDTO {
 
     public static SchoolClassDTO fromEntity(SchoolClass c) {
         if (c == null) return null;
-        Long teacherId = c.getHomeroomTeacherId();
+
+        Long teacherId = c.getHomeroomTeacher() != null ? c.getHomeroomTeacher().getId() : null;
+
         return new SchoolClassDTO(c.getClassId(), c.getClassName(), teacherId);
+    }
+
+    public SchoolClass toEntity() {
+        SchoolClass c = new SchoolClass();
+        if(this.classId != null) {
+            c.setClassId(this.classId);
+        }
+        return c;
     }
 
     public Long getClassId() {

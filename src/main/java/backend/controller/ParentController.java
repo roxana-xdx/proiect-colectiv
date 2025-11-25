@@ -12,66 +12,76 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/parents")
 public class ParentController {
 
-    @Autowired
-    private I_ParentService parentService;
+    private final I_ParentService parentService;
 
+    @Autowired
+    public ParentController(I_ParentService parentService) {
+        this.parentService = parentService;
+    }
+
+    /**
+     * Create parent from existing user
+     */
     @PostMapping
-    public ResponseEntity<?> createParent(@RequestBody @Valid CreateParentRequest request) {
+    public ResponseEntity<ParentDTO> createParent(@RequestBody @Valid CreateParentRequest request) {
         try {
             Parent created = parentService.createParent(request.getEmail());
-            ParentDTO dto = ParentMapper.toDTO(created);
-            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(ParentMapper.toDTO(created));
         } catch (IllegalStateException | IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating parent: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Get all parents
+     */
     @GetMapping
     public ResponseEntity<List<ParentDTO>> getAllParents() {
         List<ParentDTO> dtos = ParentMapper.toDTOList(parentService.getAllParents());
         return ResponseEntity.ok(dtos);
     }
 
-    @GetMapping("/by-email/{email}")
-    public ResponseEntity<?> getParentByEmail(@PathVariable String email) {
-        Optional<Parent> opt = parentService.getParentByEmail(email);
-        if (opt.isPresent()) {
-            ParentDTO dto = ParentMapper.toDTO(opt.get());
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parent not found for email: " + email);
-        }
-    }
-
+    /**
+     * Get parent by ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getParentById(@PathVariable Long id) {
-        Optional<Parent> opt = parentService.getParentById(id);
-        if (opt.isPresent()) {
-            ParentDTO dto = ParentMapper.toDTO(opt.get());
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Parent not found for ID: " + id);
-        }
+    public ResponseEntity<ParentDTO> getParentById(@PathVariable Long id) {
+        return parentService.getParentById(id)
+                .map(ParentMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Get parent by email
+     */
+    @GetMapping("/by-email/{email}")
+    public ResponseEntity<ParentDTO> getParentByEmail(@PathVariable String email) {
+        return parentService.getParentByEmail(email)
+                .map(ParentMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Delete parent
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteParent(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteParent(@PathVariable Long id) {
         try {
             parentService.deleteParent(id);
-            return ResponseEntity.ok("Parent deleted");
+            return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

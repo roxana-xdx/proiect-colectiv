@@ -12,74 +12,108 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/classes")
 public class SchoolClassController {
 
-    @Autowired
-    private I_SchoolClassService classService;
+    private final I_SchoolClassService classService;
 
+    @Autowired
+    public SchoolClassController(I_SchoolClassService classService) {
+        this.classService = classService;
+    }
+
+    /**
+     * Get all classes
+     */
     @GetMapping
     public ResponseEntity<List<SchoolClassDTO>> getAllClasses() {
         List<SchoolClassDTO> dtos = SchoolClassMapper.toDTOList(classService.getAllClasses());
         return ResponseEntity.ok(dtos);
     }
 
+    /**
+     * Get class by ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<SchoolClassDTO> getClassById(@PathVariable Long id) {
-        Optional<SchoolClass> opt = classService.getClassById(id);
-        return opt.map(c -> ResponseEntity.ok(SchoolClassMapper.toDTO(c)))
+        return classService.getClassById(id)
+                .map(SchoolClassMapper::toDTO)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Get class by name
+     */
     @GetMapping("/by-name/{name}")
     public ResponseEntity<SchoolClassDTO> getClassByName(@PathVariable String name) {
-        Optional<SchoolClass> opt = classService.findClassByName(name);
-        return opt.map(c -> ResponseEntity.ok(SchoolClassMapper.toDTO(c)))
+        return classService.findClassByName(name)
+                .map(SchoolClassMapper::toDTO)
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Get all classes for a specific teacher (homeroom teacher)
+     */
     @GetMapping("/by-teacher/{teacherId}")
     public ResponseEntity<List<SchoolClassDTO>> getClassesByTeacher(@PathVariable Long teacherId) {
         List<SchoolClass> classes = classService.findClassesByTeacherId(teacherId);
         return ResponseEntity.ok(SchoolClassMapper.toDTOList(classes));
     }
 
+    /**
+     * Create new class
+     */
     @PostMapping
-    public ResponseEntity<?> createClass(@RequestBody @Valid CreateSchoolClassRequest request) {
+    public ResponseEntity<SchoolClassDTO> createClass(@RequestBody @Valid CreateSchoolClassRequest request) {
         try {
-            SchoolClass created = classService.createClass(request.getClassName(), request.getHomeroomTeacherId());
-            return ResponseEntity.status(HttpStatus.CREATED).body(SchoolClassMapper.toDTO(created));
+            SchoolClass created = classService.createClass(
+                    request.getClassName(),
+                    request.getHomeroomTeacherId()
+            );
+            SchoolClassDTO dto = SchoolClassMapper.toDTO(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating class: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Update class
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateClass (@PathVariable Long id, @RequestBody @Valid CreateSchoolClassRequest request) {
+    public ResponseEntity<SchoolClassDTO> updateClass(
+            @PathVariable Long id,
+            @RequestBody @Valid CreateSchoolClassRequest request) {
         try {
             SchoolClass updated = classService.updateClass(id, request);
             return ResponseEntity.ok(SchoolClassMapper.toDTO(updated));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Delete class
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteClass(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteClass(@PathVariable Long id) {
         try {
             classService.deleteClassById(id);
-            return ResponseEntity.ok("Class deleted successfully");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

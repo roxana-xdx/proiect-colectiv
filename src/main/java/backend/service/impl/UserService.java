@@ -16,24 +16,12 @@ import java.util.regex.Pattern;
 @Service
 public class UserService implements I_UserService {
 
-    @Autowired
-    private I_UserRepository userRepository;
-
-    // This will be added for every new user type registration
-    @Autowired
-    private I_AdminService adminService;
+    private final I_UserRepository userRepository;
 
     @Autowired
-    private I_TeacherService teacherService;
-
-    @Autowired
-    private I_ParentService parentService;
-
-    @Autowired
-    private I_PupilService pupilService;
-
-    // (kept for potential local use; validation moved to UserValidator)
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    public UserService(I_UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Optional<User> login(String email, String password) {
@@ -51,27 +39,8 @@ public class UserService implements I_UserService {
     @Override
     @Transactional
     public User register(User user) {
-        // validation moved to UserValidator
         UserValidator.validateRegister(user, userRepository);
-
-        User saved = userRepository.save(user);
-
-        // If the user is an admin, create an admin profile
-        // This lines below will be added for every new user type registration
-        if (saved.getType() == User.Type.ADMIN) {
-            adminService.createAdminByEmail(saved.getEmail());
-        }
-        if (saved.getType() == User.Type.TEACHER) {
-            teacherService.createTeacherByEmail(saved.getEmail());
-        }
-        if(saved.getType() == User.Type.PARENT){
-            parentService.createParent(saved.getEmail());
-        }
-        if(saved.getType() == User.Type.PUPIL){
-            pupilService.createPupilByEmail(saved.getEmail());
-        }
-
-        return saved;
+        return userRepository.save(user);
     }
 
     @Override
@@ -100,9 +69,6 @@ public class UserService implements I_UserService {
         }
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
             existing.setPassword(user.getPassword());
-        }
-        if (user.getType() != null) {
-            existing.setType(user.getType());
         }
 
         // validate the resulting entity

@@ -3,21 +3,28 @@ package backend.dto;
 import backend.entity.Parent;
 import backend.entity.User;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class ParentDTO {
 
     private Long id;
 
+    @NotNull
     @Email
     @Size(max = 255)
     private String email;
 
+    @NotNull
+    @Size(min = 1, max = 255)
+    private String name;
+
     public ParentDTO() {}
 
-    public ParentDTO(Long id, String email){
+    public ParentDTO(Long id, String email, String name) {
         this.id = id;
         this.email = email;
+        this.name = name;
     }
 
     public static ParentDTO fromEntity(Parent parent) {
@@ -25,7 +32,8 @@ public class ParentDTO {
         User user = parent.getUser();
         return new ParentDTO(
                 parent.getId(),
-                user != null ? user.getEmail() : null
+                user != null ? user.getEmail() : null,
+                user != null ? user.getName() : null
         );
     }
 
@@ -46,10 +54,12 @@ public class ParentDTO {
         return parent;
     }
 
-    // getters/setters
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 }
