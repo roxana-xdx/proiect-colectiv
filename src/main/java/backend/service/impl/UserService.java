@@ -3,7 +3,7 @@ package backend.service.impl;
 import backend.entity.Teacher;
 import backend.entity.User;
 import backend.entity.validation.UserValidator;
-import backend.repository.I_UserRepository;
+import backend.Repository.I_UserRepository;
 import backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

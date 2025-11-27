@@ -1,18 +1,36 @@
 package backend.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
 
 public class ScheduleDTO {
+
     // ID-ul este necesar pentru operațiile de citire și actualizare
     private Long id;
 
+    // Adnotările de validare:
+    @NotNull(message = "Teacher ID is mandatory")
+    @Min(value = 1, message = "Teacher ID must be positive")
     private Long teacher_id;
+
+    @NotNull(message = "Subject ID is mandatory")
+    @Min(value = 1, message = "Subject ID must be positive")
     private Long subject_id;
+
+    @NotNull(message = "Class ID is mandatory")
+    @Min(value = 1, message = "Class ID must be positive")
     private Long class_id;
 
+    @NotNull(message = "Date is mandatory")
     private LocalDate date;
+
+    @NotNull(message = "Start hour is mandatory")
     private LocalTime start_hour;
+
+    @NotNull(message = "End hour is mandatory")
     private LocalTime end_hour;
 
     // Constructor implicit (necesar pentru deserializarea JSON/Jackson)
@@ -40,6 +58,7 @@ public class ScheduleDTO {
         this.end_hour = end_hour;
     }
 
+    // Getters and Setters (toate metodele sunt necesare)
     public Long getId() {
         return id;
     }

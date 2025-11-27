@@ -1,4 +1,4 @@
-package backend.repository;
+package backend.Repository;
 
 import backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,3 +9,4 @@ public interface I_UserRepository extends JpaRepository<User, String> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 }
+

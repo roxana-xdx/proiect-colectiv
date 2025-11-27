@@ -1,4 +1,4 @@
-package backend.repository;
+package backend.Repository;
 
 import backend.entity.SchoolClass;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,8 +1,8 @@
 package backend.entity.validation;
 
 import backend.entity.User;
-import backend.repository.I_AdminRepository;
-import backend.repository.I_UserRepository;
+import backend.Repository.I_AdminRepository;
+import backend.Repository.I_UserRepository;
 
 import java.util.regex.Pattern;
 

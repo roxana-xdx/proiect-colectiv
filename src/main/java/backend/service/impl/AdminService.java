@@ -2,8 +2,8 @@ package backend.service.impl;
 
 import backend.entity.Admin;
 import backend.entity.validation.AdminValidator;
-import backend.repository.I_AdminRepository;
-import backend.repository.I_UserRepository;
+import backend.Repository.I_AdminRepository;
+import backend.Repository.I_UserRepository;
 import backend.entity.User;
 import backend.service.I_AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
