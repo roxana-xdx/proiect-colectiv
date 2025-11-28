@@ -20,12 +20,12 @@ public class ClassAnnouncement implements Serializable {
     @Column(name = "admin_id", insertable = false, updatable = false, nullable = false)
     private Long adminId;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "class_id", referencedColumnName = "id", nullable = false)
-//    private Class classEntity;
-//
-//    @Column(name = "class_id", insertable = false, updatable = false, nullable = false)
-//    private Long classId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = false)
+    private SchoolClass schoolClass;
+
+    @Column(name = "class_id", insertable = false, updatable = false, nullable = false)
+    private Long classId;
 
     @Column(nullable = false)
     private String message;
@@ -39,7 +39,7 @@ public class ClassAnnouncement implements Serializable {
     public ClassAnnouncement(Long id, Long adminId, Long classId, String message, LocalDate date) {
         this.id = id;
         this.adminId = adminId;
-//        this.classId = classId;
+        this.classId = classId;
         this.message = message;
         this.date = date;
     }
@@ -68,21 +68,21 @@ public class ClassAnnouncement implements Serializable {
         this.adminId = adminId;
     }
 
-//    public Class getClassEntity() {
-//        return classEntity;
-//    }
-//
-//    public void setClassEntity(Class classEntity) {
-//        this.classEntity = classEntity;
-//    }
-//
-//    public Long getClassId() {
-//        return classId;
-//    }
-//
-//    public void setClassId(Long classId) {
-//        this.classId = classId;
-//    }
+    public SchoolClass getSchoolClass() {
+        return schoolClass;
+    }
+
+    public void setSchoolClass(SchoolClass schoolClass) {
+        this.schoolClass = schoolClass;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
 
     public String getMessage() {
         return message;
@@ -118,7 +118,7 @@ public class ClassAnnouncement implements Serializable {
         return "ClassAnnouncement{" +
                 "id=" + id +
                 ", adminId=" + adminId +
-//                ", classId=" + classId +
+                ", classId=" + classId +
                 ", message='" + message + '\'' +
                 ", date=" + date +
                 '}';

@@ -1,6 +1,7 @@
 package backend.dto;
 
 import backend.entity.Admin;
+import backend.entity.SchoolClass;
 import backend.entity.ClassAnnouncement;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,8 +20,8 @@ public class ClassAnnouncementDTO {
     @NotNull
     private Long adminId;
 
-//    @NotNull
-//    private Long classId;
+    @NotNull
+    private Long classId;
 
     @NotNull
     @Size(min = 1, max = 255)
@@ -40,7 +41,7 @@ public class ClassAnnouncementDTO {
                                 String adminEmail, String adminName) {
         this.id = id;
         this.adminId = adminId;
-//        this.classId = classId;
+        this.classId = classId;
         this.message = message;
         this.date = date;
         this.adminEmail = adminEmail;
@@ -62,10 +63,11 @@ public class ClassAnnouncementDTO {
         if (announcement == null) return null;
 
         Admin admin = announcement.getAdmin();
+        SchoolClass schoolclass = announcement.getSchoolClass();
         return new ClassAnnouncementDTO(
                 announcement.getId(),
                 admin != null ? admin.getId() : null,
-                null, // classId comentat
+                schoolclass != null ? schoolclass.getClassId() : null,
                 announcement.getMessage(),
                 announcement.getDate(),
                 admin != null && admin.getUser() != null ? admin.getUser().getEmail() : null,
@@ -84,10 +86,9 @@ public class ClassAnnouncementDTO {
         if (this.id != null) {
             announcement.setId(this.id);
         }
-//        announcement.setClass_id(this.classId);
+        announcement.setClassId(this.classId);
         announcement.setMessage(this.message);
         announcement.setDate(this.date);
-        // do not set announcement.setAdmin(...) here - service must provide managed Admin
         return announcement;
     }
 
@@ -103,7 +104,7 @@ public class ClassAnnouncementDTO {
             announcement.setId(this.id);
         }
         announcement.setAdmin(admin);
-//        announcement.setClass_id(this.classId);
+        announcement.setClassId(this.classId);
         announcement.setMessage(this.message);
         announcement.setDate(this.date);
         return announcement;
@@ -127,13 +128,13 @@ public class ClassAnnouncementDTO {
         this.adminId = adminId;
     }
 
-//    public Long getClassId() {
-//        return classId;
-//    }
-//
-//    public void setClassId(Long classId) {
-//        this.classId = classId;
-//    }
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
 
     public String getMessage() {
         return message;

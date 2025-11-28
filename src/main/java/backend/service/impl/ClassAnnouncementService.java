@@ -1,6 +1,8 @@
 package backend.service.impl;
 
 import backend.entity.Admin;
+import backend.entity.SchoolClass;
+import backend.repository.I_SchoolClassRepository;
 import backend.entity.ClassAnnouncement;
 import backend.repository.I_AdminRepository;
 import backend.repository.I_ClassAnnouncementRepository;
@@ -20,6 +22,9 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
     private I_ClassAnnouncementRepository classAnnouncementRepository;
 
     @Autowired
+    private I_SchoolClassRepository schoolClassRepository;
+
+    @Autowired
     private I_AdminRepository adminRepository;
 
     @Override
@@ -29,9 +34,9 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
         if (adminId == null) {
             throw new IllegalArgumentException("Admin ID cannot be null");
         }
-//        if (classId == null) {
-//            throw new IllegalArgumentException("Class ID cannot be null");
-//        }
+        if (classId == null) {
+            throw new IllegalArgumentException("Class ID cannot be null");
+        }
         if (message == null || message.trim().isEmpty()) {
             throw new IllegalArgumentException("Message cannot be empty");
         }
@@ -43,10 +48,14 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
         Admin admin = adminRepository.findById(adminId)
                 .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + adminId));
 
+        // Gasim clasa din baza de date
+        SchoolClass schoolClass = schoolClassRepository.findById(classId)
+                .orElseThrow(() -> new IllegalStateException("SchoolClass not found with ID: " + classId));
+
         // Cream anuntul
         ClassAnnouncement announcement = new ClassAnnouncement();
         announcement.setAdmin(admin);
-//        announcement.setClassId(classId);
+        announcement.setSchoolClass(schoolClass);
         announcement.setMessage(message);
         announcement.setDate(date);
 
