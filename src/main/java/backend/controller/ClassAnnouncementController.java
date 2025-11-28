@@ -1,6 +1,8 @@
 package backend.controller;
 
 import backend.dto.ClassAnnouncementDTO;
+import backend.dto.classannouncement.CreateClassAnnouncementRequest;
+import backend.dto.classannouncement.UpdateClassAnnouncementRequest;
 import backend.entity.ClassAnnouncement;
 import backend.mapper.ClassAnnouncementMapper;
 import backend.service.I_ClassAnnouncementService;
@@ -21,13 +23,13 @@ public class ClassAnnouncementController {
     private I_ClassAnnouncementService classAnnouncementService;
 
     @PostMapping
-    public ResponseEntity<?> createAnnouncement(@RequestBody @Valid ClassAnnouncementDTO announcementDTO) {
+    public ResponseEntity<?> createAnnouncement(@RequestBody @Valid CreateClassAnnouncementRequest request) {
         try {
             ClassAnnouncement created = classAnnouncementService.createAnnouncement(
-                    announcementDTO.getAdminId(),
-                    announcementDTO.getClassId(),
-                    announcementDTO.getMessage(),
-                    announcementDTO.getDate()
+                    request.getAdminId(),
+                    request.getClassId(),
+                    request.getMessage(),
+                    request.getDate()
             );
             ClassAnnouncementDTO dto = ClassAnnouncementMapper.toDTO(created);
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
@@ -57,12 +59,12 @@ public class ClassAnnouncementController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateAnnouncement(
             @PathVariable Long id,
-            @RequestBody @Valid ClassAnnouncementDTO announcementDTO) {
+            @RequestBody @Valid UpdateClassAnnouncementRequest request) {
         try {
             ClassAnnouncement updated = classAnnouncementService.updateAnnouncement(
                     id,
-                    announcementDTO.getMessage(),
-                    announcementDTO.getDate()
+                    request.getMessage(),
+                    request.getDate()
             );
             ClassAnnouncementDTO dto = ClassAnnouncementMapper.toDTO(updated);
             return ResponseEntity.ok(dto);
