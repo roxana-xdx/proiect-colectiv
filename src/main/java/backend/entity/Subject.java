@@ -2,6 +2,8 @@ package backend.entity;
 
 import jakarta.persistence.*;
 import java.util.Objects;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "subject")
@@ -14,8 +16,8 @@ public class Subject {
     @Column(nullable = false, length = 255)
     private String name;
 
-//    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-//    private List<ClassSchedule> classSchedules = new ArrayList<>();
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
+    private List<Schedule> schedules = new ArrayList<>();
 
     public Subject() {
     }
@@ -45,13 +47,13 @@ public class Subject {
         this.name = name;
     }
 
-//    public List<ClassSchedule> getClassSchedules() {
-//        return classSchedules;
-//    }
-//
-//    public void setClassSchedules(List<ClassSchedule> classSchedules) {
-//        this.classSchedules = classSchedules;
-//    }
+    public List<Schedule> getSchedules() {
+        return schedules;
+    }
+
+    public void setSchedules(List<Schedule> schedules) {
+        this.schedules = schedules;
+    }
 
     @Override
     public boolean equals(Object o) {

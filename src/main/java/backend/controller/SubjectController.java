@@ -1,6 +1,8 @@
 package backend.controller;
 
 import backend.dto.SubjectDTO;
+import backend.dto.subject.CreateSubjectRequest;
+import backend.dto.subject.UpdateSubjectRequest;
 import backend.entity.Subject;
 import backend.mapper.SubjectMapper;
 import backend.service.I_SubjectService;
@@ -21,9 +23,9 @@ public class SubjectController {
     private I_SubjectService subjectService;
 
     @PostMapping
-    public ResponseEntity<?> createSubject(@RequestBody @Valid SubjectDTO subjectDTO) {
+    public ResponseEntity<?> createSubject(@RequestBody @Valid CreateSubjectRequest request) {
         try {
-            Subject created = subjectService.createSubject(subjectDTO.getName());
+            Subject created = subjectService.createSubject(request.getName());
             SubjectDTO dto = SubjectMapper.toDTO(created);
             return ResponseEntity.status(HttpStatus.CREATED).body(dto);
         } catch (RuntimeException e) {
@@ -51,9 +53,9 @@ public class SubjectController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSubject(
             @PathVariable Long id,
-            @RequestBody @Valid SubjectDTO subjectDTO) {
+            @RequestBody @Valid UpdateSubjectRequest request) {
         try {
-            Subject updated = subjectService.updateSubject(id, subjectDTO.getName());
+            Subject updated = subjectService.updateSubject(id, request.getName());
             SubjectDTO dto = SubjectMapper.toDTO(updated);
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
