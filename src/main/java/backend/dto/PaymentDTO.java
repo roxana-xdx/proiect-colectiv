@@ -2,30 +2,29 @@ package backend.dto;
 
 import backend.entity.Payment;
 import backend.entity.User;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-/**
- * Data Transfer Object for Payment entity.
- * Only exposes parent's email instead of full User entity.
- */
 public class PaymentDTO {
 
     private Long id;
 
-    @NotNull
-    @Size(max = 255)
+    @NotBlank(message = "Parent email is required")
+    @Email(message = "Parent email must be valid")
+    @Size(max = 255, message = "Parent email must not exceed 255 characters")
     private String parentEmail;
 
-    @NotNull
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    @Digits(integer = 13, fraction = 2, message = "Amount must have max 13 integer and 2 fraction digits")
     private BigDecimal amount;
 
-    @NotNull
+    @NotNull(message = "Due date is required")
+    @FutureOrPresent(message = "Due date must be today or in the future")
     private LocalDate dueDate;
 
-    @Size(max = 255)
+    @Size(max = 255, message = "Message must not exceed 255 characters")
     private String message;
 
     public PaymentDTO() {}
@@ -38,12 +37,6 @@ public class PaymentDTO {
         this.message = message;
     }
 
-    /**
-     * Create DTO from entity.
-     *
-     * @param payment entity
-     * @return dto
-     */
     public static PaymentDTO fromEntity(Payment payment) {
         if (payment == null) return null;
         return new PaymentDTO(
@@ -55,12 +48,6 @@ public class PaymentDTO {
         );
     }
 
-    /**
-     * Convert DTO to entity.
-     *
-     * @param parent User entity representing parent
-     * @return Payment entity
-     */
     public Payment toEntity(User parent) {
         Payment payment = new Payment();
         payment.setId(this.id);
@@ -70,8 +57,6 @@ public class PaymentDTO {
         payment.setMessage(this.message);
         return payment;
     }
-
-    // --- Getters / Setters ---
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
