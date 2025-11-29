@@ -1,144 +1,99 @@
 package backend.dto;
 
-import jakarta.validation.constraints.Min;
+import backend.entity.Schedule;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Min;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Objects;
 
 public class ScheduleDTO {
-
-    // ID-ul este necesar pentru operațiile de citire și actualizare
     private Long id;
 
-    // Adnotările de validare:
-    @NotNull(message = "Teacher ID is mandatory")
-    @Min(value = 1, message = "Teacher ID must be positive")
-    private Long teacher_id;
+    @NotNull
+    @Min(1)
+    private Long teacherId;
 
-    @NotNull(message = "Subject ID is mandatory")
-    @Min(value = 1, message = "Subject ID must be positive")
-    private Long subject_id;
+    @NotNull
+    @Min(1)
+    private Long subjectId;
 
-    @NotNull(message = "Class ID is mandatory")
-    @Min(value = 1, message = "Class ID must be positive")
-    private Long class_id;
+    @NotNull
+    @Min(1)
+    private Long classId;
 
-    @NotNull(message = "Date is mandatory")
+    @NotNull
     private LocalDate date;
 
-    @NotNull(message = "Start hour is mandatory")
-    private LocalTime start_hour;
+    @NotNull
+    private LocalTime startHour;
 
-    @NotNull(message = "End hour is mandatory")
-    private LocalTime end_hour;
+    @NotNull
+    private LocalTime endHour;
 
-    // Constructor implicit (necesar pentru deserializarea JSON/Jackson)
-    public ScheduleDTO() {
-    }
+    public ScheduleDTO() {}
 
-    // Constructor pentru creare (fără ID)
-    public ScheduleDTO(Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
-        this.teacher_id = teacher_id;
-        this.subject_id = subject_id;
-        this.class_id = class_id;
-        this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
-    }
-
-    // Constructor complet
-    public ScheduleDTO(Long id, Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
+    public ScheduleDTO(Long id, Long teacherId, Long subjectId, Long classId, LocalDate date, LocalTime startHour, LocalTime endHour) {
         this.id = id;
-        this.teacher_id = teacher_id;
-        this.subject_id = subject_id;
-        this.class_id = class_id;
+        this.teacherId = teacherId;
+        this.subjectId = subjectId;
+        this.classId = classId;
         this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
+        this.startHour = startHour;
+        this.endHour = endHour;
     }
 
-    // Getters and Setters (toate metodele sunt necesare)
-    public Long getId() {
-        return id;
+    public static ScheduleDTO toDTO(Schedule schedule) {
+        if (schedule == null) return null;
+
+        Long teacherId = (schedule.getTeacher() != null) ? schedule.getTeacher().getId() : null;
+        Long subjectId = (schedule.getSubject() != null) ? schedule.getSubject().getId() : null;
+        Long classId = (schedule.getClass() != null) ? schedule.getClassEntity().getClassId() : null;
+
+        return new ScheduleDTO(
+                schedule.getId(),
+                teacherId,
+                subjectId,
+                classId,
+                schedule.getDate(),
+                schedule.getStart_hour(),
+                schedule.getEnd_hour()
+        );
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Schedule toEntity() {
+        Schedule schedule = new Schedule();
+        if (this.id != null) schedule.setId(this.id);
+        schedule.setDate(this.date);
+        schedule.setStart_hour(this.startHour);
+        schedule.setEnd_hour(this.endHour);
+        return schedule;
     }
 
-    public Long getTeacher_id() {
-        return teacher_id;
-    }
+    // Getters/Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setTeacher_id(Long teacher_id) {
-        this.teacher_id = teacher_id;
-    }
+    @JsonProperty("teacher_id")
+    public Long getTeacherId() { return teacherId; }
+    public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
 
-    public Long getSubject_id() {
-        return subject_id;
-    }
+    @JsonProperty("subject_id")
+    public Long getSubjectId() { return subjectId; }
+    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
 
-    public void setSubject_id(Long subject_id) {
-        this.subject_id = subject_id;
-    }
+    @JsonProperty("class_id")
+    public Long getClassId() { return classId; }
+    public void setClassId(Long classId) { this.classId = classId; }
 
-    public Long getClass_id() {
-        return class_id;
-    }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
-    public void setClass_id(Long class_id) {
-        this.class_id = class_id;
-    }
+    @JsonProperty("start_hour")
+    public LocalTime getStartHour() { return startHour; }
+    public void setStartHour(LocalTime startHour) { this.startHour = startHour; }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public LocalTime getStart_hour() {
-        return start_hour;
-    }
-
-    public void setStart_hour(LocalTime start_hour) {
-        this.start_hour = start_hour;
-    }
-
-    public LocalTime getEnd_hour() {
-        return end_hour;
-    }
-
-    public void setEnd_hour(LocalTime end_hour) {
-        this.end_hour = end_hour;
-    }
-
-    // Implementează equals, hashCode și toString
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ScheduleDTO that = (ScheduleDTO) o;
-        return Objects.equals(id, that.id) && Objects.equals(teacher_id, that.teacher_id) && Objects.equals(subject_id, that.subject_id) && Objects.equals(class_id, that.class_id) && Objects.equals(date, that.date) && Objects.equals(start_hour, that.start_hour) && Objects.equals(end_hour, that.end_hour);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, teacher_id, subject_id, class_id, date, start_hour, end_hour);
-    }
-
-    @Override
-    public String toString() {
-        return "ScheduleDTO{" +
-                "id=" + id +
-                ", teacher_id=" + teacher_id +
-                ", subject_id=" + subject_id +
-                ", class_id=" + class_id +
-                ", date=" + date +
-                ", start_hour=" + start_hour +
-                ", end_hour=" + end_hour +
-                '}';
-    }
+    @JsonProperty("end_hour")
+    public LocalTime getEndHour() { return endHour; }
+    public void setEndHour(LocalTime endHour) { this.endHour = endHour; }
 }

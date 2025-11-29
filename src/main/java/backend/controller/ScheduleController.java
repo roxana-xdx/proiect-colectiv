@@ -1,42 +1,57 @@
 package backend.controller;
 
 import backend.dto.ScheduleDTO;
-import backend.dto.schedule.CreateScheduleRequest; // Import NOU
-import backend.dto.schedule.UpdateScheduleRequest; // Import NOU
+import backend.dto.schedule.CreateScheduleRequest;
+import backend.dto.schedule.UpdateScheduleRequest;
+import backend.entity.Schedule;
+import backend.mapper.ScheduleMapper;
 import backend.service.I_ScheduleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/class-schedules")
+@RequestMapping("/schedules")
 public class ScheduleController {
 
     private final I_ScheduleService scheduleService;
 
     @Autowired
-    public ScheduleController(I_ScheduleService ScheduleService) {
-        this.scheduleService = ScheduleService;
+    public ScheduleController(I_ScheduleService scheduleService) {
+        this.scheduleService = scheduleService;
     }
 
-    // ... (Metodele GET rămân la fel) ...
+    /**
+     * Get all schedules
+     */
+    @GetMapping
+    public ResponseEntity<List<ScheduleDTO>> getAllSchedules() {
+        List<ScheduleDTO> dtos = ScheduleMapper.toDTOList(scheduleService.getAllSchedules());
+        return ResponseEntity.ok(dtos);
+    }
 
     /**
-     * POST /class-schedules
-     * Folosește CreateScheduleRequest
+     * Get schedule by ID
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ScheduleDTO> getScheduleById(@PathVariable Long id) {
+        return scheduleService.getScheduleById(id)
+                .map(ScheduleMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    /**
+     * Create schedule with teacher, subject and class
      */
     @PostMapping
-    public ResponseEntity<?> createSchedule(@Valid @RequestBody CreateScheduleRequest request) {
+    public ResponseEntity<ScheduleDTO> createSchedule(@RequestBody @Valid CreateScheduleRequest request) {
         try {
-            // Conversie Request -> DTO intern
-            ScheduleDTO scheduleDTO = new ScheduleDTO(
+            Schedule created = scheduleService.createSchedule(
                     request.getTeacher_id(),
                     request.getSubject_id(),
                     request.getClass_id(),
@@ -44,74 +59,53 @@ public class ScheduleController {
                     request.getStart_hour(),
                     request.getEnd_hour()
             );
-
-            ScheduleDTO createdSchedule = scheduleService.createSchedule(scheduleDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdSchedule);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Validation Error (Service): " + e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating schedule: " + e.getMessage());
-        }
-    }
-
-    /**
-     * PUT /class-schedules/{id}
-     * Folosește UpdateScheduleRequest
-     */
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateSchedule(@PathVariable Long id, @Valid @RequestBody UpdateScheduleRequest request) {
-        try {
-            // Conversie Request -> DTO intern
-            // NOTĂ: Dacă folosești UpdateRequest, trebuie să te asiguri că toate câmpurile sunt copiate,
-            // chiar și cele nule, sau să folosești o logică de mapare mai complexă.
-            ScheduleDTO scheduleDTO = new ScheduleDTO(
-                    id, // ID-ul din PathVariable
-                    request.getTeacher_id(),
-                    request.getSubject_id(),
-                    request.getClass_id(),
-                    request.getDate(),
-                    request.getStart_hour(),
-                    request.getEnd_hour()
-            );
-
-            // Daca un camp este null, se va face update cu null in Service,
-            // deci Service-ul tau va trebui sa fie mai inteligent (ex: nu face set la null)
-
-            scheduleService.updateSchedule(scheduleDTO);
-            return ResponseEntity.ok(scheduleDTO);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.CREATED).body(ScheduleMapper.toDTO(created));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    // ... (Metoda deleteSchedule și Exception Handler rămân la fel) ...
+    /**
+     * Update schedule's teacher, subject, class, date and/or hours
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ScheduleDTO> updateSchedule(
+            @PathVariable Long id,
+            @RequestBody @Valid UpdateScheduleRequest request) {
+        try {
+            Schedule updated = scheduleService.updateSchedule(
+                    id,
+                    request.getTeacher_id(),
+                    request.getSubject_id(),
+                    request.getClass_id(),
+                    request.getDate(),
+                    request.getStart_hour(),
+                    request.getEnd_hour()
+            );
+            return ResponseEntity.ok(ScheduleMapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
+    /**
+     * Delete schedule
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSchedule(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSchedule(@PathVariable Long id) {
         try {
             scheduleService.deleteSchedule(id);
             return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-
-        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
-                .collect(Collectors.toMap(
-                        fieldError -> fieldError.getField(),
-                        fieldError -> fieldError.getDefaultMessage()
-                ));
-
-        return errors;
     }
 }
