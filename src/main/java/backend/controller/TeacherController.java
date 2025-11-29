@@ -79,7 +79,10 @@ public class TeacherController {
             teacherService.deleteTeacher(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if (e.getMessage().contains("still assigned")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build(); // HTTP 409 Conflict
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // HTTP 404 Not Found
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
