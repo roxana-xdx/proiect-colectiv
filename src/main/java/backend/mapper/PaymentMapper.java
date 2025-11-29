@@ -7,10 +7,7 @@ import backend.entity.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Mapper utility class for converting between {@link Payment} and {@link PaymentDTO}.
- * All methods are static — service/controller handle persistence and parent resolution.
- */
+
 public final class PaymentMapper {
 
     private PaymentMapper() {}

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AdminService implements I_AdminService {
+public class  AdminService implements I_AdminService {
 
     private final I_AdminRepository adminRepository;
     private final I_UserRepository userRepository;

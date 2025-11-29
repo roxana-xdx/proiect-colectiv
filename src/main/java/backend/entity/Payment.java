@@ -1,6 +1,10 @@
 package backend.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -12,19 +16,23 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Reference to User (parent)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id", nullable = false)
+    @JoinColumn(name = "parent_email", referencedColumnName = "email", nullable = false)
     private User parent;
 
+    @NotNull(message = "Amount cannot be null")
+    @Positive(message = "Amount must be positive")
+    @Digits(integer = 13, fraction = 2, message = "Amount must have max 13 integer and 2 fraction digits")
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal amount;
 
+    @NotNull(message = "Due date cannot be null")
+    @FutureOrPresent(message = "Due date must be today or in the future")
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
     @Column(length = 255)
-    private String message; // optional
+    private String message;
 
     public Payment() {}
 
@@ -35,7 +43,6 @@ public class Payment {
         this.message = message;
     }
 
-    // Getters and setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -51,4 +58,3 @@ public class Payment {
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 }
-
