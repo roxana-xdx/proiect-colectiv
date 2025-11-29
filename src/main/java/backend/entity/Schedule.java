@@ -37,16 +37,14 @@ public class Schedule {
     private LocalTime end_hour;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn mapează câmpul 'subject_id' din tabela 'class_schedule'
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
 
-    // 1. Constructor implicit (fără argumente) - NECESAR pentru JPA/Hibernate
     public Schedule() {
     }
 
-    // 2. Constructor complet - NECESAR pentru metoda toEntity() din Service
+
     public Schedule(Long id, Teacher teacher, Subject subject, SchoolClass classEntity, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
         this.id = id;
         this.teacher = teacher;
@@ -57,7 +55,7 @@ public class Schedule {
         this.end_hour = end_hour;
     }
 
-    // 3. Constructor pentru creare (fără ID)
+
     public Schedule(Teacher teacher , Subject subject, SchoolClass classEntity, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
         this.teacher = teacher;
         this.subject = subject;
