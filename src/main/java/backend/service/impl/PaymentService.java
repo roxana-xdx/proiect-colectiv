@@ -10,59 +10,59 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 public class PaymentService implements I_PaymentService {
 
-    @Autowired
-    private I_PaymentRepository paymentRepository;
+    private final I_PaymentRepository paymentRepository;
+    private final I_ParentRepository parentRepository;
 
     @Autowired
-    private I_ParentRepository parentRepository;
-
-    @Override
-    @Transactional
-    public Payment createPayment(Payment payment, Parent parent) {
-        validatePaymentData(payment);
-        validateParentExists(parent);
-        payment.setParent(parent);
-        return paymentRepository.save(payment);
+    public PaymentService(I_PaymentRepository paymentRepository,
+                          I_ParentRepository parentRepository) {
+        this.paymentRepository = paymentRepository;
+        this.parentRepository = parentRepository;
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Payment> getPaymentById(Long id) {
-        validatePaymentId(id);
         return paymentRepository.findById(id);
     }
 
     @Override
     @Transactional
-    public Payment updatePayment(Long id, Payment paymentDetails, Parent parent) {
-        validatePaymentId(id);
-        validatePaymentUpdateData(paymentDetails);
+    public Payment createPayment(Payment payment) {
+        payment.setPaymentDate(LocalDateTime.now());
+        if (payment.getStatus() == null) {
+            payment.setStatus("PENDING");
+        }
+        return paymentRepository.save(payment);
+    }
 
-        Payment existingPayment = paymentRepository.findById(id)
+    @Override
+    @Transactional
+    public Payment updatePayment(Long id, Payment paymentDetails) {
+        Payment payment = paymentRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Payment not found with id: " + id));
 
-        updatePaymentFields(existingPayment, paymentDetails, parent);
-        return paymentRepository.save(existingPayment);
+        payment.setAmount(paymentDetails.getAmount());
+        payment.setDueDate(paymentDetails.getDueDate());
+        payment.setDescription(paymentDetails.getDescription());
+
+        return paymentRepository.save(payment);
     }
 
     @Override
     @Transactional
     public void deletePayment(Long id) {
-        validatePaymentId(id);
         if (!paymentRepository.existsById(id)) {
             throw new IllegalStateException("Payment not found with id: " + id);
         }
@@ -70,80 +70,100 @@ public class PaymentService implements I_PaymentService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Payment> getPaymentsByParent(String parentEmail) {
-        validateEmail(parentEmail);
-        Parent parent = parentRepository.findByEmail(parentEmail.trim())
-                .orElseThrow(() -> new IllegalStateException("Parent not found with email: " + parentEmail));
+    public List<Payment> getPaymentsByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
         return paymentRepository.findByParent(parent);
     }
 
-    private void validatePaymentData(Payment payment) {
-        if (payment == null) {
-            throw new IllegalArgumentException("Payment cannot be null");
-        }
-        if (payment.getAmount() == null || payment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than 0");
-        }
-        if (payment.getDueDate() == null) {
-            throw new IllegalArgumentException("Due date is required");
-        }
-        if (payment.getDueDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Due date must be today or in the future");
-        }
+    @Override
+    public List<Payment> getPaymentHistoryByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        return paymentRepository.findByParentOrderByPaymentDateDesc(parent);
     }
 
-    private void validateParentExists(Parent parent) {
-        if (parent == null) {
-            throw new IllegalArgumentException("Parent cannot be null");
-        }
-        if (!parentRepository.existsById(parent.getId())) {
-            throw new IllegalStateException("Parent does not exist in database");
-        }
+    @Override
+    public List<Payment> getPendingPaymentsByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        return paymentRepository.findByParentAndStatus(parent, "PENDING");
     }
 
-    private void validatePaymentId(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("Payment ID cannot be null");
-        }
-        if (id <= 0) {
-            throw new IllegalArgumentException("Payment ID must be positive");
-        }
+    @Override
+    public List<Payment> getOverduePaymentsByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        return paymentRepository.findOverduePaymentsByParent(parent);
     }
 
-    private void validatePaymentUpdateData(Payment paymentDetails) {
-        if (paymentDetails == null) {
-            throw new IllegalArgumentException("Payment details cannot be null");
-        }
-        if (paymentDetails.getAmount() != null && paymentDetails.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be greater than 0");
-        }
-        if (paymentDetails.getDueDate() != null && paymentDetails.getDueDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Due date must be today or in the future");
-        }
+    @Override
+    public List<Payment> getPaymentsByStatus(String status) {
+        return paymentRepository.findByStatus(status);
     }
 
-    private void validateEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
-        }
-        if (!email.contains("@")) {
-            throw new IllegalArgumentException("Invalid email format");
-        }
+    @Override
+    public List<Payment> getOverduePayments() {
+        return paymentRepository.findOverduePayments();
     }
 
-    private void updatePaymentFields(Payment existingPayment, Payment paymentDetails, Parent parent) {
-        if (paymentDetails.getAmount() != null) {
-            existingPayment.setAmount(paymentDetails.getAmount());
+    @Override
+    @Transactional
+    public boolean markAsPaid(Long paymentId) {
+        Optional<Payment> paymentOpt = paymentRepository.findById(paymentId);
+        if (paymentOpt.isPresent()) {
+            Payment payment = paymentOpt.get();
+            if (payment.canBePaid()) {
+                payment.setStatus("PAID");
+                payment.setPaymentDate(LocalDateTime.now());
+                paymentRepository.save(payment);
+                return true;
+            }
         }
-        if (paymentDetails.getDueDate() != null) {
-            existingPayment.setDueDate(paymentDetails.getDueDate());
+        return false;
+    }
+
+    @Override
+    @Transactional
+    public boolean markAsCancelled(Long paymentId) {
+        Optional<Payment> paymentOpt = paymentRepository.findById(paymentId);
+        if (paymentOpt.isPresent()) {
+            Payment payment = paymentOpt.get();
+            payment.setStatus("CANCELLED");
+            paymentRepository.save(payment);
+            return true;
         }
-        if (paymentDetails.getMessage() != null) {
-            existingPayment.setMessage(paymentDetails.getMessage());
-        }
-        if (parent != null) {
-            existingPayment.setParent(parent);
-        }
+        return false;
+    }
+
+    @Override
+    public BigDecimal getTotalPaidByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        BigDecimal total = paymentRepository.sumPaidAmountByParent(parent);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    @Override
+    public BigDecimal getTotalPendingByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        BigDecimal total = paymentRepository.sumPendingAmountByParent(parent);
+        return total != null ? total : BigDecimal.ZERO;
+    }
+
+    @Override
+    public Long getPaidPaymentsCountByParent(Long parentId) {
+        Parent parent = getParentById(parentId);
+        return paymentRepository.countPaidPaymentsByParent(parent);
+    }
+
+    @Override
+    public boolean canParentAccessPayment(Long paymentId, Long parentId) {
+        return paymentRepository.existsByIdAndParentId(paymentId, parentId);
+    }
+
+    @Override
+    public List<Payment> getRecentPayments() {
+        return paymentRepository.findTop5ByOrderByPaymentDateDesc();
+    }
+
+    private Parent getParentById(Long parentId) {
+        return parentRepository.findById(parentId)
+                .orElseThrow(() -> new IllegalStateException("Parent not found with id: " + parentId));
     }
 }
