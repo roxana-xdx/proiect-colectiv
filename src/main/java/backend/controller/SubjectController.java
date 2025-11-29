@@ -19,65 +19,93 @@ import java.util.Optional;
 @RequestMapping("/subjects")
 public class SubjectController {
 
-    @Autowired
-    private I_SubjectService subjectService;
+    private final I_SubjectService subjectService;
 
+    @Autowired
+    public SubjectController(I_SubjectService subjectService) {
+        this.subjectService = subjectService;
+    }
+
+    /**
+     * Create new subject
+     */
     @PostMapping
-    public ResponseEntity<?> createSubject(@RequestBody @Valid CreateSubjectRequest request) {
+    public ResponseEntity<SubjectDTO> createSubject(@RequestBody @Valid CreateSubjectRequest request) {
         try {
             Subject created = subjectService.createSubject(request.getName());
-            SubjectDTO dto = SubjectMapper.toDTO(created);
-            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED).body(SubjectMapper.toDTO(created));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        } catch (IllegalStateException e) {
+            // Prinde eroarea de unicitate din Service
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Get all subjects
+     */
     @GetMapping
     public ResponseEntity<List<SubjectDTO>> getAllSubjects() {
         List<SubjectDTO> dtos = SubjectMapper.toDTOList(subjectService.getAllSubjects());
         return ResponseEntity.ok(dtos);
     }
 
+    /**
+     * Get subject by ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSubjectById(@PathVariable Long id) {
-        Optional<Subject> opt = subjectService.getSubjectById(id);
-        if (opt.isPresent()) {
-            SubjectDTO dto = SubjectMapper.toDTO(opt.get());
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Subject not found");
-        }
+    public ResponseEntity<SubjectDTO> getSubjectById(@PathVariable Long id) {
+        return subjectService.getSubjectById(id)
+                .map(SubjectMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Update subject name
+     */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSubject(
+    public ResponseEntity<SubjectDTO> updateSubject(
             @PathVariable Long id,
             @RequestBody @Valid UpdateSubjectRequest request) {
         try {
             Subject updated = subjectService.updateSubject(id, request.getName());
-            SubjectDTO dto = SubjectMapper.toDTO(updated);
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            if (e instanceof IllegalStateException) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else {
-                return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.ok(SubjectMapper.toDTO(updated));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        } catch (IllegalStateException e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
             }
+            // Eroare de unicitate
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Delete subject
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteSubject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSubject(@PathVariable Long id) {
         try {
             subjectService.deleteSubject(id);
-            return ResponseEntity.ok("Subject deleted");
-        } catch (RuntimeException e) {
-            if (e instanceof IllegalStateException) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else {
-                return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.noContent().build(); // 204 No Content
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // ID null
+        } catch (IllegalStateException e) {
+            // Prinde 404 sau 409 din service (DataIntegrityViolationException)
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
             }
+            // Cannot delete (FK constraint)
+            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // 409 Conflict
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

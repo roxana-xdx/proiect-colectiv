@@ -9,7 +9,7 @@ import java.util.Objects;
 
 
 @Entity
-@Table(name = "schedule")
+@Table(name = "schedules")
 public class Schedule {
 
     @Id

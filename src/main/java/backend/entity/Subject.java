@@ -1,13 +1,15 @@
 package backend.entity;
 
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "subject")
-public class Subject {
+@Table(name = "subjects")
+public class Subject implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,11 +25,6 @@ public class Subject {
     }
 
     public Subject(String name) {
-        this.name = name;
-    }
-
-    public Subject(Long id, String name) {
-        this.id = id;
         this.name = name;
     }
 
