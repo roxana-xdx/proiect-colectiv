@@ -1,7 +1,7 @@
 package backend.dto;
 
 import backend.entity.Payment;
-import backend.entity.User;
+import backend.entity.Parent;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -10,10 +10,8 @@ public class PaymentDTO {
 
     private Long id;
 
-    @NotBlank(message = "Parent email is required")
-    @Email(message = "Parent email must be valid")
-    @Size(max = 255, message = "Parent email must not exceed 255 characters")
-    private String parentEmail;
+    @NotNull(message = "Parent ID is required")
+    private Long parentId;
 
     @NotNull(message = "Amount is required")
     @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
@@ -29,9 +27,9 @@ public class PaymentDTO {
 
     public PaymentDTO() {}
 
-    public PaymentDTO(Long id, String parentEmail, BigDecimal amount, LocalDate dueDate, String message) {
+    public PaymentDTO(Long id, Long parentId, BigDecimal amount, LocalDate dueDate, String message) {
         this.id = id;
-        this.parentEmail = parentEmail;
+        this.parentId = parentId;
         this.amount = amount;
         this.dueDate = dueDate;
         this.message = message;
@@ -41,14 +39,14 @@ public class PaymentDTO {
         if (payment == null) return null;
         return new PaymentDTO(
                 payment.getId(),
-                payment.getParent() != null ? payment.getParent().getEmail() : null,
+                payment.getParent() != null ? payment.getParent().getId() : null,
                 payment.getAmount(),
                 payment.getDueDate(),
                 payment.getMessage()
         );
     }
 
-    public Payment toEntity(User parent) {
+    public Payment toEntity(Parent parent) {
         Payment payment = new Payment();
         payment.setId(this.id);
         payment.setParent(parent);
@@ -61,8 +59,8 @@ public class PaymentDTO {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getParentEmail() { return parentEmail; }
-    public void setParentEmail(String parentEmail) { this.parentEmail = parentEmail; }
+    public Long getParentId() { return parentId; }
+    public void setParentId(Long parentId) { this.parentId = parentId; }
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }

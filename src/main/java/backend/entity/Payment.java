@@ -17,17 +17,17 @@ public class Payment {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_email", referencedColumnName = "email", nullable = false)
-    private User parent;
+    @JoinColumn(name = "parent_id", nullable = false)
+    private Parent parent;
 
-    @NotNull(message = "Amount cannot be null")
-    @Positive(message = "Amount must be positive")
-    @Digits(integer = 13, fraction = 2, message = "Amount must have max 13 integer and 2 fraction digits")
+    @NotNull
+    @Positive
+    @Digits(integer = 13, fraction = 2)
     @Column(precision = 15, scale = 2, nullable = false)
     private BigDecimal amount;
 
-    @NotNull(message = "Due date cannot be null")
-    @FutureOrPresent(message = "Due date must be today or in the future")
+    @NotNull
+    @FutureOrPresent
     @Column(name = "due_date", nullable = false)
     private LocalDate dueDate;
 
@@ -36,7 +36,7 @@ public class Payment {
 
     public Payment() {}
 
-    public Payment(User parent, BigDecimal amount, LocalDate dueDate, String message) {
+    public Payment(Parent parent, BigDecimal amount, LocalDate dueDate, String message) {
         this.parent = parent;
         this.amount = amount;
         this.dueDate = dueDate;
@@ -46,8 +46,8 @@ public class Payment {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public User getParent() { return parent; }
-    public void setParent(User parent) { this.parent = parent; }
+    public Parent getParent() { return parent; }
+    public void setParent(Parent parent) { this.parent = parent; }
 
     public BigDecimal getAmount() { return amount; }
     public void setAmount(BigDecimal amount) { this.amount = amount; }

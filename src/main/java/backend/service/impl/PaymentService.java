@@ -1,9 +1,9 @@
 package backend.service.impl;
 
 import backend.entity.Payment;
-import backend.entity.User;
+import backend.entity.Parent;
 import backend.repository.I_PaymentRepository;
-import backend.repository.I_UserRepository;
+import backend.repository.I_ParentRepository;
 import backend.service.I_PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +22,11 @@ public class PaymentService implements I_PaymentService {
     private I_PaymentRepository paymentRepository;
 
     @Autowired
-    private I_UserRepository userRepository;
+    private I_ParentRepository parentRepository;
 
     @Override
     @Transactional
-    public Payment createPayment(Payment payment, User parent) {
+    public Payment createPayment(Payment payment, Parent parent) {
         validatePaymentData(payment);
         validateParentExists(parent);
         payment.setParent(parent);
@@ -48,7 +48,7 @@ public class PaymentService implements I_PaymentService {
 
     @Override
     @Transactional
-    public Payment updatePayment(Long id, Payment paymentDetails, User parent) {
+    public Payment updatePayment(Long id, Payment paymentDetails, Parent parent) {
         validatePaymentId(id);
         validatePaymentUpdateData(paymentDetails);
 
@@ -73,7 +73,7 @@ public class PaymentService implements I_PaymentService {
     @Transactional(readOnly = true)
     public List<Payment> getPaymentsByParent(String parentEmail) {
         validateEmail(parentEmail);
-        User parent = userRepository.findByEmail(parentEmail.trim())
+        Parent parent = parentRepository.findByEmail(parentEmail.trim())
                 .orElseThrow(() -> new IllegalStateException("Parent not found with email: " + parentEmail));
         return paymentRepository.findByParent(parent);
     }
@@ -93,15 +93,12 @@ public class PaymentService implements I_PaymentService {
         }
     }
 
-    private void validateParentExists(User parent) {
+    private void validateParentExists(Parent parent) {
         if (parent == null) {
             throw new IllegalArgumentException("Parent cannot be null");
         }
-        if (parent.getEmail() == null || parent.getEmail().trim().isEmpty()) {
-            throw new IllegalStateException("Parent email cannot be null or empty");
-        }
-        if (!userRepository.existsById(parent.getEmail())) {
-            throw new IllegalStateException("Parent user does not exist in database");
+        if (!parentRepository.existsById(parent.getId())) {
+            throw new IllegalStateException("Parent does not exist in database");
         }
     }
 
@@ -135,7 +132,7 @@ public class PaymentService implements I_PaymentService {
         }
     }
 
-    private void updatePaymentFields(Payment existingPayment, Payment paymentDetails, User parent) {
+    private void updatePaymentFields(Payment existingPayment, Payment paymentDetails, Parent parent) {
         if (paymentDetails.getAmount() != null) {
             existingPayment.setAmount(paymentDetails.getAmount());
         }
