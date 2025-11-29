@@ -56,8 +56,13 @@ public class TeacherService implements I_TeacherService {
     @Transactional
     public void deleteTeacher(Long id) {
         if (!teacherRepository.existsById(id)) {
-            throw new IllegalStateException("Teacher not found with id: " + id);
+            throw new IllegalStateException("Teacher not found with id: " + id); // 404/NOT_FOUND
         }
-        teacherRepository.deleteById(id);
+        try {
+            teacherRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new IllegalStateException("Cannot delete teacher with id " + id
+                    + " because they are still assigned as a homeroom teacher or schedule teacher.", e);
+        }
     }
 }
