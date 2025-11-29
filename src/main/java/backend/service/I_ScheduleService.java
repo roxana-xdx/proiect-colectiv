@@ -17,5 +17,5 @@ public interface I_ScheduleService {
     Schedule updateSchedule(Long id, Long teacherId, Long subjectId, Long classId, LocalDate date, LocalTime startHour, LocalTime endHour);
     void deleteSchedule(Long id);
     Optional<Schedule> findScheduleById(Long id);
-    List<ScheduleDTO> findByClassId(Long classId);
+    List<Schedule> findByClassId(Long classId);
 }

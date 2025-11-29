@@ -8,8 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface I_SheduleRepo extends JpaRepository<Schedule, Long> {
-    List<Schedule> findByClass_id(long classId);
+public interface I_SheduleRepository extends JpaRepository<Schedule, Long> {
+    List<Schedule> findByClassEntity_ClassId(long classId);
     List<Schedule> findByTeacher_id(long teacherId);
-    Optional<Schedule> findById_andDate(long id, LocalDate date);
+    Optional<Schedule> findByIdAndDate(long id, LocalDate date);
 }
