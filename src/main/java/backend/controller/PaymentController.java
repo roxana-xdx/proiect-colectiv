@@ -1,10 +1,10 @@
 package backend.controller;
 
 import backend.dto.PaymentDTO;
-import backend.entity.User;
+import backend.entity.Parent;
 import backend.mapper.PaymentMapper;
 import backend.service.I_PaymentService;
-import backend.repository.I_UserRepository;
+import backend.repository.I_ParentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +21,12 @@ public class PaymentController {
     private I_PaymentService paymentService;
 
     @Autowired
-    private I_UserRepository userRepository;
+    private I_ParentRepository parentRepository;
 
     @PostMapping
     public ResponseEntity<PaymentDTO> createPayment(@Valid @RequestBody PaymentDTO paymentDTO) {
-        User parent = userRepository.findByEmail(paymentDTO.getParentEmail())
-                .orElseThrow(() -> new RuntimeException("Parent not found with email: " + paymentDTO.getParentEmail()));
+        Parent parent = parentRepository.findById(paymentDTO.getParentId())
+                .orElseThrow(() -> new RuntimeException("Parent not found with id: " + paymentDTO.getParentId()));
         PaymentDTO createdPayment = PaymentMapper.toDTO(
                 paymentService.createPayment(PaymentMapper.toEntity(paymentDTO, parent), parent)
         );
@@ -49,10 +49,10 @@ public class PaymentController {
 
     @PutMapping("/{id}")
     public ResponseEntity<PaymentDTO> updatePayment(@PathVariable Long id, @Valid @RequestBody PaymentDTO paymentDTO) {
-        User parent = null;
-        if (paymentDTO.getParentEmail() != null) {
-            parent = userRepository.findByEmail(paymentDTO.getParentEmail())
-                    .orElseThrow(() -> new RuntimeException("Parent not found with email: " + paymentDTO.getParentEmail()));
+        Parent parent = null;
+        if (paymentDTO.getParentId() != null) {
+            parent = parentRepository.findById(paymentDTO.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent not found with id: " + paymentDTO.getParentId()));
         }
 
         PaymentDTO updatedPayment = PaymentMapper.toDTO(
