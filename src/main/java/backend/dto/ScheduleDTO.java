@@ -48,7 +48,7 @@ public class ScheduleDTO {
 
         Long teacherId = (schedule.getTeacher() != null) ? schedule.getTeacher().getId() : null;
         Long subjectId = (schedule.getSubject() != null) ? schedule.getSubject().getId() : null;
-        Long classId = (schedule.getClass() != null) ? schedule.getClassEntity().getClassId() : null;
+        Long classId = (schedule.getClassEntity() != null) ? schedule.getClassEntity().getClassId() : null; // Corectat ClassEntity
 
         return new ScheduleDTO(
                 schedule.getId(),
@@ -56,8 +56,8 @@ public class ScheduleDTO {
                 subjectId,
                 classId,
                 schedule.getDate(),
-                schedule.getStart_hour(),
-                schedule.getEnd_hour()
+                schedule.getStartHour(),
+                schedule.getEndHour()
         );
     }
 
@@ -65,12 +65,11 @@ public class ScheduleDTO {
         Schedule schedule = new Schedule();
         if (this.id != null) schedule.setId(this.id);
         schedule.setDate(this.date);
-        schedule.setStart_hour(this.startHour);
-        schedule.setEnd_hour(this.endHour);
+        schedule.setStartHour(this.startHour);
+        schedule.setEndHour(this.endHour);
         return schedule;
     }
 
-    // Getters/Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

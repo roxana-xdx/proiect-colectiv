@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/schedules")
+@RequestMapping("/api/v1/schedules")
 public class ScheduleController {
 
     private final I_ScheduleService scheduleService;
@@ -46,7 +46,38 @@ public class ScheduleController {
     }
 
     /**
-     * Create schedule with teacher, subject and class
+     * Get all schedules for a specific class ID
+     */
+    @GetMapping("/class/{classId}")
+    public ResponseEntity<List<ScheduleDTO>> getSchedulesByClass(@PathVariable Long classId) {
+        try {
+            List<ScheduleDTO> dtos = ScheduleMapper.toDTOList(scheduleService.findByClassId(classId));
+            return ResponseEntity.ok(dtos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Get all schedules for a specific teacher ID
+     */
+    @GetMapping("/teacher/{teacherId}")
+    public ResponseEntity<List<ScheduleDTO>> getSchedulesByTeacher(@PathVariable Long teacherId) {
+        try {
+            List<ScheduleDTO> dtos = ScheduleMapper.toDTOList(scheduleService.findByTeacherId(teacherId));
+            return ResponseEntity.ok(dtos);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    /**
+     * Create schedule
      */
     @PostMapping
     public ResponseEntity<ScheduleDTO> createSchedule(@RequestBody @Valid CreateScheduleRequest request) {
@@ -56,12 +87,14 @@ public class ScheduleController {
                     request.getSubject_id(),
                     request.getClass_id(),
                     request.getDate(),
-                    request.getStart_hour(),
-                    request.getEnd_hour()
+                    request.getStartHour(),
+                    request.getEndHour()
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(ScheduleMapper.toDTO(created));
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found (FK missing)
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -81,14 +114,14 @@ public class ScheduleController {
                     request.getSubject_id(),
                     request.getClass_id(),
                     request.getDate(),
-                    request.getStart_hour(),
-                    request.getEnd_hour()
+                    request.getStartHour(),
+                    request.getEndHour()
             );
             return ResponseEntity.ok(ScheduleMapper.toDTO(updated));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build(); // 400 Bad Request
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found (Schedule or FK missing)
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
@@ -103,7 +136,7 @@ public class ScheduleController {
             scheduleService.deleteSchedule(id);
             return ResponseEntity.noContent().build();
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); // 404 Not Found
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

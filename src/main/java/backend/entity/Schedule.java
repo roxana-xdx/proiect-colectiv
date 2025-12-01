@@ -1,8 +1,8 @@
 package backend.entity;
 
 import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -10,127 +10,96 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "schedules")
-public class Schedule {
+public class Schedule implements Serializable { 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Relatia N:1 cu Teacher
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "class_id", nullable = false)
-    private SchoolClass classEntity;
-
-    @NonNull
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
-
-    @NonNull
-    @Column(name = "start_hour", nullable = false)
-    private LocalTime start_hour;
-
-    @NonNull
-    @Column(name = "end_hour", nullable = false)
-    private LocalTime end_hour;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    // Relatia N:1 cu Subject
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;
 
+    // Relatia N:1 cu Class (SchoolClass)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "class_id", nullable = false)
+    private SchoolClass classEntity;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date; // Tipul corect pentru data
+
+    @Column(name = "start_hour", nullable = false)
+    private LocalTime startHour; // Modificat la startHour (camelCase)
+
+    @Column(name = "end_hour", nullable = false)
+    private LocalTime endHour; // Modificat la endHour (camelCase)
+
+    // Constructori, Getters/Setters, etc.
 
     public Schedule() {
     }
 
-
-    public Schedule(Long id, Teacher teacher, Subject subject, SchoolClass classEntity, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
-        this.id = id;
+    public Schedule(Teacher teacher , Subject subject, SchoolClass classEntity, LocalDate date, LocalTime startHour, LocalTime endHour) {
         this.teacher = teacher;
         this.subject = subject;
         this.classEntity = classEntity;
         this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
+        this.startHour = startHour;
+        this.endHour = endHour;
     }
 
-
-    public Schedule(Teacher teacher , Subject subject, SchoolClass classEntity, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
-        this.teacher = teacher;
-        this.subject = subject;
-        this.classEntity = classEntity;
-        this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public Teacher getTeacher() { return teacher; }
     public void setTeacher(Teacher teacher) { this.teacher = teacher; }
 
     public Subject getSubject() { return subject; }
-
     public void setSubject(Subject subject) { this.subject = subject; }
 
     public SchoolClass getClassEntity() { return classEntity; }
     public void setClassEntity(SchoolClass classEntity) { this.classEntity = classEntity; }
 
-    public LocalDate getDate() {
-        return date;
-    }
+    public LocalDate getDate() { return date; }
+    public void setDate(LocalDate date) { this.date = date; }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
+    public LocalTime getStartHour() { return startHour; }
+    public void setStartHour(LocalTime startHour) { this.startHour = startHour; }
 
-    public LocalTime getStart_hour() {
-        return start_hour;
-    }
+    public LocalTime getEndHour() { return endHour; }
+    public void setEndHour(LocalTime endHour) { this.endHour = endHour; }
 
-    public void setStart_hour(LocalTime start_hour) {
-        this.start_hour = start_hour;
-    }
-
-    public LocalTime getEnd_hour() {
-        return end_hour;
-    }
-
-    public void setEnd_hour(LocalTime end_hour) {
-        this.end_hour = end_hour;
-    }
+    // Implementarea equals/hashCode/toString bazate pe noile nume de câmpuri (startHour, endHour)
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Schedule schedule = (Schedule) o;
-        return Objects.equals(id, schedule.id) && Objects.equals(teacher, schedule.teacher) && Objects.equals(subject, schedule.subject) && Objects.equals(classEntity, schedule.classEntity) && Objects.equals(date, schedule.date) && Objects.equals(start_hour, schedule.start_hour) && Objects.equals(end_hour, schedule.end_hour);
+        return Objects.equals(id, schedule.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, teacher, subject, classEntity, date, start_hour, end_hour);
+        return Objects.hash(id);
     }
 
     @Override
     public String toString() {
         return "Schedule{" +
                 "id=" + id +
-                ", teacher_id=" + teacher +
-                ", subject_id=" + subject +
-                ", class_id=" + classEntity +
+                ", teacher_id=" + (teacher != null ? teacher.getId() : "null") +
+                ", subject_id=" + (subject != null ? subject.getId() : "null") +
+                ", class_id=" + (classEntity != null ? classEntity.getClassId() : "null") +
                 ", date=" + date +
-                ", start_hour=" + start_hour +
-                ", end_hour=" + end_hour +
+                ", startHour=" + startHour +
+                ", endHour=" + endHour +
                 '}';
     }
 }

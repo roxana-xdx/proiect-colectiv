@@ -1,17 +1,18 @@
 package backend.service.impl;
 
-import backend.repository.I_SubjectRepository;
-import backend.repository.I_TeacherRepository; // NOU: Repository pentru Teacher
-import backend.repository.I_SchoolClassRepository; // NOU: Repository pentru Class
-
 import backend.entity.Schedule;
 import backend.entity.Subject;
 import backend.entity.Teacher;
-import backend.entity.SchoolClass; // Numele entitatii de clasa
+import backend.entity.SchoolClass;
+import backend.entity.validation.ScheduleValidator; // Adaugat
+import backend.repository.I_ScheduleRepository;
+import backend.repository.I_SubjectRepository;
+import backend.repository.I_TeacherRepository;
+import backend.repository.I_SchoolClassRepository;
 import backend.service.I_ScheduleService;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
@@ -21,14 +22,16 @@ import java.util.Optional;
 
 @Service
 @Validated
+@Transactional(readOnly = true)
 public class ScheduleService implements I_ScheduleService {
-    private final backend.repository.I_SheduleRepository scheduleRepository;
+
+    private final I_ScheduleRepository scheduleRepository; // Nume corectat
     private final I_SubjectRepository subjectRepository;
     private final I_TeacherRepository teacherRepository;
     private final I_SchoolClassRepository schoolClassRepository;
 
     @Autowired
-    public ScheduleService(backend.repository.I_SheduleRepository scheduleRepository,
+    public ScheduleService(I_ScheduleRepository scheduleRepository,
                            I_SubjectRepository subjectRepository,
                            I_TeacherRepository teacherRepository,
                            I_SchoolClassRepository schoolClassRepository) {
@@ -51,20 +54,14 @@ public class ScheduleService implements I_ScheduleService {
     @Override
     @Transactional
     public Schedule createSchedule(Long teacherId, Long subjectId, Long classId, LocalDate date, LocalTime startHour, LocalTime endHour) {
-        // Validare ore
-        if (!startHour.isBefore(endHour)) {
-            throw new IllegalArgumentException("Start hour must be before end hour.");
-        }
+        ScheduleValidator.validateDateAndTime(date, startHour, endHour);
 
-        // Găsire entități relaționate
-        Teacher teacher = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new IllegalArgumentException("Teacher not found with id: " + teacherId));
-        Subject subject = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new IllegalArgumentException("Subject not found with id: " + subjectId));
-        SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                .orElseThrow(() -> new IllegalArgumentException("Class not found with id: " + classId));
+        ScheduleValidator.validateExistence(teacherId, subjectId, classId, teacherRepository, subjectRepository, schoolClassRepository);
 
-        // Creare schedule
+        Teacher teacher = teacherRepository.getReferenceById(teacherId);
+        Subject subject = subjectRepository.getReferenceById(subjectId);
+        SchoolClass schoolClass = schoolClassRepository.getReferenceById(classId);
+
         Schedule schedule = new Schedule(teacher, subject, schoolClass, date, startHour, endHour);
         return scheduleRepository.save(schedule);
     }
@@ -73,47 +70,33 @@ public class ScheduleService implements I_ScheduleService {
     @Transactional
     public Schedule updateSchedule(Long id, Long teacherId, Long subjectId, Long classId, LocalDate date, LocalTime startHour, LocalTime endHour) {
         Schedule existing = scheduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Schedule not found with id: " + id));
+                .orElseThrow(() -> new IllegalStateException("Schedule not found with id: " + id));
 
-        // Validare ore dacă sunt furnizate
-        if (startHour != null && endHour != null && !startHour.isBefore(endHour)) {
-            throw new IllegalArgumentException("Start hour must be before end hour.");
-        }
+        LocalDate newDate = date != null ? date : existing.getDate();
+        LocalTime newStartHour = startHour != null ? startHour : existing.getStartHour();
+        LocalTime newEndHour = endHour != null ? endHour : existing.getEndHour();
 
-        // Actualizare teacher dacă este furnizat
+        ScheduleValidator.validateDateAndTime(newDate, newStartHour, newEndHour);
+
+        ScheduleValidator.validateExistence(teacherId, subjectId, classId, teacherRepository, subjectRepository, schoolClassRepository);
+
         if (teacherId != null) {
-            Teacher teacher = teacherRepository.findById(teacherId)
-                    .orElseThrow(() -> new IllegalArgumentException("Teacher not found with id: " + teacherId));
-            existing.setTeacher(teacher);
+            existing.setTeacher(teacherRepository.getReferenceById(teacherId));
         }
-
-        // Actualizare subject dacă este furnizat
         if (subjectId != null) {
-            Subject subject = subjectRepository.findById(subjectId)
-                    .orElseThrow(() -> new IllegalArgumentException("Subject not found with id: " + subjectId));
-            existing.setSubject(subject);
+            existing.setSubject(subjectRepository.getReferenceById(subjectId));
         }
-
-        // Actualizare class dacă este furnizat
         if (classId != null) {
-            SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                    .orElseThrow(() -> new IllegalArgumentException("Class not found with id: " + classId));
-            existing.setClassEntity(schoolClass);
+            existing.setClassEntity(schoolClassRepository.getReferenceById(classId));
         }
-
-        // Actualizare date dacă este furnizat
         if (date != null) {
             existing.setDate(date);
         }
-
-        // Actualizare start hour dacă este furnizat
         if (startHour != null) {
-            existing.setStart_hour(startHour);
+            existing.setStartHour(startHour);
         }
-
-        // Actualizare end hour dacă este furnizat
         if (endHour != null) {
-            existing.setEnd_hour(endHour);
+            existing.setEndHour(endHour);
         }
 
         return scheduleRepository.save(existing);
@@ -123,20 +106,24 @@ public class ScheduleService implements I_ScheduleService {
     @Transactional
     public void deleteSchedule(Long id) {
         if (!scheduleRepository.existsById(id)) {
-            throw new RuntimeException("Schedule not found with ID: " + id);
+            throw new IllegalStateException("Schedule not found with ID: " + id); // Modificat la IllegalStateException (pentru 404)
         }
         scheduleRepository.deleteById(id);
     }
 
     @Override
-    public Optional<Schedule> findScheduleById(Long id) {
-        return scheduleRepository.findById(id);
-    }
-
-    @Override
     public List<Schedule> findByClassId(Long classId) {
+        if (classId == null) {
+            throw new IllegalArgumentException("Class ID cannot be null");
+        }
         return scheduleRepository.findByClassEntity_ClassId(classId);
     }
 
-
+    @Override
+    public List<Schedule> findByTeacherId(Long teacherId) {
+        if (teacherId == null) {
+            throw new IllegalArgumentException("Teacher ID cannot be null");
+        }
+        return scheduleRepository.findByTeacher_Id(teacherId);
+    }
 }
