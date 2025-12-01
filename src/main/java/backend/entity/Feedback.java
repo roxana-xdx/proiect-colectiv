@@ -2,8 +2,7 @@ package backend.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.math.BigInteger;
-import java.util.Date;
+import java.time.Instant; // Tip modern pentru dată/timp
 import java.util.Objects;
 
 @Entity
@@ -22,85 +21,45 @@ public class Feedback implements Serializable {
     @JoinColumn(name = "pupil_id", nullable = false)
     private Pupil pupil;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "subject_id", nullable = false)
-//    private Subject subject;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "subject_id", nullable = false)
+    private Subject subject;
 
     @Column(nullable = false, length = 255)
     private String message;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(nullable = false)
-    private Date date;
+    @Column(name = "date", nullable = false)
+    private Instant date;
 
-    @Column(nullable = false)
+    @Column(name = "grade", nullable = false)
     private int grade;
 
     public Feedback() {}
 
-    public Feedback(Teacher teacher, Pupil pupil, String message, Date date, int grade) {
+    public Feedback(Teacher teacher, Pupil pupil, Subject subject, String message, Instant date, int grade) {
         this.teacher = teacher;
         this.pupil = pupil;
-        this.message = message;
-        this.date = date;
-        this.grade = grade;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
-    }
-
-    public Pupil getPupil() {
-        return pupil;
-    }
-
-    public void setPupil(Pupil pupil) {
-        this.pupil = pupil;
-    }
-
-     /*public  Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
         this.subject = subject;
-    } */
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
         this.message = message;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
         this.date = date;
-    }
-
-    public int getGrade() {
-        return grade;
-    }
-
-    public void setGrade(int grade) {
         this.grade = grade;
     }
+
+    // Getters and Setters (implementare completă)
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Teacher getTeacher() { return teacher; }
+    public void setTeacher(Teacher teacher) { this.teacher = teacher; }
+    public Pupil getPupil() { return pupil; }
+    public void setPupil(Pupil pupil) { this.pupil = pupil; }
+    public Subject getSubject() { return subject; }
+    public void setSubject(Subject subject) { this.subject = subject; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public Instant getDate() { return date; }
+    public void setDate(Instant date) { this.date = date; }
+    public int getGrade() { return grade; }
+    public void setGrade(int grade) { this.grade = grade; }
 
     @Override
     public boolean equals(Object o) {
@@ -121,7 +80,7 @@ public class Feedback implements Serializable {
                 "id=" + id +
                 ", teacherId=" + (teacher != null ? teacher.getId() : null) +
                 ", pupilId=" + (pupil != null ? pupil.getId() : null) +
-                ", subjectId=" + /* (subject != null ? subject.getId() : null) */ "null" +
+                ", subjectId=" + (subject != null ? subject.getId() : null) +
                 ", message='" + message + '\'' +
                 ", date=" + date +
                 ", grade=" + grade +

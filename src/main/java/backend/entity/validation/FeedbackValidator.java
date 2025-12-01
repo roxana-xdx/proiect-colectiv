@@ -1,13 +1,8 @@
 package backend.entity.validation;
 
-import backend.entity.Feedback;
-import backend.entity.Pupil;
-import backend.entity.Teacher;
-import backend.repository.I_FeedbackRepository;
 import backend.repository.I_PupilRepository;
+import backend.repository.I_SubjectRepository;
 import backend.repository.I_TeacherRepository;
-
-import javax.security.auth.Subject;
 
 public final class FeedbackValidator {
 
@@ -16,32 +11,28 @@ public final class FeedbackValidator {
     public static void validateCreate(
             Long teacherId,
             Long pupilId,
+            Long subjectId,
             String message,
             int grade,
             I_TeacherRepository teacherRepo,
-//            I_SubjectRepository subjectRepo,
             I_PupilRepository pupilRepo,
-            I_FeedbackRepository feedbackRepo
+            I_SubjectRepository subjectRepo
     ) {
 
-        if (teacherId == null) {
-            throw new IllegalArgumentException("Teacher ID cannot be null");
+        if (teacherId == null) throw new IllegalArgumentException("Teacher ID cannot be null");
+        if (!teacherRepo.existsById(teacherId)) {
+            throw new IllegalStateException("Teacher not found with id: " + teacherId);
         }
-        Teacher teacher = teacherRepo.findById(teacherId)
-                .orElseThrow(() -> new IllegalStateException("Teacher not found with id: " + teacherId));
 
-        if (pupilId == null) {
-            throw new IllegalArgumentException("Pupil ID cannot be null");
+        if (pupilId == null) throw new IllegalArgumentException("Pupil ID cannot be null");
+        if (!pupilRepo.existsById(pupilId)) {
+            throw new IllegalStateException("Pupil not found with id: " + pupilId);
         }
-        Pupil pupil = pupilRepo.findById(pupilId)
-                .orElseThrow(() -> new IllegalStateException("Pupil not found with id: " + pupilId));
 
-//        if (subjectId == null) {
-//            throw new IllegalArgumentException("Subject ID cannot be null");
-//        }
-//        Subject subject = subjectRepo.findById(subjectId)
-//                .orElseThrow(() -> new IllegalStateException("Subject not found with id: " + subjectId));
-
+        if (subjectId == null) throw new IllegalArgumentException("Subject ID cannot be null");
+        if (!subjectRepo.existsById(subjectId)) {
+            throw new IllegalStateException("Subject not found with id: " + subjectId);
+        }
 
         if (message == null || message.isBlank()) {
             throw new IllegalArgumentException("Message cannot be null or empty");

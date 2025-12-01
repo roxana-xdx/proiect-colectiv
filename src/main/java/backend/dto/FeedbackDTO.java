@@ -2,13 +2,14 @@ package backend.dto;
 
 import backend.entity.Feedback;
 import backend.entity.Pupil;
+import backend.entity.Subject;
 import backend.entity.Teacher;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import javax.security.auth.Subject;
+import java.time.Instant; // Tip modern
 import java.util.Date;
 
 public class FeedbackDTO {
@@ -21,15 +22,15 @@ public class FeedbackDTO {
     @NotNull
     private Long pupilId;
 
-//    @NotNull
-//    private Long subjectId;
+    @NotNull
+    private Long subjectId; // Activat
 
     @NotNull
     @Size(min = 1, max = 255)
     private String message;
 
     @NotNull
-    private Date date;
+    private Instant date; // Tip modern
 
     @Min(1)
     @Max(10)
@@ -37,11 +38,11 @@ public class FeedbackDTO {
 
     public FeedbackDTO() {}
 
-    public FeedbackDTO(Long id, Long teacherId, Long pupilId /*,Long SubjectId*/, String message, Date date, int grade) {
+    public FeedbackDTO(Long id, Long teacherId, Long pupilId, Long subjectId, String message, Instant date, int grade) {
         this.id = id;
         this.teacherId = teacherId;
         this.pupilId = pupilId;
-//        this.subjectId = SubjectId;
+        this.subjectId = subjectId;
         this.message = message;
         this.date = date;
         this.grade = grade;
@@ -54,57 +55,28 @@ public class FeedbackDTO {
                 feedback.getId(),
                 feedback.getTeacher() != null ? feedback.getTeacher().getId() : null,
                 feedback.getPupil() != null ? feedback.getPupil().getId() : null,
-//                feedback.getSubject() != null ? feedback.getSubject().getId() : null,
+                feedback.getSubject() != null ? feedback.getSubject().getId() : null, // Activat
                 feedback.getMessage(),
                 feedback.getDate(),
                 feedback.getGrade()
         );
     }
 
-    public Feedback toEntity() {
-        Feedback fb = new Feedback();
-        if (this.id != null) {
-            fb.setId(this.id);
-        }
-        fb.setMessage(this.message);
-        fb.setDate(this.date);
-        fb.setGrade(this.grade);
-        return fb;
-    }
-
-    public Feedback toEntityWithRefs(Teacher teacher, Pupil pupil /*,Subject subject*/) {
-        Feedback fb = new Feedback();
-        if (this.id != null) {
-            fb.setId(this.id);
-        }
-        fb.setTeacher(teacher);
-        fb.setPupil(pupil);
-//        fb.setSubject(subject);
-        fb.setMessage(this.message);
-        fb.setDate(this.date);
-        fb.setGrade(this.grade);
-        return fb;
-    }
-
-
+    // Getters and Setters (complete)
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
     public Long getTeacherId() { return teacherId; }
     public void setTeacherId(Long teacherId) { this.teacherId = teacherId; }
-
     public Long getPupilId() { return pupilId; }
     public void setPupilId(Long pupilId) { this.pupilId = pupilId; }
-
-//    public Long getSubjectId() { return subjectId; }
-//    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
-
+    public Long getSubjectId() { return subjectId; }
+    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
-
-    public Date getDate() { return date; }
-    public void setDate(Date date) { this.date = date; }
-
+    public Instant getDate() { return date; }
+    public void setDate(Instant date) { this.date = date; }
     public int getGrade() { return grade; }
     public void setGrade(int grade) { this.grade = grade; }
+
+
 }

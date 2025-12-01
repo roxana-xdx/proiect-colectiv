@@ -3,58 +3,58 @@ package backend.service.impl;
 import backend.dto.feedback.CreateFeedbackRequest;
 import backend.entity.Feedback;
 import backend.entity.Pupil;
-//import backend.entity.Subject;
+import backend.entity.Subject;
 import backend.entity.Teacher;
 import backend.repository.I_FeedbackRepository;
 import backend.repository.I_PupilRepository;
-//import backend.repository.I_SubjectRepository;
+import backend.repository.I_SubjectRepository;
 import backend.repository.I_TeacherRepository;
 import backend.entity.validation.FeedbackValidator;
 import backend.service.I_FeedbackService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class FeedbackService implements I_FeedbackService {
 
     private final I_FeedbackRepository feedbackRepo;
     private final I_TeacherRepository teacherRepo;
     private final I_PupilRepository pupilRepo;
-//    private final I_SubjectRepository subjectRepo;
+    private final I_SubjectRepository subjectRepo;
 
     public FeedbackService(I_FeedbackRepository feedbackRepo,
-                               I_TeacherRepository teacherRepo,
-                               I_PupilRepository pupilRepo) {
-//                               I_SubjectRepository subjectRepo) {
+                           I_TeacherRepository teacherRepo,
+                           I_PupilRepository pupilRepo,
+                           I_SubjectRepository subjectRepo) {
         this.feedbackRepo = feedbackRepo;
         this.teacherRepo = teacherRepo;
         this.pupilRepo = pupilRepo;
-//        this.subjectRepo = subjectRepo;
+        this.subjectRepo = subjectRepo;
     }
 
     @Override
+    @Transactional
     public Feedback createFeedback(CreateFeedbackRequest request) {
         FeedbackValidator.validateCreate(
                 request.getTeacherId(),
                 request.getPupilId(),
-//                request.getSubjectId(),
+                request.getSubjectId(),
                 request.getMessage(),
                 request.getGrade(),
                 teacherRepo,
                 pupilRepo,
-//                subjectRepo,
-                feedbackRepo
+                subjectRepo
         );
 
-        Teacher teacher = teacherRepo.findById(request.getTeacherId()).get();
-        Pupil pupil = pupilRepo.findById(request.getPupilId()).get();
-//        Subject subject = subjectRepo.findById(request.getSubjectId()).get();
+        Teacher teacher = teacherRepo.getReferenceById(request.getTeacherId());
+        Pupil pupil = pupilRepo.getReferenceById(request.getPupilId());
+        Subject subject = subjectRepo.getReferenceById(request.getSubjectId());
 
-        Feedback feedback = new Feedback(teacher, pupil /*, subject*/, request.getMessage(), new Date(), request.getGrade());
+        Feedback feedback = new Feedback(teacher, pupil, subject, request.getMessage(), Instant.now(), request.getGrade());
 
         return feedbackRepo.save(feedback);
     }
@@ -81,37 +81,55 @@ public class FeedbackService implements I_FeedbackService {
     }
 
     @Override
+    public List<Feedback> getFeedbacksBySubject(Long subjectId) {
+        return feedbackRepo.findBySubject_Id(subjectId);
+    }
+
+    @Override
+    public List<Feedback> getFeedbacksByTeacherAndSubject(Long teacherId, Long subjectId) {
+        return feedbackRepo.findByTeacher_IdAndSubject_Id(teacherId, subjectId);
+    }
+
+    @Override
     public List<Feedback> getFeedbacksByPupilSortedByGradeDesc(Long pupilId) {
         return feedbackRepo.findByPupil_IdOrderByGradeDesc(pupilId);
     }
 
 
     @Override
+    @Transactional
     public Feedback updateFeedback(Long id, CreateFeedbackRequest request) {
         Feedback existing = feedbackRepo.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Feedback not found with id: " + id));
 
-        Teacher teacher = teacherRepo.findById(request.getTeacherId())
-                .orElseThrow(() -> new IllegalStateException("Teacher not found with id: " + request.getTeacherId()));
+        FeedbackValidator.validateCreate(
+                request.getTeacherId(),
+                request.getPupilId(),
+                request.getSubjectId(),
+                request.getMessage(),
+                request.getGrade(),
+                teacherRepo,
+                pupilRepo,
+                subjectRepo
+        );
 
-        Pupil pupil = pupilRepo.findById(request.getPupilId())
-                .orElseThrow(() -> new IllegalStateException("Pupil not found with id: " + request.getPupilId()));
-
-//        Subject subject = subjectRepo.findById(request.getSubjectId())
-//                .orElseThrow(() -> new IllegalStateException("Subject not found with id: " + request.getSubjectId()));
+        Teacher teacher = teacherRepo.getReferenceById(request.getTeacherId());
+        Pupil pupil = pupilRepo.getReferenceById(request.getPupilId());
+        Subject subject = subjectRepo.getReferenceById(request.getSubjectId());
 
         existing.setTeacher(teacher);
         existing.setPupil(pupil);
-//        existing.setSubject(subject);
+        existing.setSubject(subject);
         existing.setMessage(request.getMessage());
         existing.setGrade(request.getGrade());
-        existing.setDate(new Date());
+        existing.setDate(Instant.now());
 
         return feedbackRepo.save(existing);
     }
 
 
     @Override
+    @Transactional
     public void deleteFeedback(Long id) {
         if (!feedbackRepo.existsById(id)) {
             throw new IllegalStateException("Feedback not found with id: " + id);
