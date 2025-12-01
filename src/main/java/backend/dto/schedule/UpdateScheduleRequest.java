@@ -17,20 +17,20 @@ public class UpdateScheduleRequest {
     private LocalDate date;
 
     @JsonProperty("start_hour")
-    private LocalTime start_hour;
+    private LocalTime startHour;
 
     @JsonProperty("end_hour")
-    private LocalTime end_hour;
+    private LocalTime endHour;
 
     public UpdateScheduleRequest() {}
 
-    public UpdateScheduleRequest(Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime start_hour, LocalTime end_hour) {
+    public UpdateScheduleRequest(Long teacher_id, Long subject_id, Long class_id, LocalDate date, LocalTime startHour, LocalTime endHour) {
         this.teacher_id = teacher_id;
         this.subject_id = subject_id;
         this.class_id = class_id;
         this.date = date;
-        this.start_hour = start_hour;
-        this.end_hour = end_hour;
+        this.startHour = startHour;
+        this.endHour = endHour;
     }
 
     public Long getTeacher_id() { return teacher_id; }
@@ -45,9 +45,9 @@ public class UpdateScheduleRequest {
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
 
-    public LocalTime getStart_hour() { return start_hour; }
-    public void setStart_hour(LocalTime start_hour) { this.start_hour = start_hour; }
+    public LocalTime getStartHour() { return startHour; }
+    public void setStartHour(LocalTime startHour) { this.startHour = startHour; }
 
-    public LocalTime getEnd_hour() { return end_hour; }
-    public void setEnd_hour(LocalTime end_hour) { this.end_hour = end_hour; }
+    public LocalTime getEndHour() { return endHour; }
+    public void setEndHour(LocalTime endHour) { this.endHour = endHour; }
 }
