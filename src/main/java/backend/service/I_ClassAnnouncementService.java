@@ -12,4 +12,7 @@ public interface I_ClassAnnouncementService {
     Optional<ClassAnnouncement> getAnnouncementById(Long id);
     ClassAnnouncement updateAnnouncement(Long id, String message, LocalDate date);
     void deleteAnnouncement(Long id);
+
+    List<ClassAnnouncement> getAnnouncementsByClassId(Long classId);
+    List<ClassAnnouncement> getAnnouncementsByAdminId(Long adminId);
 }
