@@ -1,16 +1,12 @@
 package backend.dto;
 
 import backend.entity.Feedback;
-import backend.entity.Pupil;
-import backend.entity.Subject;
-import backend.entity.Teacher;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant; // Tip modern
-import java.util.Date;
 
 public class FeedbackDTO {
 
