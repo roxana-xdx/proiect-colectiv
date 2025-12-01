@@ -2,6 +2,7 @@ package backend.service.impl;
 
 import backend.entity.Admin;
 import backend.entity.SchoolClass;
+import backend.entity.validation.ClassAnnouncementValidator;
 import backend.repository.I_SchoolClassRepository;
 import backend.entity.ClassAnnouncement;
 import backend.repository.I_AdminRepository;
@@ -16,49 +17,35 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 public class ClassAnnouncementService implements I_ClassAnnouncementService {
 
-    @Autowired
-    private I_ClassAnnouncementRepository classAnnouncementRepository;
+    private final I_ClassAnnouncementRepository classAnnouncementRepository;
+    private final I_SchoolClassRepository schoolClassRepository;
+    private final I_AdminRepository adminRepository;
 
     @Autowired
-    private I_SchoolClassRepository schoolClassRepository;
-
-    @Autowired
-    private I_AdminRepository adminRepository;
+    public ClassAnnouncementService(I_ClassAnnouncementRepository classAnnouncementRepository,
+                                    I_SchoolClassRepository schoolClassRepository,
+                                    I_AdminRepository adminRepository) {
+        this.classAnnouncementRepository = classAnnouncementRepository;
+        this.schoolClassRepository = schoolClassRepository;
+        this.adminRepository = adminRepository;
+    }
 
     @Override
     @Transactional
     public ClassAnnouncement createAnnouncement(Long adminId, Long classId, String message, LocalDate date) {
-        // Validare date
-        if (adminId == null) {
-            throw new IllegalArgumentException("Admin ID cannot be null");
-        }
-        if (classId == null) {
-            throw new IllegalArgumentException("Class ID cannot be null");
-        }
-        if (message == null || message.trim().isEmpty()) {
-            throw new IllegalArgumentException("Message cannot be empty");
-        }
-        if (date == null) {
-            throw new IllegalArgumentException("Date cannot be null");
-        }
 
-        // Gasim adminul din baza de date
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalStateException("Admin not found with ID: " + adminId));
+        // 1. Validare (inclusiv existența FK)
+        ClassAnnouncementValidator.validateCreate(adminId, classId, message, date, adminRepository, schoolClassRepository);
 
-        // Gasim clasa din baza de date
-        SchoolClass schoolClass = schoolClassRepository.findById(classId)
-                .orElseThrow(() -> new IllegalStateException("SchoolClass not found with ID: " + classId));
+        // 2. Preluare referințe (eficient)
+        Admin admin = adminRepository.getReferenceById(adminId);
+        SchoolClass schoolClass = schoolClassRepository.getReferenceById(classId);
 
-        // Cream anuntul
-        ClassAnnouncement announcement = new ClassAnnouncement();
-        announcement.setAdmin(admin);
-        announcement.setSchoolClass(schoolClass);
-        announcement.setMessage(message);
-        announcement.setDate(date);
-
+        // 3. Creare și salvare
+        ClassAnnouncement announcement = new ClassAnnouncement(admin, schoolClass, message, date);
         return classAnnouncementRepository.save(announcement);
     }
 
@@ -76,6 +63,22 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
     }
 
     @Override
+    public List<ClassAnnouncement> getAnnouncementsByClassId(Long classId) {
+        if (classId == null) {
+            throw new IllegalArgumentException("Class ID cannot be null");
+        }
+        return classAnnouncementRepository.findBySchoolClass_ClassId(classId);
+    }
+
+    @Override
+    public List<ClassAnnouncement> getAnnouncementsByAdminId(Long adminId) {
+        if (adminId == null) {
+            throw new IllegalArgumentException("Admin ID cannot be null");
+        }
+        return classAnnouncementRepository.findByAdmin_Id(adminId);
+    }
+
+    @Override
     @Transactional
     public ClassAnnouncement updateAnnouncement(Long id, String message, LocalDate date) {
         if (id == null) {
@@ -84,6 +87,9 @@ public class ClassAnnouncementService implements I_ClassAnnouncementService {
 
         ClassAnnouncement announcement = classAnnouncementRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Announcement not found with ID: " + id));
+
+        // Validare câmpuri înainte de actualizare
+        ClassAnnouncementValidator.validateUpdate(message, date);
 
         if (message != null && !message.trim().isEmpty()) {
             announcement.setMessage(message);
