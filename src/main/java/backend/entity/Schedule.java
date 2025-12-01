@@ -32,13 +32,13 @@ public class Schedule implements Serializable {
     private SchoolClass classEntity;
 
     @Column(name = "date", nullable = false)
-    private LocalDate date; // Tipul corect pentru data
+    private LocalDate date; 
 
     @Column(name = "start_hour", nullable = false)
-    private LocalTime startHour; // Modificat la startHour (camelCase)
+    private LocalTime startHour;
 
     @Column(name = "end_hour", nullable = false)
-    private LocalTime endHour; // Modificat la endHour (camelCase)
+    private LocalTime endHour;
 
     // Constructori, Getters/Setters, etc.
 

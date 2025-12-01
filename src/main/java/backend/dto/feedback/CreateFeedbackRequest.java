@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.util.Date;
-
 public class CreateFeedbackRequest {
 
     @NotNull(message = "Teacher ID must not be null")
@@ -16,8 +14,8 @@ public class CreateFeedbackRequest {
     @NotNull(message = "Pupil ID must not be null")
     private Long pupilId;
 
-//    @NotNull(message = "Subject ID must not be null")
-//    private Long subjectId;
+    @NotNull(message = "Subject ID must not be null")
+    private Long subjectId; // Activat
 
     @NotBlank(message = "Message must not be blank")
     @Size(max = 255, message = "Message cannot exceed 255 characters")
@@ -30,10 +28,10 @@ public class CreateFeedbackRequest {
 
     public CreateFeedbackRequest() {}
 
-    public CreateFeedbackRequest(Long teacherId, Long pupilId, /*Long SubjectId*/ String message, Integer grade) {
+    public CreateFeedbackRequest(Long teacherId, Long pupilId, Long subjectId, String message, Integer grade) { // Activat SubjectId
         this.teacherId = teacherId;
         this.pupilId = pupilId;
-//        this.subjectId = subjectId;
+        this.subjectId = subjectId;
         this.message = message;
         this.grade = grade;
     }
@@ -44,8 +42,8 @@ public class CreateFeedbackRequest {
     public Long getPupilId() { return pupilId; }
     public void setPupilId(Long pupilId) { this.pupilId = pupilId; }
 
-//    public Long getSubjectId() { return subjectId; }
-//    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; }
+    public Long getSubjectId() { return subjectId; } // Activat
+    public void setSubjectId(Long subjectId) { this.subjectId = subjectId; } // Activat
 
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
