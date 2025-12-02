@@ -25,12 +25,18 @@ public class Parent implements Serializable {
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pupil> pupils = new ArrayList<>();
 
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Payment> payments = new ArrayList<>();
+
     public Parent() { }
 
     public Parent(Long id, String email) {
         this.id = id;
         this.email = email;
     }
+
+    public List<Payment> getPayments() { return payments; }
+    public void setPayments(List<Payment> payments) { this.payments = payments; }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
