@@ -2,7 +2,6 @@ package backend.entity;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -72,5 +71,4 @@ public class User implements Serializable {
                 ", type=" + type +
                 '}';
     }
-
 }
