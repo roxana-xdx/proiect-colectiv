@@ -1,5 +1,6 @@
 package backend.dto.classannouncement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
@@ -11,9 +12,11 @@ import java.time.LocalDate;
 public class CreateClassAnnouncementRequest {
 
     @NotNull(message = "Admin ID is mandatory")
+    @JsonProperty("admin_id")
     private Long adminId;
 
     @NotNull(message = "Class ID is mandatory")
+    @JsonProperty("class_id")
     private Long classId;
 
     @NotNull(message = "Message is mandatory")

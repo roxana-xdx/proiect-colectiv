@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/class-announcements")
+@RequestMapping("/api/v1/announcements")
 public class ClassAnnouncementController {
 
     private final I_ClassAnnouncementService classAnnouncementService;

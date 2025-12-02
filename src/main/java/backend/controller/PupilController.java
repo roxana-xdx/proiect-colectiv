@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pupils")
+@RequestMapping("/api/v1/pupils")
 public class PupilController {
 
     private final I_PupilService pupilService;

@@ -13,21 +13,17 @@ public class ClassAnnouncement implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Relatia N:1 cu Admin (cine a postat)
+    // Relatia N:1 cu Admin (Proprietarul Coloanei FK)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "admin_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false) // Modificat insertable/updatable aici
+    @JoinColumn(name = "admin_id", referencedColumnName = "id", nullable = false)
     private Admin admin;
+    // Am eliminat: @Column(name = "admin_id", nullable = false) private Long adminId;
 
-    @Column(name = "admin_id", nullable = false) // Am eliminat insertable/updatable de aici
-    private Long adminId;
-
-    // Relatia N:1 cu SchoolClass (pentru ce clasa este)
+    // Relatia N:1 cu SchoolClass (Proprietarul Coloanei FK)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = false, insertable = false, updatable = false) // Modificat insertable/updatable aici
+    @JoinColumn(name = "class_id", referencedColumnName = "class_id", nullable = false)
     private SchoolClass schoolClass;
-
-    @Column(name = "class_id", nullable = false) // Am eliminat insertable/updatable de aici
-    private Long classId;
+    // Am eliminat: @Column(name = "class_id", nullable = false) private Long classId;
 
     @Column(nullable = false, length = 255)
     private String message;
@@ -38,7 +34,7 @@ public class ClassAnnouncement implements Serializable {
     public ClassAnnouncement() {
     }
 
-    // Constructor simplificat pentru Service
+    // Constructor simplificat pentru Service (NU mai necesită adminId/classId)
     public ClassAnnouncement(Admin admin, SchoolClass schoolClass, String message, LocalDate date) {
         this.admin = admin;
         this.schoolClass = schoolClass;
@@ -46,52 +42,42 @@ public class ClassAnnouncement implements Serializable {
         this.date = date;
     }
 
-    // Getters and Setters (Rămân similare, ajustate pentru consistență)
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Admin getAdmin() { return admin; }
-    public void setAdmin(Admin admin) {
-        this.admin = admin;
-        if (admin != null) {
-            this.adminId = admin.getId();
-        }
-    }
-    public Long getAdminId() { return adminId; }
-    public void setAdminId(Long adminId) { this.adminId = adminId; }
+    public void setAdmin(Admin admin) { this.admin = admin; }
     public SchoolClass getSchoolClass() { return schoolClass; }
-    public void setSchoolClass(SchoolClass schoolClass) {
-        this.schoolClass = schoolClass;
-        if (schoolClass != null) {
-            this.classId = schoolClass.getClassId();
-        }
-    }
-    public Long getClassId() { return classId; }
-    public void setClassId(Long classId) { this.classId = classId; }
+    public void setSchoolClass(SchoolClass schoolClass) { this.schoolClass = schoolClass; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
 
+    // NOU: Metodă pentru a obține ID-ul din DTO (când ai nevoie de el)
+    public Long getAdminId() {
+        return admin != null ? admin.getId() : null;
+    }
+    public Long getClassId() {
+        return schoolClass != null ? schoolClass.getClassId() : null;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ClassAnnouncement)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         ClassAnnouncement that = (ClassAnnouncement) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(message, that.message) && Objects.equals(date, that.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(message, date);
     }
 
     @Override
     public String toString() {
         return "ClassAnnouncement{" +
-                "id=" + id +
-                ", adminId=" + adminId +
-                ", classId=" + classId +
-                ", message='" + message + '\'' +
+                "message='" + message + '\'' +
                 ", date=" + date +
                 '}';
     }

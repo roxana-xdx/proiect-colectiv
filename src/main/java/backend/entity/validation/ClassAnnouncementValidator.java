@@ -41,9 +41,13 @@ public final class ClassAnnouncementValidator {
         if (date == null) {
             throw new IllegalArgumentException("Date cannot be null");
         }
+
         LocalDate today = LocalDate.now();
+
+        // CORECȚIE: Data nu poate fi MAI VECHE decât ziua curentă.
+        // Utilizăm !date.isBefore(today) sau date.isEqual(today) || date.isAfter(today)
         if (date.isBefore(today)) {
-            throw new IllegalArgumentException("Date cannot be in the past");
+            throw new IllegalArgumentException("Date cannot be in the past (before today)");
         }
     }
 
@@ -64,8 +68,9 @@ public final class ClassAnnouncementValidator {
         // Date validation (if provided)
         if (date != null) {
             LocalDate today = LocalDate.now();
+            // CORECȚIE: Permitem actualizarea anunțurilor la data curentă sau viitoare.
             if (date.isBefore(today)) {
-                throw new IllegalArgumentException("Date cannot be in the past");
+                throw new IllegalArgumentException("Date cannot be moved to the past (before today)");
             }
         }
     }
