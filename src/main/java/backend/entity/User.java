@@ -73,9 +73,4 @@ public class User implements Serializable {
                 '}';
     }
 
-    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Payment> payments;
-
-    public List<Payment> getPayments() { return payments; }
-    public void setPayments(List<Payment> payments) { this.payments = payments; }
 }
