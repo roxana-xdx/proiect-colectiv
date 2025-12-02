@@ -1,13 +1,16 @@
 package backend.entity;
 
+import backend.entity.enums.PaymentMethod;
+import backend.entity.enums.PaymentStatus;
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "payments")
-public class Payment {
+public class Payment implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,14 +25,18 @@ public class Payment {
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
 
+    // FOLOSIM ENUM CU MAPPING CA STRING ÎN DB
+    @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
-    private String status; // PENDING, PAID, OVERDUE, CANCELLED
+    private PaymentStatus status;
 
     @Column(length = 500)
     private String description;
 
+    // FOLOSIM ENUM CU MAPPING CA STRING ÎN DB
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", length = 50)
-    private String paymentMethod; // CASH, CARD, BANK_TRANSFER
+    private PaymentMethod paymentMethod;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "parent_id", nullable = false)
@@ -37,7 +44,7 @@ public class Payment {
 
     public Payment() {
         this.paymentDate = LocalDateTime.now();
-        this.status = "PENDING";
+        this.status = PaymentStatus.PENDING;
     }
 
     public Payment(BigDecimal amount, LocalDateTime dueDate, String description, Parent parent) {
@@ -48,36 +55,72 @@ public class Payment {
         this.parent = parent;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public BigDecimal getAmount() { return amount; }
-    public void setAmount(BigDecimal amount) { this.amount = amount; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDateTime getPaymentDate() { return paymentDate; }
-    public void setPaymentDate(LocalDateTime paymentDate) { this.paymentDate = paymentDate; }
+    public BigDecimal getAmount() {
+        return amount;
+    }
 
-    public LocalDateTime getDueDate() { return dueDate; }
-    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    public LocalDateTime getPaymentDate() {
+        return paymentDate;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setPaymentDate(LocalDateTime paymentDate) {
+        this.paymentDate = paymentDate;
+    }
 
-    public String getPaymentMethod() { return paymentMethod; }
-    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
 
-    public Parent getParent() { return parent; }
-    public void setParent(Parent parent) { this.parent = parent; }
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
+    }
 
-    public boolean isOverdue() {
-        return "PENDING".equals(status) && dueDate.isBefore(LocalDateTime.now());
+    public PaymentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PaymentStatus status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Parent getParent() {
+        return parent;
+    }
+
+    public void setParent(Parent parent) {
+        this.parent = parent;
     }
 
     public boolean canBePaid() {
-        return "PENDING".equals(status) || "OVERDUE".equals(status);
+        return status == PaymentStatus.PENDING || status == PaymentStatus.OVERDUE;
     }
 
     @Override
@@ -95,6 +138,14 @@ public class Payment {
 
     @Override
     public String toString() {
-        return "Payment{" + "id=" + id + ", amount=" + amount + ", status='" + status + '\'' + '}';
+        return "Payment{" +
+                "amount=" + amount +
+                ", id=" + id +
+                ", paymentDate=" + paymentDate +
+                ", dueDate=" + dueDate +
+                ", status=" + status +
+                ", description='" + description + '\'' +
+                ", paymentMethod=" + paymentMethod +
+                '}';
     }
 }

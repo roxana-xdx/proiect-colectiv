@@ -1,6 +1,7 @@
 package backend.service;
 
 import backend.entity.Payment;
+import backend.entity.enums.PaymentStatus; // Adăugat ENUM
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -17,7 +18,7 @@ public interface I_PaymentService {
     List<Payment> getPendingPaymentsByParent(Long parentId);
     List<Payment> getOverduePaymentsByParent(Long parentId);
 
-    List<Payment> getPaymentsByStatus(String status);
+    List<Payment> getPaymentsByStatus(PaymentStatus status); // Folosește ENUM
     List<Payment> getOverduePayments();
 
     boolean markAsPaid(Long paymentId);

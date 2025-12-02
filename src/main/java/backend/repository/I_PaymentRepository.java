@@ -13,11 +13,13 @@ import java.util.List;
 @Repository
 public interface I_PaymentRepository extends JpaRepository<Payment, Long> {
 
+    // Spring Data JPA va converti automat ENUM-ul la String (din setările JPA)
     List<Payment> findByParent(Parent parent);
     List<Payment> findByParentOrderByPaymentDateDesc(Parent parent);
     List<Payment> findByStatus(String status);
     List<Payment> findByParentAndStatus(Parent parent, String status);
 
+    // Queries ajustate pentru a folosi valoarea String a ENUM-ului
     @Query("SELECT p FROM Payment p WHERE p.dueDate < CURRENT_TIMESTAMP AND p.status = 'PENDING'")
     List<Payment> findOverduePayments();
 
