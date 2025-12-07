@@ -5,68 +5,83 @@ import backend.dto.admin.CreateAdminRequest;
 import backend.entity.Admin;
 import backend.mapper.AdminMapper;
 import backend.service.I_AdminService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
-@RequestMapping("/admins")
+@RequestMapping("/api/v1/admins")
 public class AdminController {
 
-    @Autowired
-    private I_AdminService adminService;
+    private final I_AdminService adminService;
 
+    @Autowired
+    public AdminController(I_AdminService adminService) {
+        this.adminService = adminService;
+    }
+
+    /**
+     * Create admin from existing user
+     */
     @PostMapping
-    public ResponseEntity<?> createAdmin(@RequestBody @Valid CreateAdminRequest req) {
+    public ResponseEntity<AdminDTO> createAdmin(@RequestBody @Valid CreateAdminRequest req) {
         try {
             Admin created = adminService.createAdminByEmail(req.getEmail());
-            AdminDTO dto = AdminMapper.toDTO(created);
-            return ResponseEntity.status(HttpStatus.CREATED).body(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CREATED).body(AdminMapper.toDTO(created));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
+    /**
+     * Get all admins
+     */
     @GetMapping
     public ResponseEntity<List<AdminDTO>> getAllAdmins() {
         List<AdminDTO> dtos = AdminMapper.toDTOList(adminService.getAllAdmins());
         return ResponseEntity.ok(dtos);
     }
 
+    /**
+     * Get admin by ID
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAdminById(@PathVariable Long id) {
-        Optional<Admin> opt = adminService.getAdminById(id);
-        if (opt.isPresent()) {
-            AdminDTO dto = AdminMapper.toDTO(opt.get());
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin not found");
-        }
+    public ResponseEntity<AdminDTO> getAdminById(@PathVariable Long id) {
+        return adminService.getAdminById(id)
+                .map(AdminMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Get admin by email
+     */
     @GetMapping("/by-email/{email}")
-    public ResponseEntity<?> getAdminByEmail(@PathVariable String email) {
-        Optional<Admin> opt = adminService.getAdminByEmail(email);
-        if (opt.isPresent()) {
-            AdminDTO dto = AdminMapper.toDTO(opt.get());
-            return ResponseEntity.ok(dto);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Admin not found for email: " + email);
-        }
+    public ResponseEntity<AdminDTO> getAdminByEmail(@PathVariable String email) {
+        return adminService.getAdminByEmail(email)
+                .map(AdminMapper::toDTO)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
+    /**
+     * Delete admin
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteAdmin(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAdmin(@PathVariable Long id) {
         try {
             adminService.deleteAdmin(id);
-            return ResponseEntity.ok("Admin deleted");
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
