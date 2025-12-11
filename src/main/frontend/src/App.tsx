@@ -1,125 +1,52 @@
-import { useState } from "react";
-import { StudentsTable } from "./components/StudentsTable.tsx";
-import { ParentsTable } from "./components/ParentsTable.tsx";
-import { ClassesTable } from "./components/ClassesTable.tsx";
-import { TeachersTable } from "./components/TeachersTable.tsx";
-import { AddNewsSection } from "./components/AddNewsSection.tsx";
+import "./global.css";
 
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Toaster } from 'sonner';
+import { TooltipProvider } from "./components/ui/tooltip.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./components/Index.tsx";
+import SignUp from "./components/SignUp.tsx";
+import LogIn from "./components/LogIn.tsx";
+import News from "./components/News.tsx";
+import NewsDetail from "./components/NewsDetail.tsx";
+import Teachers from "./components/Teachers.tsx";
+import Students from "./components/Students.tsx";
+import Classes from "./components/Classes.tsx";
+import ClassesAll from "./components/ClassesAll.tsx";
+import Parents from "./components/Parents.tsx";
+import ParentDetail from "./components/ParentDetail.tsx";
+import NotFound from "./components/NotFound.tsx";
+import AddNews from "./components/AddNews.tsx";
+import LandingPage from "./components/LandingPage.tsx"
+const queryClient = new QueryClient();
 
 
-type TabType = "students" | "parents" | "classes" | "teachers" | "addNews";
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>("students");
-
-  const handleAnnouncementsClick = () => {
-    // Will navigate to announcements page
-    console.log("Navigate to Announcements page");
-  };
-
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            {/* Logo and Title */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-[#c8e6dc] rounded-md flex items-center justify-center">
-                <span className="text-gray-700">AS</span>
-              </div>
-              <div>
-                <h1 className="text-gray-900">School Admin Panel</h1>
-                <p className="text-sm text-gray-500">Attendance Tracking</p>
-              </div>
-            </div>
-
-            {/* Navigation */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setActiveTab("students")}
-                className={`px-5 py-2 rounded transition-colors ${
-                  activeTab === "students"
-                    ? "bg-[#b899d4] text-white"
-                    : "bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-                }`}
-              >
-                Students
-              </button>
-              <button
-                onClick={() => setActiveTab("parents")}
-                className={`px-5 py-2 rounded transition-colors ${
-                  activeTab === "parents"
-                    ? "bg-[#b899d4] text-white"
-                    : "bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-                }`}
-              >
-                Parents
-              </button>
-              <button
-                onClick={() => setActiveTab("classes")}
-                className={`px-5 py-2 rounded transition-colors ${
-                  activeTab === "classes"
-                    ? "bg-[#b899d4] text-white"
-                    : "bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-                }`}
-              >
-                Classes
-              </button>
-              <button
-                onClick={() => setActiveTab("teachers")}
-                className={`px-5 py-2 rounded transition-colors ${
-                  activeTab === "teachers"
-                    ? "bg-[#b899d4] text-white"
-                    : "bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-                }`}
-              >
-                Teachers
-              </button>
-              <button
-                onClick={() => setActiveTab("addNews")}
-                className={`px-5 py-2 rounded transition-colors ${
-                  activeTab === "addNews"
-                    ? "bg-[#b899d4] text-white"
-                    : "bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-                }`}
-              >
-                Add News
-              </button>
-              <button
-                onClick={handleAnnouncementsClick}
-                className="px-5 py-2 rounded transition-colors bg-[#e8dff0] text-gray-700 hover:bg-[#d4c4e3]"
-              >
-                Announcements
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Area */}
-     <div className="max-w-7xl mx-auto px-6 py-8">
-  <div className={activeTab === "students" ? "block" : "hidden"}>
-    <StudentsTable />
-  </div>
-
-  <div className={activeTab === "parents" ? "block" : "hidden"}>
-    <ParentsTable />
-  </div>
-
-  <div className={activeTab === "classes" ? "block" : "hidden"}>
-    <ClassesTable />
-  </div>
-
-  <div className={activeTab === "teachers" ? "block" : "hidden"}>
-    <TeachersTable />
-  </div>
-
-  <div className={activeTab === "addNews" ? "block" : "hidden"}>
-    <AddNewsSection />
-  </div>
-</div>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster position = "bottom-right"/>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/login" element={<LogIn/>} />
+            <Route path="/landingpage" element={ <LandingPage/>}/>
+            <Route path="/news" element={<News />} />
+            <Route path="/addnews" element={<AddNews/>} />
+            <Route path="/news/:id" element={<NewsDetail />} />
+            <Route path="/teachers" element={<Teachers />} />
+          <Route path="/students" element={<Students />} />
+          <Route path="/classes" element={<Classes />} />
+          <Route path="/classes/all" element={<ClassesAll />} />
+          <Route path="/parents" element={<Parents />} />
+          <Route path="/parents/:id" element={<ParentDetail />} />
+          {/* add all routes above this one. this is the "oh shit oh fuck" response */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 }
