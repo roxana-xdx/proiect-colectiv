@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { PaymentDTO, CreatePaymentRequest, UpdatePaymentRequest } from '../types/payments';
 
 export const paymentService = {

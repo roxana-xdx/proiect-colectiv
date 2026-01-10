@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { TeacherDTO, CreateTeacherRequest } from '../types/teacher';
 
 export const teacherService = {
@@ -41,5 +41,10 @@ export const teacherService = {
     */
     delete: async (id: number) => {
         return api.delete<void>(`/v1/teachers/${id}`);
-    }
+    },
+
+    update: async (id: number, data: CreateTeacherRequest) => {
+        return api.put<TeacherDTO>(`/v1/teachers/${id}`, data);
+    },
+    
 };

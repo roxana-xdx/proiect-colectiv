@@ -60,20 +60,19 @@ public class PupilController {
      * Create pupil with parent and class
      */
     @PostMapping
-    public ResponseEntity<PupilDTO> createPupil(@RequestBody @Valid CreatePupilRequest request) {
-        try {
-            Pupil created = pupilService.createPupil(
-                    request.getEmail(),
-                    request.getClass_id(),
-                    request.getParent_id()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(PupilMapper.toDTO(created));
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<?> createPupil(@RequestBody @Valid CreatePupilRequest request) {
+    try {
+        Pupil created = pupilService.createPupil(
+                request.getEmail(),
+                request.getClass_id(),
+                request.getParent_id()
+        );
+        return ResponseEntity.status(HttpStatus.CREATED).body(PupilMapper.toDTO(created));
+    } catch (Exception e) {
+        // changed for debugging 
+        return ResponseEntity.status(400).body("DEBUG ERROR: " + e.getMessage());
     }
+}
 
     /**
      * Update pupil's parent and/or class
@@ -108,4 +107,6 @@ public class PupilController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    
 }

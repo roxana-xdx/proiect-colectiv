@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { ScheduleDTO, CreateScheduleRequest, UpdateScheduleRequest } from '../types/schedule';
 
 export const scheduleService = {

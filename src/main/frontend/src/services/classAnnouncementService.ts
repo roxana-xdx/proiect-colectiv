@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { ClassAnnouncementDTO, CreateClassAnnouncementRequest, UpdateClassAnnouncementRequest } from '../types/classAnnouncement';
 
 export const classAnnouncementService = {

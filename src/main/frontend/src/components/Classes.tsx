@@ -1,8 +1,6 @@
-// Classes.tsx
 import { useState, useEffect } from "react";
 import Navigation from "./Navigation.tsx";
 
-// Service and Types
 import { classService } from "../services/schoolClassService.ts";
 import { CreateSchoolClassRequest } from "../types/schoolClass.ts";
 
@@ -18,10 +16,9 @@ export default function Classes() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   
-  // NEW: State for Add Modal visibility
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  // --- FETCH DATA ---
+  //  FETCH DATA 
   useEffect(() => {
     fetchClasses();
   }, []);
@@ -34,7 +31,6 @@ export default function Classes() {
       const mappedData: ClassItem[] = response.data.map((dto) => ({
         id: dto.classId,
         className: dto.className,
-        // Fallback since backend only sends ID right now
         teacher: dto.homeroomTeacherId ? `Teacher ID: ${dto.homeroomTeacherId}` : "No Teacher",
         timetable: "TBD", 
       }));
@@ -47,7 +43,6 @@ export default function Classes() {
     }
   };
 
-  // --- CREATE CLASS LOGIC (NEW) ---
   const handleAddClass = async (name: string, teacherId: number) => {
     try {
       const payload: CreateSchoolClassRequest = {
@@ -55,21 +50,18 @@ export default function Classes() {
         homeroom_teacher_id: teacherId
       };
 
-      // 1. Call API
       const response = await classService.create(payload);
       const newClassDTO = response.data;
 
-      // 2. Map the response to our Frontend Interface
       const newClassItem: ClassItem = {
         id: newClassDTO.classId,
         className: newClassDTO.className,
         teacher: newClassDTO.homeroomTeacherId ? `Teacher ID: ${newClassDTO.homeroomTeacherId}` : "No Teacher",
         timetable: "TBD"
-      };
+      }; 
 
-      // 3. Update UI without reloading
       setClasses([...classes, newClassItem]);
-      setIsAddModalOpen(false); // Close modal
+      setIsAddModalOpen(false);
       
     } catch (error) {
       console.error("Failed to create class:", error);
@@ -77,7 +69,7 @@ export default function Classes() {
     }
   };
 
-  // --- UPDATE CLASS LOGIC ---
+  // UPDATE 
   const handleUpdateClass = async (updatedData: ClassItem) => {
     try {
       const teacherIdNum = parseInt(updatedData.teacher.replace("Teacher ID: ", "")) || 0;
@@ -105,11 +97,6 @@ export default function Classes() {
       classItem.timetable.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  /* =========================================================================
-     COMPONENTS
-     ========================================================================= */
-
-  // --- NEW ADD MODAL COMPONENT ---
   interface AddClassModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -125,10 +112,9 @@ export default function Classes() {
             alert("Class name is required");
             return;
         }
-        // Convert string input to number for backend
+
         const tId = parseInt(teacherId) || 0; 
         onAdd(name, tId);
-        // Reset form
         setName("");
         setTeacherId("");
     };
@@ -172,7 +158,6 @@ export default function Classes() {
     );
   };
 
-  // --- EDIT COMPONENTS (Existing) ---
   interface EditClassModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -240,80 +225,61 @@ export default function Classes() {
     );
   };
 
-  /* =========================================================================
-     MAIN UI
-     ========================================================================= */
-
   return (
     <div className="min-h-screen bg-[#F9F8F6]">
       <Navigation />
 
-      <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-16 py-8">
-        <div className="bg-[#EFE9E3] rounded-[30px] p-6 md:p-12 lg:p-16">
+      <div className="max-w-[1440px] mx-auto px-4 py-8">
+        <div className="bg-[#EFE9E3] rounded-[30px] p-6 md:p-12">
           
-          {/* HEADER SECTION */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 md:mb-12">
-            <h1
-              className="text-[#665B4E] font-bold tracking-[0.03em] leading-[117.504%]"
-              style={{ fontSize: "clamp(24px, 4vw, 32px)" }}
-            >
+          <div className="flex justify-between items-center mb-12">
+            <h1 className="text-[#665B4E] font-bold text-3xl">
               Classes - Sorted a - z
             </h1>
 
-            {/* ACTION AREA: SEARCH + ADD BUTTON */}
-            <div className="flex flex-col md:flex-row gap-4 items-center w-full md:w-auto">
-              
-              {/* NEW ADD BUTTON */}
-              <button onClick={() => setIsAddModalOpen(true)} className="px-6 py-5 rounded-[20px] min-w-[100px] md:min-w-[130px] h-[50px] flex items-center justify-center text-2xl font-bold tracking-[0.03em] leading-[117.504%] bg-[#9CB0C9] text-white hover:bg-[#8BA0B8] transition-colors">
+            <div className="flex gap-4">
+              <button 
+                onClick={() => setIsAddModalOpen(true)} 
+                className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
+              >
                 + Add Class
               </button>
               
-              <div className="relative w-full md:w-auto">
-                <input
-                  type="text"
-                  placeholder="Search Class"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full md:w-[288px] h-[42px] px-6 py-3 rounded-[20px] bg-[#F9F8F6] text-[#665B4E] text-base font-bold tracking-[0.03em] placeholder:text-[#665B4E] focus:outline-none focus:ring-2 focus:ring-[#9CB0C9] transition-all"
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-6 py-3 rounded-xl focus:outline-none"
+              />
             </div>
           </div>
 
-          {/* TABLE HEADERS */}
-          <div className="hidden md:grid md:grid-cols-[300px_257px_300px_auto] gap-6 mb-6">
-            <div className="text-[#665B4E] font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>Class</div>
-            <div className="text-[#665B4E] font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>Teacher</div>
-            <div className="text-[#665B4E] font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>Timetable</div>
-            <div></div>
+          <div className="grid grid-cols-6 gap-6 items-center border-b pb-4 mb-6 font-bold text-[#665B4E]">
+            <div>ID</div>
+            <div>Class Name</div>
+            <div className="col-span-2">Teacher</div>
+            <div>Timetable</div>
+            <div>Action</div>
           </div>
 
-          {/* LIST */}
           {isLoading ? (
-            <div className="text-center py-10 text-xl text-gray-500 font-bold">Loading Classes...</div>
+            <div className="text-center py-10">Loading...</div>
           ) : (
-            <div className="space-y-4 md:space-y-6">
+            <div className="space-y-4">
               {filteredClasses.length === 0 ? (
                 <div className="text-center text-gray-500 py-4">No classes found.</div>
               ) : (
                 filteredClasses.map((classItem) => (
-                  <div key={classItem.id} className="grid grid-cols-1 md:grid-cols-[300px_257px_300px_auto] gap-4 md:gap-6 items-center">
-                    <div className="md:col-span-1">
-                      <p className="text-[#665B4E]/80 font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>
-                        <span className="md:hidden text-[#665B4E] mr-2">Class:</span>{classItem.className}
-                      </p>
-                    </div>
-                    <div className="md:col-span-1">
-                      <p className="text-[#665B4E]/80 font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>
-                        <span className="md:hidden text-[#665B4E] mr-2">Teacher:</span>{classItem.teacher}
-                      </p>
-                    </div>
-                    <div className="md:col-span-1">
-                      <p className="text-[#665B4E]/80 font-bold tracking-[0.03em] leading-[117.504%]" style={{ fontSize: "clamp(18px, 3vw, 24px)" }}>
-                        <span className="md:hidden text-[#665B4E] mr-2">Timetable:</span>{classItem.timetable}
-                      </p>
-                    </div>
-                    <div className="flex justify-end md:justify-start">
+                  <div 
+                    key={classItem.id} 
+                    className="grid grid-cols-6 gap-6 items-center border-b pb-4 mb-6 font-bold text-[#665B4E]"
+                  >
+                    <div>{classItem.id}</div>
+                    <div>{classItem.className}</div>
+                    <div className="col-span-2 text-[#665B4E]/80">{classItem.teacher}</div>
+                    <div className="text-[#665B4E]/80">{classItem.timetable}</div>
+                    <div>
                       <EditButton initialClassData={classItem} onUpdateClass={handleUpdateClass} />
                     </div>
                   </div>
@@ -324,7 +290,6 @@ export default function Classes() {
         </div>
       </div>
 
-      {/* RENDER THE ADD MODAL */}
       <AddClassModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 

@@ -9,25 +9,29 @@ export default function App() {
 const handleGoBack = () => {
     navigate("/news");
   };
+
+
+  
   return (
     <div className="min-h-screen bg-[#e8dfd0] p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <button className="text-[#6b5744] flex items-center gap-2 hover:text-[#4a3d2f] transition-colors" onClick={handleGoBack}>
             &lt; Back to Dashboard
           </button>
           <div className="flex gap-3">
-            <button className="px-5 py-2 bg-[#a89178] text-[#f5f0e8] rounded hover:bg-[#9a8168] transition-colors">
+            {/* <button className="px-5 py-2 bg-[#a89178] text-[#f5f0e8] rounded hover:bg-[#9a8168] transition-colors">
               Save as Draft
-            </button>
-            <button className="px-5 py-2 bg-[#8b7260] text-[#f5f0e8] rounded hover:bg-[#7a6250] transition-colors">
+            </button> */}
+            {/* <button className="px-5 py-2 bg-[#8b7260] text-[#f5f0e8] rounded hover:bg-[#7a6250] transition-colors">
               Start Notes
-            </button>
+            </button> */}
+           <button className="px-5 py-2 bg-[#8b7260] text-[#f5f0e8] rounded hover:bg-[#7a6250] transition-colors">
+              Post
+            </button> 
           </div>
         </div>
 
-        {/* Editor Card */}
         <div className="bg-[#f5f0e8] rounded-lg shadow-lg p-8">
           {/* Toolbar */}
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[#d4c4b0]">
@@ -57,7 +61,6 @@ const handleGoBack = () => {
             </button>
           </div>
 
-          {/* Title Input */}
           <input
             type="text"
             placeholder="Add Title"
@@ -65,8 +68,7 @@ const handleGoBack = () => {
             onChange={(e) => setTitle(e.target.value)}
             className="w-full text-2xl mb-6 bg-transparent border-none outline-none placeholder-[#b5a692] text-[#4a3d2f]"
           />
-
-          {/* Content Textarea */}
+          
           <textarea
             placeholder="Add Text"
             value={content}

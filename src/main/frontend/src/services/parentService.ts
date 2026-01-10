@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { ParentDTO, CreateParentRequest } from '../types/parent';
 
 export const parentService = {
@@ -40,5 +40,9 @@ export const parentService = {
     */
     delete: async (id: number) => {
         return api.delete<void>(`v1/parents/${id}`);
-    }
+    },
+
+    update: async (id: number, data: CreateParentRequest) => {
+        return api.put<ParentDTO>(`/v1/parents/${id}`, data);
+    },
 };

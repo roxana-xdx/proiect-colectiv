@@ -1,24 +1,42 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { userService } from "../services/userService.ts";
 
 export default function Index() {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { username, password });
+    console.log("Login attempt:", { email, password });
 
-    // hardcoded check
-    if (password === "123") {
-      navigate("/news");
-      alert("correct guess buzzer");
-    } else {
-      // *loud incorrect buzzer*
-      alert("loud incorrect buzzer");
+    try {
+      const response = await userService.login({ email, password });
+
+      console.log(response.data.name + " < nume");
+      console.log(response.data.email + " < email");
+      console.log(response.data.type + " < type");
+
+
+      localStorage.setItem("user", JSON.stringify(response.data));
+
+      navigate("/landingpage");
+    } catch (error: any) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please try again.");
+      return;
     }
+
+    // // hardcoded check
+    // if (password === "123") {
+    //   navigate("/landingpage");
+    //   alert("correct guess buzzer");
+    // } else {
+    //   // *loud incorrect buzzer*
+    //   alert("loud incorrect buzzer");
+    // }
   };
 
   return (
@@ -51,14 +69,14 @@ export default function Index() {
                 textShadow: '0 1px 1px rgba(0, 0, 0, 0.25)'
               }}
             >
-              Username
+              Email
             </label>
             <input
-              id="username"
+              id="email"
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username or E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               className="w-full h-[60px] px-3 py-4 rounded-[10px] border border-[#C9B59C] bg-[#F9F8F6] text-base font-bold tracking-[0.03em] placeholder:text-[#9CB0C9] placeholder:font-bold focus:outline-none focus:ring-2 focus:ring-[#C9B59C] focus:border-transparent transition-all"
               style={{
                 boxShadow: '0 1px 1px 0 #C9B59C'

@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { PupilDTO, CreatePupilRequest, UpdatePupilRequest } from '../types/pupil';
 
 export const pupilService = {

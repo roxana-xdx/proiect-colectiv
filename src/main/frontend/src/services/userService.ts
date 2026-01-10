@@ -1,4 +1,4 @@
-import api from './api';
+import api from './api.ts';
 import { UserDTO, LoginRequest, RegisterRequest, UpdateUserRequest, UserType } from '../types/user';
 
 export const userService = {
