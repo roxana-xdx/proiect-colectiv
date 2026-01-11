@@ -1,15 +1,49 @@
 import { Link, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { userService } from "../services/userService.ts";
+import { UserType } from "../types/user";
 
 const navItems = [
-  { name: "Teachers", path: "/teachers" },
-  { name: "Students", path: "/students" },
-  { name: "Classes", path: "/classes" },
-  { name: "Parents", path: "/parents" },
-  { name: "News", path: "/news" },
+  { name: "Teachers", path: "/teachers", allowedTypes: ["ADMIN"] },
+  { name: "Students", path: "/students", allowedTypes: ["ADMIN", "TEACHER"] },
+  { name: "Classes", path: "/classes", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+  { name: "Parents", path: "/parents", allowedTypes: ["ADMIN", "TEACHER"] },
+  { name: "News", path: "/news", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
 ];
+
+ interface UserItem {
+    email: string;
+    name: string;
+    type: UserType;
+}
 
 export default function Navigation() {
   const location = useLocation();
+  const [user, setUser] = useState<UserItem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      setIsLoading(true);
+      const response = await userService.getAll();
+      setUser(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const visibleNavItems = navItems.filter((item) => {
+    if (!user) return false;
+    
+    return item.allowedTypes.includes(user.type);
+  });
+
+  if (isLoading) return <div className="h-[79px] bg-[#F9F8F6]" />; 
 
   return (
     <div className="w-full bg-[#F9F8F6] px-4 md:px-8 lg:px-16 py-6">
@@ -26,14 +60,14 @@ export default function Navigation() {
           </h2>
         </Link>
 
-        <nav className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
-          {navItems.map((item) => {
+       <nav className="flex flex-wrap items-center justify-center gap-3 md:gap-4">
+          {visibleNavItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`px-6 md:px-8 py-5 rounded-[20px] min-w-[140px] md:min-w-[170px] h-[70px] flex items-center justify-center text-2xl font-bold tracking-[0.03em] leading-[117.504%] transition-colors ${
+                className={`px-6 md:px-8 py-5 rounded-[20px] min-w-[140px] md:min-w-[170px] h-[70px] flex items-center justify-center text-2xl font-bold transition-colors ${
                   isActive
                     ? "bg-[#9CB0C9] text-[#F9F8F6]"
                     : "bg-[#EFE9E3] text-[#665B4E] hover:bg-[#E5DED6]"

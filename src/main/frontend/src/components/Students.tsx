@@ -19,6 +19,7 @@ export default function Students() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
 
   // --- FETCH DATA ---
   useEffect(() => {
