@@ -1,6 +1,9 @@
 import { useState } from "react";
 import Navigation from "./Navigation.tsx";
 
+// this is a static representation of classes data
+// remove 
+
 interface ClassItem {
   id: number;
   className: string;

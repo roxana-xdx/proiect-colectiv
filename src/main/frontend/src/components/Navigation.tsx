@@ -9,6 +9,9 @@ const navItems = [
   { name: "Classes", path: "/classes", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
   { name: "Parents", path: "/parents", allowedTypes: ["ADMIN", "TEACHER"] },
   { name: "News", path: "/news", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+  { name: "Payments", path: "/payments", allowedTypes: ["ADMIN"] },
+  { name: "Subjects", path: "/subjects", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+  { name: "Feedback", path: "/feedback", allowedTypes: ["TEACHER"] },
 ];
 
  interface UserItem {
