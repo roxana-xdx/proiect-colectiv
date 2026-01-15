@@ -1,36 +1,50 @@
 import { useState, useEffect } from "react";
 import Navigation from "./Navigation.tsx"; 
-
 import { subjectService } from "../services/subjectService.ts";
-import { CreateSubjectRequest } from "../types/subject.ts";
+import { CreateSubjectRequest, UpdateSubjectRequest } from "../types/subject.ts";
+import { UserType } from "../types/user.ts";
 
 interface SubjectItem {
   id: number;
   subjectName: string;
 }
 
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
+}
+
 export default function Subjects() {
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-  //  FETCH DATA 
+  const [user, setUser] = useState<UserItem | null>(null);
+
   useEffect(() => {
     fetchSubjects();
+    fetchUser();
   }, []);
+
+  const fetchUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+
+  const isAdmin = user?.type === "ADMIN";
 
   const fetchSubjects = async () => {
     try {
       setIsLoading(true);
       const response = await subjectService.getAll();
-
       const mappedData: SubjectItem[] = response.data.map((dto) => ({
         id: dto.id,
-         subjectName: dto.name,
+        subjectName: dto.name,
       }));
-
       setSubjects(mappedData);
     } catch (error) {
       console.error("Error fetching subjects:", error);
@@ -39,11 +53,10 @@ export default function Subjects() {
     }
   };
 
-  const handleAddSubject = async (subjectName: string, subjectId: number) => {
+  const handleAddSubject = async (subjectName: string) => {
     try {
       const payload: CreateSubjectRequest = {
         name: subjectName,
-        id: subjectId
       };
 
       const response = await subjectService.create(payload);
@@ -58,16 +71,15 @@ export default function Subjects() {
       
     } catch (error) {
       console.error("Failed to create subject:", error);
-      alert("Failed to create subject. Check console for details.");
+      alert("Error while creating subject - check console");
     }
   };
 
   // UPDATE 
   const handleUpdateSubject = async (updatedData: SubjectItem) => {
     try {
-      const requestPayload: CreateSubjectRequest = {
+      const requestPayload: UpdateSubjectRequest = {
         name: updatedData.subjectName,
-        id: updatedData.id
       };
 
       await subjectService.update(updatedData.id, requestPayload);
@@ -77,7 +89,7 @@ export default function Subjects() {
       );
     } catch (error) {
       console.error("Failed to update subject:", error);
-      alert("Failed to save changes.");
+      alert("Error while updating subject - check console");
     }
   };
 
@@ -89,12 +101,11 @@ export default function Subjects() {
   interface AddSubjectModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (subjectName: string, subjectId: number) => void;
+    onAdd: (name: string) => void;
   }
 
   const AddSubjectModal: React.FC<AddSubjectModalProps> = ({ isOpen, onClose, onAdd }) => {
     const [name, setName] = useState("");
-    const [subjectId, setSubjectId] = useState("");
 
     const handleSubmit = () => {
         if(!name) {
@@ -102,10 +113,8 @@ export default function Subjects() {
             return;
         }
 
-        const tId = parseInt(subjectId) || 0; 
-        onAdd(name, tId);
+        onAdd(name);
         setName("");
-        setSubjectId("");
     };
 
     if (!isOpen) return null;
@@ -119,7 +128,7 @@ export default function Subjects() {
               <label className="block text-lg font-medium text-gray-700 mb-2">Subject Name</label>
               <input
                 type="text"
-                value={subjectName}
+                value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500"
                 placeholder="e.g. 10B Math"
@@ -204,16 +213,18 @@ export default function Subjects() {
           
           <div className="flex justify-between items-center mb-12">
             <h1 className="text-[#665B4E] font-bold text-3xl">
-              Subjects - Sorted a - z
+              Subjects
             </h1>
 
             <div className="flex gap-4">
-              <button 
-                onClick={() => setIsAddModalOpen(true)} 
-                className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
-              >
-                + Add Subject
-              </button>
+              {isAdmin && (
+                <button 
+                  onClick={() => setIsAddModalOpen(true)} 
+                  className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
+                >
+                  + Add Subject
+                </button>
+              )}
               
               <input
                 type="text"
@@ -228,6 +239,7 @@ export default function Subjects() {
           <div className="grid grid-cols-6 gap-6 items-center border-b pb-4 mb-6 font-bold text-[#665B4E]">
             <div>ID</div>
             <div>Subject Name</div>
+            {isAdmin && <div>Actions</div>}
           </div>
 
           {isLoading ? (
@@ -245,7 +257,12 @@ export default function Subjects() {
                     <div>{subjectItem.id}</div>
                     <div>{subjectItem.subjectName}</div>
                     <div>
-                      <EditButton initialSubjectData={subjectItem} onUpdateSubject={handleUpdateSubject} />
+                      {isAdmin && (
+                        <EditButton 
+                          initialSubjectData={subjectItem} 
+                          onUpdateSubject={handleUpdateSubject} 
+                        />
+                      )}
                     </div>
                   </div>
                 ))

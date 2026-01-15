@@ -3,11 +3,17 @@ import Navigation from "./Navigation.tsx";
 
 import { parentService } from "../services/parentService.ts";
 import { CreateParentRequest } from "../types/parent.ts";
+import { UserType } from "../types/user.ts";
 
 interface ParentItem {
   id: number;
   name: string;
   email: string;
+}
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
 }
 
 interface AddParentModalProps {
@@ -69,12 +75,6 @@ const AddParentModal: React.FC<AddParentModalProps> = ({ isOpen, onClose, onAdd 
   );
 };
 
-
-interface EditButtonProps {
-  parent: ParentItem;
-  onUpdate: (updatedData: ParentItem) => void;
-}
-
   const EditButton = ({ initialData, onUpdate }: { initialData: ParentItem, onUpdate: (data: ParentItem) => void }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<ParentItem>(initialData);
@@ -87,7 +87,7 @@ interface EditButtonProps {
         {isModalOpen && (
           <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-              <h3 className="text-2xl font-bold mb-4">Edit Teacher</h3>
+              <h3 className="text-2xl font-bold mb-4">Edit Parent</h3>
               <div className="space-y-4 mb-6">
                 <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
                 <input value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full p-3 border rounded-lg" />
@@ -110,9 +110,23 @@ export default function Parents() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
+  const [user, setUser] = useState<UserItem | null>(null);
+  
+
   useEffect(() => {
     fetchParents();
+    fetchUser();
   }, []);
+
+ const fetchUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+
+  // check if user is admin
+  const isAdmin = user?.type === "ADMIN";
 
   const fetchParents = async () => {
     try {
@@ -131,44 +145,44 @@ export default function Parents() {
     }
   };
 
-  const handleAddParent = async (name: string, email: string) => {
-    try {
-        const payload: CreateParentRequest = { 
-        name: name, 
-        email: email 
-      } as any;      
-      const response = await parentService.create(payload);
-      const newDTO = response.data;
+  // const handleAddParent = async (name: string, email: string) => {
+  //   try {
+  //       const payload: CreateParentRequest = { 
+  //       name: name, 
+  //       email: email 
+  //     } as any;      
+  //     const response = await parentService.create(payload);
+  //     const newDTO = response.data;
 
-      const newParentItem: ParentItem = {
-        id: newDTO.id,
-        name: newDTO.name || name,
-        email: newDTO.email || email,
-      };
+  //     const newParentItem: ParentItem = {
+  //       id: newDTO.id,
+  //       name: newDTO.name || name,
+  //       email: newDTO.email || email,
+  //     };
 
-      setParents([...parents, newParentItem]);
-      setIsAddModalOpen(false);
-    } catch (error) {
-      console.error("Failed to create parent:", error);
-    }
-  };
+  //     setParents([...parents, newParentItem]);
+  //     setIsAddModalOpen(false);
+  //   } catch (error) {
+  //     console.error("Failed to create parent:", error);
+  //   }
+  // };
 
-  const handleUpdateParent = async (updatedData: ParentItem) => {
-    try {
-        const requestPayload: CreateParentRequest = {
-        name: updatedData.name,
-        email: updatedData.email
-      } as any;      
-      await parentService.update(updatedData.id, requestPayload);
+  // const handleUpdateParent = async (updatedData: ParentItem) => {
+  //   try {
+  //       const requestPayload: CreateParentRequest = {
+  //       name: updatedData.name,
+  //       email: updatedData.email
+  //     } as any;      
+  //     await parentService.update(updatedData.id, requestPayload);
 
-      setParents((prev) =>
-        prev.map((p) => (p.id === updatedData.id ? updatedData : p))
-      );
-    } catch (error) {
-      console.error("Failed to update parent:", error);
-      alert("Failed to save changes.");
-    }
-  };
+  //     setParents((prev) =>
+  //       prev.map((p) => (p.id === updatedData.id ? updatedData : p))
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to update parent:", error);
+  //     alert("Failed to save changes.");
+  //   }
+  // };
 
   const filteredParents = parents.filter(
     (item) =>
@@ -185,9 +199,15 @@ export default function Parents() {
           <div className="flex justify-between items-center mb-12">
             <h1 className="text-[#665B4E] font-bold text-3xl">Parents Directory</h1>
             <div className="flex gap-4">
-              <button onClick={() => setIsAddModalOpen(true)} className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold">
-                + Add Par
-              </button>
+          {/*rendering based on if admin */}
+              {/* {isAdmin && (
+                <button 
+                  onClick={() => setIsAddModalOpen(true)} 
+                  className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
+                >
+                  + Add Parent
+                </button>
+              )} */}
               <input 
                 placeholder="Search..." 
                 value={searchQuery}
@@ -201,7 +221,7 @@ export default function Parents() {
             <div>ID</div>
             <div>Name</div>
             <div>Email</div>
-            <div>Action</div>
+            {/* {isAdmin && <div>Actions</div>} */}
           </div>
 
           {isLoading ? (
@@ -213,9 +233,13 @@ export default function Parents() {
                   <div>{parent.id}</div>
                   <div>{parent.name}</div>
                   <div>{parent.email}</div>
-                  <div>
-                    <EditButton initialData={parent} onUpdate={handleUpdateParent} />
-                  </div>
+                  {/* <div>
+                      {isAdmin && (
+                        <EditButton 
+                          initialData={parent} 
+                          onUpdate={handleUpdateParent} 
+                        />
+                      )}</div> */}
                 </div>
               ))}
             </div>
@@ -223,11 +247,11 @@ export default function Parents() {
         </div>
       </div>
 
-      <AddParentModal 
+      {/* <AddParentModal 
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
         onAdd={handleAddParent} 
-      />
+      /> */}
     </div>
   );
 }

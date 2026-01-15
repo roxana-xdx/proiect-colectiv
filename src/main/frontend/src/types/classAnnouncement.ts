@@ -3,10 +3,10 @@
 */
 export interface ClassAnnouncementDTO {
     announcementId: number;
-    adminId: number;
-    classId: number;
+    admin_id: number;
+    class_id: number;
     message: string;
-    date: Date;
+    date: string;
     adminEmail: string;
     adminName: string;
 }
@@ -16,16 +16,16 @@ export interface ClassAnnouncementDTO {
     Interface for <backend>/dto/classannouncement/CreateClassAnnouncementRequest
 */
 export interface CreateClassAnnouncementRequest {
-    adminId: number;
-    classId: number;
+    admin_id: number;
+    class_id: number;
     message: string;
-    date: Date;
+    date: string;
 }
 
 /* 
-    Interface for <backend>/dto/classannouncement/UpdateClassAnnouncementRequest
+    Interface for <backend>/dto/classannouncement/UpdateClassAnnouncementRequestd
 */
 export interface UpdateClassAnnouncementRequest {
     message: string;
-    date: Date;
+    date: string;
 }

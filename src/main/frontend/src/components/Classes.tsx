@@ -3,12 +3,18 @@ import Navigation from "./Navigation.tsx";
 
 import { classService } from "../services/schoolClassService.ts";
 import { CreateSchoolClassRequest } from "../types/schoolClass.ts";
+import { UserType } from "../types/user.ts";
 
 interface ClassItem {
   id: number;
   className: string;
   teacher: string;
-  timetable: string;
+  // timetable: string;
+}
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
 }
 
 export default function Classes() {
@@ -17,10 +23,13 @@ export default function Classes() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [user, setUser] = useState<UserItem | null>(null);
 
   //  FETCH DATA 
   useEffect(() => {
     fetchClasses();
+        fetchUser();
+
   }, []);
 
   const fetchClasses = async () => {
@@ -32,7 +41,7 @@ export default function Classes() {
         id: dto.classId,
         className: dto.className,
         teacher: dto.homeroomTeacherId ? `Teacher ID: ${dto.homeroomTeacherId}` : "No Teacher",
-        timetable: "TBD", 
+        // timetable: "TBD", 
       }));
 
       setClasses(mappedData);
@@ -42,6 +51,15 @@ export default function Classes() {
       setIsLoading(false);
     }
   };
+    const fetchUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+
+  const isAdmin = user?.type === "ADMIN";
+
 
   const handleAddClass = async (name: string, teacherId: number) => {
     try {
@@ -57,7 +75,7 @@ export default function Classes() {
         id: newClassDTO.classId,
         className: newClassDTO.className,
         teacher: newClassDTO.homeroomTeacherId ? `Teacher ID: ${newClassDTO.homeroomTeacherId}` : "No Teacher",
-        timetable: "TBD"
+        // timetable: "TBD"
       }; 
 
       setClasses([...classes, newClassItem]);
@@ -65,11 +83,10 @@ export default function Classes() {
       
     } catch (error) {
       console.error("Failed to create class:", error);
-      alert("Failed to create class. Check console for details.");
+      alert("Error while adding - check console");
     }
   };
 
-  // UPDATE 
   const handleUpdateClass = async (updatedData: ClassItem) => {
     try {
       const teacherIdNum = parseInt(updatedData.teacher.replace("Teacher ID: ", "")) || 0;
@@ -93,8 +110,8 @@ export default function Classes() {
   const filteredClasses = classes.filter(
     (classItem) =>
       classItem.className.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      classItem.teacher.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      classItem.timetable.toLowerCase().includes(searchQuery.toLowerCase())
+      classItem.teacher.toLowerCase().includes(searchQuery.toLowerCase())
+      // classItem.timetable.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   interface AddClassModalProps {
@@ -202,10 +219,10 @@ export default function Classes() {
               <label className="block text-lg font-medium text-gray-700 mb-2">Teacher (ID)</label>
               <input name="teacher" value={formData.teacher} onChange={handleChange} className="w-full p-3 border border-gray-300 rounded-lg text-lg focus:ring-blue-500 focus:border-blue-500" />
             </div>
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="block text-lg font-medium text-gray-700 mb-2">Date & Time</label>
               <input name="timetable" value={formData.timetable} onChange={handleChange} readOnly className="w-full p-3 border border-gray-300 rounded-lg text-lg bg-gray-100 text-gray-500" />
-            </div>
+            </div> */}
             <div className="flex justify-end space-x-4">
               <button onClick={onClose} className="px-12 py-3 rounded-xl min-w-[100px] md:min-w-[130px] h-[60px] text-lg font-semibold border-2 border-gray-300 text-gray-700 hover:bg-gray-100">Cancel</button>
               <button onClick={() => { onSave(formData); onClose(); }} className="px-6 py-3 rounded-[10px] min-w-[100px] md:min-w-[130px] h-[60px] flex items-center justify-center text-2xl font-bold border-none tracking-[0.03em] leading-[117.504%] bg-[#9CB0C9] text-white hover:bg-[#8BA0B8] transition-colors">Save Changes</button>
@@ -234,17 +251,19 @@ export default function Classes() {
           
           <div className="flex justify-between items-center mb-12">
             <h1 className="text-[#665B4E] font-bold text-3xl">
-              Classes - Sorted a - z
+              Classes
             </h1>
 
             <div className="flex gap-4">
+                            {isAdmin && (
+
               <button 
                 onClick={() => setIsAddModalOpen(true)} 
                 className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
               >
                 + Add Class
               </button>
-              
+                            )}
               <input
                 type="text"
                 placeholder="Search..."
@@ -259,8 +278,8 @@ export default function Classes() {
             <div>ID</div>
             <div>Class Name</div>
             <div className="col-span-2">Teacher</div>
-            <div>Timetable</div>
-            <div>Action</div>
+            {/* <div>Timetable</div> */}
+            {isAdmin && <div>Actions</div>}
           </div>
 
           {isLoading ? (
@@ -278,9 +297,11 @@ export default function Classes() {
                     <div>{classItem.id}</div>
                     <div>{classItem.className}</div>
                     <div className="col-span-2 text-[#665B4E]/80">{classItem.teacher}</div>
-                    <div className="text-[#665B4E]/80">{classItem.timetable}</div>
+                    {/* <div className="text-[#665B4E]/80">{classItem.timetable}</div> */}
                     <div>
-                      <EditButton initialClassData={classItem} onUpdateClass={handleUpdateClass} />
+                                            {isAdmin && (
+
+                      <EditButton initialClassData={classItem} onUpdateClass={handleUpdateClass} /> )}
                     </div>
                   </div>
                 ))

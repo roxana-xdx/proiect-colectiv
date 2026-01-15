@@ -1,17 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { userService } from "../services/userService.ts";
 import { UserType } from "../types/user";
 
 const navItems = [
-  { name: "Teachers", path: "/teachers", allowedTypes: ["ADMIN"] },
+  { name: "Teachers", path: "/teachers", allowedTypes: ["ADMIN", "PARENT", "PUPIL"] },
   { name: "Students", path: "/students", allowedTypes: ["ADMIN", "TEACHER"] },
-  { name: "Classes", path: "/classes", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
+  { name: "Classes", path: "/classes", allowedTypes: ["ADMIN", "TEACHER", "PUPIL", "PARENT"] },
   { name: "Parents", path: "/parents", allowedTypes: ["ADMIN", "TEACHER"] },
-  { name: "News", path: "/news", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
-  { name: "Payments", path: "/payments", allowedTypes: ["ADMIN"] },
-  { name: "Subjects", path: "/subjects", allowedTypes: ["ADMIN", "TEACHER", "STUDENT", "PARENT"] },
-  { name: "Feedback", path: "/feedback", allowedTypes: ["TEACHER"] },
+  { name: "News", path: "/news", allowedTypes: ["ADMIN", "TEACHER", "PUPIL", "PARENT"] },
+  { name: "Payments", path: "/payment", allowedTypes: ["ADMIN"] },
+  { name: "Subjects", path: "/subjects", allowedTypes: ["ADMIN", "TEACHER", "PUPIL", "PARENT"] },
+  { name: "Feedback", path: "/feedback", allowedTypes: ["ADMIN", "TEACHER"] },
+  {name: "Schedule", path: "/schedule", allowedTypes: ["ADMIN", "TEACHER", "PUPIL", "PARENT"]},
 ];
 
  interface UserItem {
@@ -32,8 +32,13 @@ export default function Navigation() {
   const fetchUser = async () => {
     try {
       setIsLoading(true);
-      const response = await userService.getAll();
-      setUser(response.data);
+      var user = localStorage.getItem("user");
+
+      if (user) {
+        setUser(JSON.parse(user));
+        return;
+      }
+
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {

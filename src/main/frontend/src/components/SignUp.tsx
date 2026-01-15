@@ -16,6 +16,8 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    localStorage.clear();
+
     if (password !== confirmPassword) {
       alert("Passwords don't match!");
       return;
@@ -40,7 +42,7 @@ export default function SignUp() {
       navigate("/landingpage");
     } catch (error: any) {
       console.error("Registration failed:", error);
-      alert("Registration failed. Please try again.");
+      alert("Error while registering an account - check console");
     } finally {
       setLoading(false);
     }

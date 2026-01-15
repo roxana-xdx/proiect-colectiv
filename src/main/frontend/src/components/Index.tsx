@@ -19,7 +19,6 @@ export default function Index() {
       console.log(response.data.email + " < email");
       console.log(response.data.type + " < type");
 
-
       localStorage.setItem("user", JSON.stringify(response.data));
 
       navigate("/landingpage");

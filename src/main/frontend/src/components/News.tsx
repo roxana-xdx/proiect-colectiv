@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Navigation from "./Navigation.tsx";
 import { classAnnouncementService } from "../services/classAnnouncementService.ts"; 
-import { CreateClassAnnouncementRequest, UpdateClassAnnouncementRequest } from "../types/classAnnouncement.ts";
+import { UserType } from "../types/user.ts"; 
 
 interface NewsItem {
   id: number;
@@ -14,15 +14,33 @@ interface NewsItem {
   adminName: string;
 }
 
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
+}
+
 export default function News() {
+  const navigate = useNavigate();
+
   const [newsItems, setNewsItems] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<UserItem | null>(null);
 
   //  GET THE DATA
   useEffect(() => {
     fetchNews();
+        fetchUser(); 
+
   }, []);
+  const fetchUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+    const isAdmin = user?.type === "ADMIN" || user?.type === "TEACHER";
 
   const fetchNews = async () => {
     try {
@@ -32,8 +50,8 @@ export default function News() {
 
       const mappedData: NewsItem[] = response.data.map((dto) => ({
           id: dto.announcementId,
-          adminID: dto.adminId,
-          classID: dto.classId,
+          adminID: dto.admin_id,
+          classID: dto.class_id,
           message: dto.message,
           date: new Date(dto.date),
           adminEmail: dto.adminEmail,
@@ -71,15 +89,18 @@ export default function News() {
       <Navigation />
 
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-16 py-8">
-        {/* Header Section with Navigation to "Add News" */}
+        {/* header section */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-[#665B4E] font-bold text-3xl">News</h1>
-          <Link 
-            to="/addnews" 
-            className="bg-[#665B4E] text-white px-6 py-2 rounded-full font-bold hover:bg-[#665B4E]/90 transition-all"
-          >
-            + Add News
-          </Link>
+        {/* render the add button for admins only*/}
+              {isAdmin && (
+                <button 
+                  onClick={() => navigate('/addnews')} 
+                  className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold"
+                >
+                  + Add News
+                </button>
+              )}
         </div>
 
         <div className="bg-[#EFE9E3] rounded-[30px] p-6 md:p-12 lg:p-16">
@@ -87,7 +108,7 @@ export default function News() {
             
             {isLoading && <p className="text-[#665B4E] text-center">Loading news...</p>}
 
-            {error && <p className="text-red-600 text-center">{error}</p>}
+            {error && <p className="text-white text-center">{error}</p>}
 
             {!isLoading && newsItems.length === 0 && (
               <p className="text-[#665B4E]/60 text-center">No news available at the moment.</p>

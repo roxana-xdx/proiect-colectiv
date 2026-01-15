@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Navigation from "./Navigation.tsx";
 
-// Service and Types
 import { pupilService } from "../services/pupilService.ts";
+import { userService } from "../services/userService.ts";
 import { CreatePupilRequest, UpdatePupilRequest } from "../types/pupil.ts";
+import { RegisterRequest, UserType } from "../types/user.ts";
 
-// This interface is for our Frontend UI state
 interface PupilItem {
   id: number;
   email: string;
@@ -14,17 +14,32 @@ interface PupilItem {
   parent_id: number;
 }
 
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
+}
+
 export default function Students() {
   const [pupils, setpupils] = useState<PupilItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  
+  const [user, setUser] = useState<UserItem | null>(null);
 
-  // --- FETCH DATA ---
   useEffect(() => {
     fetchpupils();
+    fetchUser();
+
   }, []);
+    const fetchUser = () => {
+    const storedUser = localStorage.getItem("user"); // web cookies from temu 
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+
+  const isAdmin = user?.type === "ADMIN";
 
   const fetchpupils = async () => {
     try {
@@ -47,15 +62,24 @@ export default function Students() {
     }
   };
 
-  const handleAddpupil = async (email:string, name:string, class_id: number, parent_id: number) => {
+  const handleAddpupil = async (email: string, name:string, password: string, class_id: number, parent_id: number, type: UserType) => {
     try {
-      const payload: CreatePupilRequest = { 
+      const payload: RegisterRequest = { 
         email : email, 
-        class_id: class_id, 
-        parent_id: parent_id
+        password: password,
+        name: name,
+        type: type,
       };
 
-      const response = await pupilService.create(payload);
+      const newUser = await userService.register(payload);
+
+      const newPupilRequest: CreatePupilRequest = {
+        email: newUser.data.email,
+        class_id: -1,
+        parent_id: -1
+      }
+
+      const response = await pupilService.create(newPupilRequest);
       
       const newDTO = response.data;
 
@@ -75,28 +99,28 @@ export default function Students() {
     }
   };
 
-  const handleUpdatepupil = async (updatedData: PupilItem) => {
-    try {
-      const requestPayload: UpdatePupilRequest = {
-        email: updatedData.email
-      } as any;
+  // const handleUpdatepupil = async (updatedData: PupilItem) => {
+  //   try {
+  //     const requestPayload: UpdatePupilRequest = {
+  //       email: updatedData.email
+  //     } as any;
 
-      await pupilService.update(updatedData.id, requestPayload);
+  //     await pupilService.update(updatedData.id, requestPayload);
 
-      setpupils((prev) =>
-        prev.map((t) => (t.id === updatedData.id ? updatedData : t))
-      );
-    } catch (error) {
-      console.error("Failed to update pupil:", error);
-      alert("Failed to save changes.");
-    }
-  };
+  //     setpupils((prev) =>
+  //       prev.map((t) => (t.id === updatedData.id ? updatedData : t))
+  //     );
+  //   } catch (error) {
+  //     console.error("Failed to update pupil:", error);
+  //     alert("Error while saving changes - check console");
+  //   }
+  // };
 
-  const filteredpupils = pupils.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // const filteredpupils = pupils.filter(
+  //   (item) =>
+  //     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     item.email.toLowerCase().includes(searchQuery.toLowerCase())
+  // );
 
   // interface EditPupilModalProps {
   //   isOpen: boolean;
@@ -113,15 +137,17 @@ export default function Students() {
   interface AddPupilModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onAdd: (email: string, name: string, class_id: number, parent_id: number) => void;
+    onAdd: (email: string, name: string, password: string, class_id: number, parent_id: number, type: UserType) => void;
   }
 
 
   const AddPupilModal: React.FC<AddPupilModalProps> = ({ isOpen, onClose, onAdd }) => {
     const [email, setEmail] = useState("");
     const [name, setName] = useState("");
+    const [password, setPassword] = useState("");
     const [class_id, setClassID] = useState("");
     const [parent_id, setParentID] = useState("");
+    const [type, setType] = useState<UserType>(UserType.PUPIL);
 
         const handleSubmit = () => {
         if(!name || !email) {
@@ -132,11 +158,12 @@ export default function Students() {
         // convert string input to number for backend
         const cID = parseInt(class_id) || -1; 
         const pID = parseInt(parent_id) || -1;
-        onAdd(email, name, cID, pID);
+        onAdd(email, name, password, cID, pID, type);
 
         // reset form
         setEmail("");
         setName("");
+        setPassword("");
         setClassID("");
         setParentID("");
     };
@@ -203,56 +230,41 @@ export default function Students() {
     );
   };
 
-  const EditButton = ({ initialData, onUpdate }: { initialData: PupilItem, onUpdate: (data: PupilItem) => void }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState<PupilItem>(initialData);
+  // const EditButton = ({ initialData, onUpdate }: { initialData: PupilItem, onUpdate: (data: PupilItem) => void }) => {
+  //   const [isModalOpen, setIsModalOpen] = useState(false);
+  //   const [formData, setFormData] = useState<PupilItem>(initialData);
 
-    return (
-      <>
-        <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold">
-          Edit
-        </button>
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
-              <h3 className="text-2xl font-bold mb-4">Edit pupil</h3>
-              <div className="space-y-4 mb-6">
-                <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
-                <input value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full p-3 border rounded-lg" />
-                <input value={formData.class_id} onChange={(e) => setFormData({...formData, class_id: parseInt(e.target.value)})} className="w-full p-3 border rounded-lg" />
-                <input value={formData.parent_id} onChange={(e) => setFormData({...formData, parent_id: parseInt(e.target.value)})} className="w-full p-3 border rounded-lg" />
-              </div>
-              <div className="flex justify-end space-x-4">
-                <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 border rounded-lg">Cancel</button>
-                <button onClick={() => { onUpdate(formData); setIsModalOpen(false); }} className="px-6 py-2 bg-[#9CB0C9] text-white rounded-lg">Save</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
+  //   return (
+  //     <>
+  //       <button onClick={() => setIsModalOpen(true)} className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold">
+  //         Edit
+  //       </button>
+  //       {isModalOpen && (
+  //         <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+  //           <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+  //             <h3 className="text-2xl font-bold mb-4">Edit pupil</h3>
+  //             <div className="space-y-4 mb-6">
+  //               <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full p-3 border rounded-lg" />
+  //               <input value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full p-3 border rounded-lg" />
+  //               <input value={formData.class_id} onChange={(e) => setFormData({...formData, class_id: parseInt(e.target.value)})} className="w-full p-3 border rounded-lg" />
+  //               <input value={formData.parent_id} onChange={(e) => setFormData({...formData, parent_id: parseInt(e.target.value)})} className="w-full p-3 border rounded-lg" />
+  //             </div>
+  //             <div className="flex justify-end space-x-4">
+  //               <button onClick={() => setIsModalOpen(false)} className="px-6 py-2 border rounded-lg">Cancel</button>
+  //               <button onClick={() => { onUpdate(formData); setIsModalOpen(false); }} className="px-6 py-2 bg-[#9CB0C9] text-white rounded-lg">Save</button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //     </>
+  //   );
+  // };
 
   return (
     <div className="min-h-screen bg-[#F9F8F6]">
       <Navigation />
       <div className="max-w-[1440px] mx-auto px-4 py-8">
         <div className="bg-[#EFE9E3] rounded-[30px] p-6 md:p-12">
-          
-          {/*<div className="flex justify-between items-center mb-12">
-            <h1 className="text-[#665B4E] font-bold text-3xl">Pupil Directory</h1>
-            <div className="flex gap-4">
-              <button onClick={() => setIsAddModalOpen(true)} className="px-6 py-3 rounded-xl bg-[#9CB0C9] text-white font-bold">
-                + Add pupil
-              </button>
-              <input 
-                placeholder="Search..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="px-6 py-3 rounded-xl focus:outline-none"
-              />
-            </div>
-          </div>*/}
 
         <div className="flex w-full items-center justify-between">
           <h1 className="text-[#665B4E] font-bold text-3xl">Students Directory</h1>
@@ -269,10 +281,10 @@ export default function Students() {
             <div>Name</div>
             <div>Class ID</div>
             <div>Parent ID</div>
-            <div>Actions</div>
+            {isAdmin && <div>Actions</div>}
           </div>
 
-          {isLoading ? (
+          {/* {isLoading ? (
             <div className="text-center py-10">Loading...</div>
           ) : (
             <div className="space-y-4">
@@ -283,15 +295,21 @@ export default function Students() {
                   <div>{pupil.name}</div>
                   <div>{pupil.class_id}</div>
                   <div>{pupil.parent_id}</div>
-                  <div> <EditButton initialData={pupil} onUpdate={handleUpdatepupil} /> </div>
-                </div>
+                    <div>
+                      {isAdmin && (
+                        <EditButton 
+                          initialData={pupil} 
+                          onUpdate={handleUpdatepupil} 
+                        />
+                      )}
+                    </div>                </div>
               ))}
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
-      <AddPupilModal 
+      <AddPupilModal
         isOpen={isAddModalOpen} 
         onClose={() => setIsAddModalOpen(false)} 
         onAdd={handleAddpupil} 

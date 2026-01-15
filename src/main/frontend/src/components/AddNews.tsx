@@ -7,8 +7,8 @@ import { CreateClassAnnouncementRequest } from '../types/classAnnouncement';
 export default function App() {
 const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [adminId, setAdminId] = useState(''); 
-  const [classId, setClassId] = useState(''); 
+  const [admin_id, setAdminId] = useState(''); 
+  const [class_id, setClassId] = useState(''); 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 const handleGoBack = () => {
@@ -17,8 +17,8 @@ const handleGoBack = () => {
 
 const handlePost = async () => {
 
-    if (!adminId || !classId || !content.trim()) {
-      alert("Please fill in the Admin ID, Class ID, and Content.");
+    if (!admin_id || !class_id || !content.trim()) {
+      alert("Fill in the Admin ID, Class ID, and content.");
       return;
     }
 
@@ -26,11 +26,11 @@ const handlePost = async () => {
       setIsSubmitting(true);
 
       const payload: CreateClassAnnouncementRequest = {
-        adminId: Number(adminId),
-        classId: Number(classId),
-        // Combining title and content into the message field
-        message: title ? `Title: ${title}\n\n${content}` : content,
-        date: new Date(),
+        admin_id: Number(admin_id),
+        class_id: Number(class_id),
+
+        message: title ? `${title} | ${content}` : content,
+        date: new Date().toISOString().slice(0, 10)
       };
 
       await classAnnouncementService.create(payload);
@@ -38,7 +38,7 @@ const handlePost = async () => {
       navigate("/news");
     } catch (error) {
       console.error("Failed to post news:", error);
-      alert("Error posting announcement. Check the console for details.");
+      alert("Error while posting - check console");
     } finally {
       setIsSubmitting(false);
     }
@@ -49,15 +49,8 @@ const handlePost = async () => {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <button className="text-[#6b5744] flex items-center gap-2 hover:text-[#4a3d2f] transition-colors" onClick={handleGoBack}>
-            &lt; Back to Dashboard
+            &lt; Home
           </button>
-          {/* <div className="flex gap-3"> */}
-            {/* <button className="px-5 py-2 bg-[#a89178] text-[#f5f0e8] rounded hover:bg-[#9a8168] transition-colors">
-              Save as Draft
-            </button> */}
-            {/* <button className="px-5 py-2 bg-[#8b7260] text-[#f5f0e8] rounded hover:bg-[#7a6250] transition-colors">
-              Start Notes
-            </button> */}
            <button 
             onClick={handlePost}
             disabled={isSubmitting}
@@ -67,18 +60,17 @@ const handlePost = async () => {
           >
             {isSubmitting ? "Posting..." : "Post"}
           </button>
-          {/* </div> */}
         </div>
 <div className="bg-[#f5f0e8] rounded-lg shadow-lg p-8">
           
-          {/* Inputs  */}
+          {/* input fields */}
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <label className="block text-xs font-bold text-[#6b5744] uppercase mb-1">Admin ID</label>
               <input
                 type="number"
                 placeholder="Enter your ID"
-                value={adminId}
+                value={admin_id}
                 onChange={(e) => setAdminId(e.target.value)}
                 className="w-full p-2 bg-[#e8dfd0] rounded border-none outline-none text-[#4a3d2f]"
               />
@@ -88,7 +80,7 @@ const handlePost = async () => {
               <input
                 type="number"
                 placeholder="Target Class ID"
-                value={classId}
+                value={class_id}
                 onChange={(e) => setClassId(e.target.value)}
                 className="w-full p-2 bg-[#e8dfd0] rounded border-none outline-none text-[#4a3d2f]"
               />
@@ -97,7 +89,7 @@ const handlePost = async () => {
 
         <hr className="border-[#d4c4b0] mb-6" />
 
-          {/* Toolbar */}
+          {/* fancy toolbar that may or may not do stuff */}
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[#d4c4b0]">
             <button className="p-2 hover:bg-[#e8dfd0] rounded text-[#6b5744]"><Bold size={18} /></button>
             <button className="p-2 hover:bg-[#e8dfd0] rounded text-[#6b5744]"><Italic size={18} /></button>
@@ -114,7 +106,6 @@ const handlePost = async () => {
             className="w-full text-2xl mb-6 bg-transparent border-none outline-none placeholder-[#b5a692] text-[#4a3d2f] font-bold"
           />
           
-          {/* News Content */}
           <textarea
             placeholder="Add Text"
             value={content}

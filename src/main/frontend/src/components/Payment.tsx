@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navigation from "./Navigation.tsx";
 import { paymentService } from "../services/paymentService.ts";
 import { CreatePaymentRequest, PaymentStatus, PaymentMethod, UpdatePaymentRequest } from "../types/payments.ts";
+import { UserType } from "../types/user.ts";
 
 interface PaymentItem {
   id: number;
@@ -14,18 +15,31 @@ interface PaymentItem {
   method: PaymentMethod;
   status: PaymentStatus;
 }
+interface UserItem {
+  email: string;
+  name: string;
+  type: UserType;
+}
 
 export default function Payment() {
   const [payments, setPayments] = useState<PaymentItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [user, setUser] = useState<UserItem | null>(null);
 
   const formatDateTime = (date: Date): string => {
     return date.toISOString().replace('T', ' ').substring(0, 19);
   };
 
-  useEffect(() => { fetchPayments(); }, []);
+  useEffect(() => { fetchPayments(); fetchUser(); }, []);
+  const fetchUser = () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  };
+    const isAdmin = user?.type === "ADMIN";
 
   const fetchPayments = async () => {
     try {
@@ -58,7 +72,7 @@ export default function Payment() {
         amount: amount,
         due_date: formattedDueDate,
         description: description,
-        payment_method: PaymentMethod.CASH // Default for new
+        payment_method: PaymentMethod.CASH
       };
 
       const response = await paymentService.create(payload);
@@ -83,30 +97,40 @@ export default function Payment() {
     }
   };
 
-const handleUpdatePayment = async (updatedData: PaymentItem) => {
+// const handleUpdatePayment = async (updatedData: PaymentItem) => {
+//     try {
+      
+//       // lmao
+//       alert("Update functionality is currently under development (To be implemented).");
+
+//       /* // Logic to be enabled once backend is ready:
+//       const requestPayload: UpdatePaymentRequest = { 
+//           amount: updatedData.amount,
+//           due_date: updatedData.dueDate,
+//           description: updatedData.description,
+//           payment_method: updatedData.method,
+//           status: updatedData.status
+//       };
+//       await paymentService.update(updatedData.id, requestPayload);
+//       */
+
+//       // This allows the admin to see the changes in the list immediately - but wont persist yet
+//       setPayments((prevPayments) =>
+//         prevPayments.map((p) => (p.id === updatedData.id ? updatedData : p))
+//       );
+
+//     } catch (error) {
+//       console.error("Failed to update payment:", error);
+//       alert("Error updating payment - check console.");
+//     }
+//   };
+
+  const handleDelete = async (id: number) => {
     try {
-      // Alert the admin that the feature is still in progress
-      alert("Update functionality is currently under development (To be implemented).");
-
-      /* // Logic to be enabled once backend is ready:
-      const requestPayload: UpdatePaymentRequest = { 
-          amount: updatedData.amount,
-          due_date: updatedData.dueDate,
-          description: updatedData.description,
-          payment_method: updatedData.method,
-          status: updatedData.status
-      };
-      await paymentService.update(updatedData.id, requestPayload);
-      */
-
-      // This allows the admin to see the changes in the list immediately - but wont persist yet
-      setPayments((prevPayments) =>
-        prevPayments.map((p) => (p.id === updatedData.id ? updatedData : p))
-      );
-
+      await paymentService.delete(id);
+      setPayments((prev) => prev.filter((p) => p.id !== id));
     } catch (error) {
-      console.error("Failed to update payment:", error);
-      alert("An unexpected error occurred.");
+      console.error("Delete failed:", error);
     }
   };
 
@@ -115,7 +139,7 @@ const handleUpdatePayment = async (updatedData: PaymentItem) => {
     p.id.toString().includes(searchQuery)
   );
 
-  // --- MODAL COMPONENTS ---
+  
 
   const AddPaymentModal = ({ isOpen, onClose, onAdd }: any) => {
     const [email, setEmail] = useState("");
@@ -144,35 +168,35 @@ const handleUpdatePayment = async (updatedData: PaymentItem) => {
     );
   };
 
-  const EditButton = ({ initialPaymentData, onUpdatePayment }: { initialPaymentData: PaymentItem, onUpdatePayment: (d: PaymentItem) => void }) => {
-    const [open, setOpen] = useState(false);
-    const [form, setForm] = useState(initialPaymentData);
+  // const EditButton = ({ initialPaymentData, onUpdatePayment }: { initialPaymentData: PaymentItem, onUpdatePayment: (d: PaymentItem) => void }) => {
+  //   const [open, setOpen] = useState(false);
+  //   const [form, setForm] = useState(initialPaymentData);
 
-    return (
-      <>
-        <button onClick={() => setOpen(true)} className="bg-[#9CB0C9] text-white px-4 py-2 rounded">Edit</button>
-        {open && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-xl w-full max-w-md text-black">
-              <h3 className="text-xl font-bold mb-4">Edit Payment #{form.id}</h3>
-              <label className="text-sm">Status</label>
-              <select className="w-full p-2 border mb-3" value={form.status} onChange={e => setForm({...form, status: e.target.value as PaymentStatus})}>
-                {Object.values(PaymentStatus).map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-              <label className="text-sm">Method</label>
-              <select className="w-full p-2 border mb-4" value={form.method} onChange={e => setForm({...form, method: e.target.value as PaymentMethod})}>
-                {Object.values(PaymentMethod).map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <div className="flex justify-end gap-2">
-                <button onClick={() => setOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
-                <button onClick={() => { onUpdatePayment(form); setOpen(false); }} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  };
+  //   return (
+  //     <>
+  //       <button onClick={() => setOpen(true)} className="bg-[#9CB0C9] text-white px-4 py-2 rounded">Edit</button>
+  //       {open && (
+  //         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+  //           <div className="bg-white p-8 rounded-xl w-full max-w-md text-black">
+  //             <h3 className="text-xl font-bold mb-4">Edit Payment #{form.id}</h3>
+  //             <label className="text-sm">Status</label>
+  //             <select className="w-full p-2 border mb-3" value={form.status} onChange={e => setForm({...form, status: e.target.value as PaymentStatus})}>
+  //               {Object.values(PaymentStatus).map(s => <option key={s} value={s}>{s}</option>)}
+  //             </select>
+  //             <label className="text-sm">Method</label>
+  //             <select className="w-full p-2 border mb-4" value={form.method} onChange={e => setForm({...form, method: e.target.value as PaymentMethod})}>
+  //               {Object.values(PaymentMethod).map(m => <option key={m} value={m}>{m}</option>)}
+  //             </select>
+  //             <div className="flex justify-end gap-2">
+  //               <button onClick={() => setOpen(false)} className="px-4 py-2 border rounded">Cancel</button>
+  //               <button onClick={() => { onUpdatePayment(form); setOpen(false); }} className="px-4 py-2 bg-blue-600 text-white rounded">Save</button>
+  //             </div>
+  //           </div>
+  //         </div>
+  //       )}
+  //     </>
+  //   );
+  // };
 
   return (
     <div className="min-h-screen bg-[#F9F8F6]">
@@ -187,16 +211,16 @@ const handleUpdatePayment = async (updatedData: PaymentItem) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-4 border-b pb-4 mb-6 font-bold text-[#665B4E]">
+          <div className="grid grid-cols-8 gap-4 border-b pb-4 mb-6 font-bold text-[#665B4E]">
             <div>ID</div>
             <div>Email</div>
             <div>Amount</div>
             <div>Due Date</div>
             <div>Method</div>
             <div>Status</div>
-            <div>Action</div>
+            {/* {isAdmin && <div>Actions</div>} */}
+            {isAdmin && <div>Delete</div>}
           </div>
-
           {isLoading ? <div className="text-center py-10">Loading...</div> : (
             <div className="space-y-4">
               {filteredPayments.map((p) => (
@@ -207,14 +231,28 @@ const handleUpdatePayment = async (updatedData: PaymentItem) => {
                   <div className="text-sm">{p.dueDate.split(' ')[0]}</div>
                   <div className="text-xs bg-white/50 rounded px-2 py-1 w-fit">{p.method}</div>
                   <div className={`text-xs font-bold ${p.status === 'PAID' ? 'text-green-600' : 'text-orange-600'}`}>{p.status}</div>
-                  <EditButton initialPaymentData={p} onUpdatePayment={handleUpdatePayment} />
-                </div>
-              ))}
-            </div>
+                      {/* {isAdmin && (
+                        <EditButton 
+                          initialPaymentData={p} 
+                          onUpdatePayment={handleUpdatePayment} 
+                        />
+                      )}   */}
+                  <div>
+                    {isAdmin && (
+                      <button 
+                        onClick={() => handleDelete(p.id)} 
+                        className="bg-[#9CB0C9] text-white px-4 py-2 rounded text-xl font-bold mb-4"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>))}
+        </div>
           )}
+      <AddPaymentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={handleAddPayment} />
         </div>
       </div>
-      <AddPaymentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onAdd={handleAddPayment} />
     </div>
   );
 }
