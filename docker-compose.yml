@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: proiect-colectiv-db
+    environment:
+      POSTGRES_DB: proiectcolectiv
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  backend:
+    build: .
+    container_name: proiect-colectiv-backend
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/proiectcolectiv
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+
+  frontend:
+    image: node:20
+    container_name: proiect-colectiv-frontend
+    working_dir: /app
+    volumes:
+      - ./src/main/frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      REACT_APP_API_URL: http://localhost:8080/api
+    command: sh -c "npm install && npm start"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+    driver: local
