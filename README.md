@@ -1,6 +1,6 @@
 # After-School Management App
 
-Communication within after-school programs is frequently hindered by unorganized information. To address this, our team proposes a comprehensive **After-School Management App** designed to centralize communication and ensure the smooth running of daily activities. Our team developed this project as part of a university course during this semester.
+Communication within after-school programs is frequently hindered by unorganized information. To address this, our team proposes a comprehensive **After-School Management App** designed to centralize communication and ensure the smooth running of daily activities. This project was developed as part of a university course during this semester.
 
 **Key Functionalities by User Role**
 
