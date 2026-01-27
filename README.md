@@ -2,7 +2,7 @@
 
 Communication within after-school programs is frequently hindered by unorganized information. To address this, our team proposes a comprehensive **After-School Management App** designed to centralize communication and ensure the smooth running of daily activities. This project was developed as part of a university course during this semester.
 
-**Key Functionalities by User Role**
+## Key Functionalities by User Role
 
 The system is built around four distinct user flows, each tailored to specific needs:
 
@@ -23,3 +23,21 @@ The system is built around four distinct user flows, each tailored to specific n
 **Student:**
 - accesses their feedback to monitor progress
 - views their daily schedule and stays up to date with community announcements
+
+## Tech Stack and Tools
+**Backend:**
+- Java 17
+- Spring Boot (v3.5.7): Spring Web, Spring Data JPA, Spring Boot Starter Validation
+- PostgreSQL
+- Flyway (v11.7.2)
+
+**Frontend:**
+- React.js (v18.3.1)
+- Tailwind CSS (v3.4.18)
+- Radix UI
+- Axios (v1.13.2)
+
+**Collaboration and Testing:**
+- Docker
+- Git and GitHub
+- Postman
